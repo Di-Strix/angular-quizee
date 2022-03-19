@@ -1,0 +1,14 @@
+{
+  "targets": {
+    "angular-quizee": {
+      "hosting": {
+        "angular-quizee": [
+          "angular-quizee"
+        ]
+      }
+    }
+  },
+  "projects": {
+    "default": "angular-quizee"
+  }
+}
