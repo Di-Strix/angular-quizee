@@ -9,4 +9,5 @@ export const firebase = {
   authDomain: '',
   messagingSenderId: '',
   measurementId: '',
+  reCAPTCHAv3Token: '',
 };

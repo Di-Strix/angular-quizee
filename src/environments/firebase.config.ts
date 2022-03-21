@@ -1,4 +1,4 @@
-// execute the command below to stop tracking this file: 
+// execute the command below to stop tracking this file:
 // git update-index --skip-worktree ./src/environments/firebase.config.ts
 
 export const firebase = {
@@ -9,4 +9,5 @@ export const firebase = {
   authDomain: '',
   messagingSenderId: '',
   measurementId: '',
+  reCAPTCHAv3Token: '',
 };
