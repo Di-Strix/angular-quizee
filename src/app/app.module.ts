@@ -6,6 +6,7 @@ import { connectAuthEmulator, getAuth, provideAuth } from '@angular/fire/auth';
 import { connectDatabaseEmulator, getDatabase, provideDatabase } from '@angular/fire/database';
 import { connectFunctionsEmulator, getFunctions, provideFunctions } from '@angular/fire/functions';
 import { BrowserModule } from '@angular/platform-browser';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { environment } from '../environments/environment';
 import { EmulatorConfig, EmulatorType } from '../environments/firebase.config.interface';
@@ -58,6 +59,7 @@ const withEmulator = <ProviderType>(
         isTokenAutoRefreshEnabled: true,
       });
     }),
+    BrowserAnimationsModule,
   ],
   providers: [ScreenTrackingService, UserTrackingService],
   bootstrap: [AppComponent],
