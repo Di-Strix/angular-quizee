@@ -18,6 +18,7 @@
   ],
   "importOrderParserPlugins": [
     "classProperties",
+    "typescript",
     "[\"decorators\", { \"decoratorsBeforeExport\": true }]"
   ],
   "importOrderSeparation": true,
