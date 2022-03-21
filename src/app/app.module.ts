@@ -14,6 +14,7 @@ import {
 import { provideAuth, getAuth } from '@angular/fire/auth';
 import { provideDatabase, getDatabase } from '@angular/fire/database';
 import { provideFunctions, getFunctions } from '@angular/fire/functions';
+import { initializeAppCheck, provideAppCheck, ReCaptchaV3Provider } from '@angular/fire/app-check';
 
 @NgModule({
   declarations: [AppComponent],
@@ -25,6 +26,10 @@ import { provideFunctions, getFunctions } from '@angular/fire/functions';
     provideAuth(() => getAuth()),
     provideDatabase(() => getDatabase()),
     provideFunctions(() => getFunctions()),
+    provideAppCheck(() => {
+      const provider = new ReCaptchaV3Provider(environment.firebase.reCAPTCHAv3Token);
+      return initializeAppCheck(undefined, {provider, isTokenAutoRefreshEnabled: true});
+    })
   ],
   providers: [ScreenTrackingService, UserTrackingService],
   bootstrap: [AppComponent],
