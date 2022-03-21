@@ -28,10 +28,11 @@ import { initializeAppCheck, provideAppCheck, ReCaptchaV3Provider } from '@angul
     provideFunctions(() => getFunctions()),
     provideAppCheck(() => {
       const provider = new ReCaptchaV3Provider(environment.firebase.reCAPTCHAv3Token);
-      return initializeAppCheck(undefined, {provider, isTokenAutoRefreshEnabled: true});
-    })
+      return initializeAppCheck(undefined, { provider, isTokenAutoRefreshEnabled: true });
+    }),
   ],
   providers: [ScreenTrackingService, UserTrackingService],
   bootstrap: [AppComponent],
 })
-export class AppModule {}
+export class AppModule {
+}
