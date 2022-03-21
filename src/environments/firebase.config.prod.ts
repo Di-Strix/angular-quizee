@@ -1,4 +1,6 @@
-export const firebase = {
+import { FirebaseConfig } from './firebase.config.interface';
+
+export const firebase: FirebaseConfig = {
   projectId: '',
   appId: '',
   storageBucket: '',
