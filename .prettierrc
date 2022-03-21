@@ -9,5 +9,17 @@
   "bracketSameLine": false,
   "arrowParens": "always",
   "endOfLine": "lf",
-  "singleAttributePerLine": true
+  "singleAttributePerLine": true,
+  "importOrder": [
+    "^@(.*)$",
+    "^\\w(.*)$",
+    "^../(.*)$",
+    "^./(.*)$"
+  ],
+  "importOrderParserPlugins": [
+    "classProperties",
+    "[\"decorators\", { \"decoratorsBeforeExport\": true }]"
+  ],
+  "importOrderSeparation": true,
+  "importOrderSortSpecifiers": true
 }
