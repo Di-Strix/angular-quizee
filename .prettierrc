@@ -11,8 +11,10 @@
   "endOfLine": "lf",
   "singleAttributePerLine": true,
   "importOrder": [
-    "^\\../(.*)$",
-    "^[./]"
+    "^@(.*)$",
+    "^\\w(.*)$",
+    "^../(.*)$",
+    "^./(.*)$"
   ],
   "importOrderParserPlugins": [
     "classProperties",
