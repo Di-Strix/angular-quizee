@@ -33,14 +33,8 @@
     "@types/jasmine": "~3.10.0",
     "@types/jest": "^27.4.1",
     "@types/node": "^12.11.1",
-    "jasmine-core": "~4.0.0",
     "jest": "^27.5.1",
     "jest-preset-angular": "^11.1.1",
-    "karma": "~6.3.0",
-    "karma-chrome-launcher": "~3.1.0",
-    "karma-coverage": "~2.1.0",
-    "karma-jasmine": "~4.0.0",
-    "karma-jasmine-html-reporter": "~1.7.0",
     "prettier": "^2.6.0",
     "typescript": "~4.6.2"
   }
