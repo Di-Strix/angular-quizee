@@ -2,15 +2,38 @@ import { NgModule } from '@angular/core';
 import { ScreenTrackingService, UserTrackingService, getAnalytics, provideAnalytics } from '@angular/fire/analytics';
 import { initializeApp, provideFirebaseApp } from '@angular/fire/app';
 import { ReCaptchaV3Provider, initializeAppCheck, provideAppCheck } from '@angular/fire/app-check';
-import { getAuth, provideAuth } from '@angular/fire/auth';
-import { getDatabase, provideDatabase } from '@angular/fire/database';
-import { getFunctions, provideFunctions } from '@angular/fire/functions';
+import { connectAuthEmulator, getAuth, provideAuth } from '@angular/fire/auth';
+import { connectDatabaseEmulator, getDatabase, provideDatabase } from '@angular/fire/database';
+import { connectFunctionsEmulator, getFunctions, provideFunctions } from '@angular/fire/functions';
 import { BrowserModule } from '@angular/platform-browser';
 
 import { environment } from '../environments/environment';
+import { EmulatorConfig, EmulatorType } from '../environments/firebase.config.interface';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
+
+const withEmulator = <ProviderType>(
+  getProvider: () => ProviderType,
+  emulatorName: EmulatorType,
+  connectEmulator: (...rest: any) => any,
+  paramMapper: (provider: ProviderType, host: string, port: number, options: object) => any[] = (...params) => params
+): (() => ProviderType) => {
+  return () => {
+    const provider = getProvider();
+
+    if (environment.firebase.useEmulator?.[emulatorName]) {
+      const {
+        host = 'http://localhost',
+        port,
+        options = {},
+      } = environment.firebase.useEmulator[emulatorName] as EmulatorConfig;
+      connectEmulator(...paramMapper(provider, host, port, options));
+    }
+
+    return provider;
+  };
+};
 
 @NgModule({
   declarations: [AppComponent],
@@ -19,9 +42,15 @@ import { AppComponent } from './app.component';
     AppRoutingModule,
     provideFirebaseApp(() => initializeApp(environment.firebase)),
     provideAnalytics(() => getAnalytics()),
-    provideAuth(() => getAuth()),
-    provideDatabase(() => getDatabase()),
-    provideFunctions(() => getFunctions()),
+    provideAuth(
+      withEmulator(getAuth, 'auth', connectAuthEmulator, (auth, host, port, options) => [
+        auth,
+        `${host}:${port}`,
+        options,
+      ])
+    ),
+    provideDatabase(withEmulator(getDatabase, 'database', connectDatabaseEmulator)),
+    provideFunctions(withEmulator(getFunctions, 'functions', connectFunctionsEmulator)),
     provideAppCheck(() => {
       const provider = new ReCaptchaV3Provider(environment.firebase.reCAPTCHAv3Token);
       return initializeAppCheck(undefined, {
