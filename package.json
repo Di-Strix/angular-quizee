@@ -33,7 +33,6 @@
     "@angular/compiler-cli": "~13.3.0",
     "@di-strix/quizee-types": "^2.0.0",
     "@trivago/prettier-plugin-sort-imports": "^3.2.0",
-    "@types/jasmine": "~3.10.0",
     "@types/jest": "^27.4.1",
     "@types/node": "^12.11.1",
     "jest": "^27.5.1",
