@@ -1,26 +1,22 @@
 import { Injectable } from '@angular/core';
-import { AngularFirestore } from '@angular/fire/compat/firestore';
+import { Firestore, doc, docData } from '@angular/fire/firestore';
 import { Quiz, QuizId } from '@di-strix/quizee-types';
 
-import { Observable, map, throwError } from 'rxjs';
+import { Observable, map, take, tap } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
 })
 export class QuizeeService {
-  constructor(private firestore: AngularFirestore) {}
+  constructor(private firestore: Firestore) {}
 
-  getQuizee(id: QuizId): Observable<Quiz> {
-    return this.firestore
-      .collection('quizees')
-      .doc<Quiz>(id)
-      .get()
-      .pipe(
-        map((snapshot) => {
-          if (!snapshot.exists) throwError(() => new Error('Quizee with given id does not exist'));
-
-          return snapshot.data() as Quiz;
-        })
-      );
+  getQuizee(id: QuizId, once: boolean = false): Observable<Quiz> {
+    return docData<Quiz>(doc(this.firestore, `quizees/${id}`) as any).pipe(
+      once ? take(1) : tap(),
+      map((data) => {
+        if (!data) throw new Error('Quizee with given id does not exist');
+        return data;
+      })
+    );
   }
 }

@@ -1,52 +1,83 @@
-import { AngularFirestore } from '@angular/fire/compat/firestore';
+import { Firestore, doc, docData } from '@angular/fire/firestore';
 
 import { of } from 'rxjs';
 
 import { QuizeeService } from './quizee.service';
 
-class AngularFirestoreMock {
-  collection: jest.Mock = jest.fn();
-
-  mock(snapshotVal: object) {
-    this.collection = jest.fn().mockReturnValue({
-      doc: jest.fn().mockReturnValue({
-        get: jest.fn().mockReturnValue(of(snapshotVal)),
-      }),
-    });
-  }
-}
-
 describe('QuizeeService', () => {
-  jest.mock('@angular/fire/compat/firestore');
+  let mockDB: object = {};
   let service: QuizeeService;
-  let angularFirestore: AngularFirestoreMock;
 
   beforeEach(() => {
-    angularFirestore = new AngularFirestoreMock();
-    service = new QuizeeService(angularFirestore as unknown as AngularFirestore);
+    // @ts-ignore
+    doc = jest.fn((_, path: string) => {
+      let anchor: { [key: string]: any } = mockDB;
+
+      path.split('/').forEach((key: string) => (anchor = anchor && key in anchor ? anchor[key] : undefined));
+      return anchor;
+    });
+
+    // @ts-ignore
+    // noinspection JSConstantReassignment
+    docData = jest.fn((val) => val);
+
+    mockDB = {};
+    service = new QuizeeService(undefined as any as Firestore);
   });
 
   it('should be created', () => {
     expect(service).toBeTruthy();
   });
 
-  it(`should throw error if snapshot doesn't exist`, (done) => {
+  it(`should throw error if data is undefined`, (done) => {
+    mockDB = { quizees: { mockId: of(undefined) } };
     const error = () => done();
 
-    angularFirestore.mock({ exists: false });
     service.getQuizee('mockId').subscribe({ error });
   });
 
   it(`should push Quiz to subscriber`, () => {
     expect.assertions(1);
 
-    const obj: any = {};
     const symbol = Symbol();
-    obj[symbol] = 1;
+    mockDB = {
+      quizees: {
+        mockId: of({
+          [symbol]: 1,
+        }),
+      },
+    };
 
     const next = (val: any) => expect(val[symbol]).toBe(1);
 
-    angularFirestore.mock({ exists: false, data: jest.fn().mockReturnValue(obj) });
     service.getQuizee('mockId').subscribe({ next });
+  });
+
+  it(`should push Quiz to subscriber only once if once = true`, () => {
+    expect.assertions(1);
+
+    mockDB = {
+      quizees: {
+        mockArr: of(1, 2, 3),
+      },
+    };
+
+    const next = (_: any) => expect(true).toBeTruthy();
+
+    service.getQuizee('mockArr', true).subscribe({ next });
+  });
+
+  it(`should push Quiz to subscriber everytime it updates if once = false`, () => {
+    expect.assertions(3);
+
+    mockDB = {
+      quizees: {
+        mockArr: of(1, 2, 3),
+      },
+    };
+
+    const next = (_: any) => expect(true).toBeTruthy();
+
+    service.getQuizee('mockArr').subscribe({ next });
   });
 });
