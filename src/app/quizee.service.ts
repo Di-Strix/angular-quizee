@@ -13,9 +13,8 @@ export class QuizeeService {
   getQuizee(id: QuizId, once: boolean = false): Observable<Quiz> {
     return docData<Quiz>(doc(this.firestore, `quizees/${id}`) as any).pipe(
       once ? take(1) : tap(),
-      map((data) => {
+      tap((data) => {
         if (!data) throw new Error('Quizee with given id does not exist');
-        return data;
       })
     );
   }
