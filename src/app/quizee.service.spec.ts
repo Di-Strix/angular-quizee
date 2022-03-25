@@ -23,59 +23,60 @@ describe('QuizeeService', () => {
     service = new QuizeeService(undefined as any as Firestore);
   });
 
-  it('should be created', () => {
-    expect(service).toBeTruthy();
+  describe('#getQuizee', () => {
+    it('should be created', () => {
+      expect(service).toBeTruthy();
+    });
+
+    it(`should throw error if data is undefined`, (done) => {
+      mockDB = { quizees: { mockId: of(undefined) } };
+      const error = () => done();
+
+      service.getQuizee('mockId').subscribe({ error });
+    });
+
+    it(`should push Quiz to subscriber`, () => {
+      expect.assertions(1);
+
+      const symbol = Symbol();
+      mockDB = {
+        quizees: {
+          mockId: of({
+            [symbol]: 1,
+          }),
+        },
+      };
+
+      const next = (val: any) => expect(val[symbol]).toBe(1);
+
+      service.getQuizee('mockId').subscribe({ next });
+    });
+
+    it(`should push Quiz to subscriber only once if once = true`, () => {
+      expect.assertions(1);
+
+      mockDB = {
+        quizees: {
+          mockArr: of(1, 2, 3),
+        },
+      };
+
+      const next = (_: any) => expect(true).toBeTruthy();
+
+      service.getQuizee('mockArr', true).subscribe({ next });
+    });
+
+    it(`should push Quiz to subscriber everytime it updates if once = false`, () => {
+      expect.assertions(3);
+
+      mockDB = {
+        quizees: {
+          mockArr: of(1, 2, 3),
+        },
+      };
+
+      const next = (_: any) => expect(true).toBeTruthy();
+
+      service.getQuizee('mockArr').subscribe({ next });
+    });
   });
-
-  it(`should throw error if data is undefined`, (done) => {
-    mockDB = { quizees: { mockId: of(undefined) } };
-    const error = () => done();
-
-    service.getQuizee('mockId').subscribe({ error });
-  });
-
-  it(`should push Quiz to subscriber`, () => {
-    expect.assertions(1);
-
-    const symbol = Symbol();
-    mockDB = {
-      quizees: {
-        mockId: of({
-          [symbol]: 1,
-        }),
-      },
-    };
-
-    const next = (val: any) => expect(val[symbol]).toBe(1);
-
-    service.getQuizee('mockId').subscribe({ next });
-  });
-
-  it(`should push Quiz to subscriber only once if once = true`, () => {
-    expect.assertions(1);
-
-    mockDB = {
-      quizees: {
-        mockArr: of(1, 2, 3),
-      },
-    };
-
-    const next = (_: any) => expect(true).toBeTruthy();
-
-    service.getQuizee('mockArr', true).subscribe({ next });
-  });
-
-  it(`should push Quiz to subscriber everytime it updates if once = false`, () => {
-    expect.assertions(3);
-
-    mockDB = {
-      quizees: {
-        mockArr: of(1, 2, 3),
-      },
-    };
-
-    const next = (_: any) => expect(true).toBeTruthy();
-
-    service.getQuizee('mockArr').subscribe({ next });
-  });
-});
