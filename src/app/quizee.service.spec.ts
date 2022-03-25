@@ -10,9 +10,7 @@ describe('QuizeeService', () => {
 
   beforeEach(() => {
     // @ts-ignore
-    doc = jest.fn((_, path: string) => {
-      let anchor: { [key: string]: any } = mockDB;
-
+    doc = jest.fn((anchor = mockDB, path: string) => {
       path.split('/').forEach((key: string) => (anchor = anchor && key in anchor ? anchor[key] : undefined));
       return anchor;
     });
