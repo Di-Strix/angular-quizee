@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Firestore, doc, docData } from '@angular/fire/firestore';
-import { Quiz, QuizId } from '@di-strix/quizee-types';
+import { Question, Quiz, QuizId, QuizInfo } from '@di-strix/quizee-types';
 
-import { Observable, map, take, tap } from 'rxjs';
+import { Observable, map, take, tap, zipWith } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -16,6 +16,25 @@ export class QuizeeService {
       tap((data) => {
         if (!data) throw new Error('Quizee with given id does not exist');
       })
+    );
+  }
+
+  getQuizeePublicData(id: QuizId): Observable<Quiz> {
+    const anchor = doc(this.firestore, `quizees/${id}`);
+
+    return docData<QuizInfo>(doc(anchor, 'info') as any).pipe(
+      zipWith(docData<Question[]>(doc(anchor, 'questions') as any)),
+      take(1),
+      tap(([info, questions]: [QuizInfo, Question[]]) => {
+        if (!info || !questions) throw new Error('Quizee with given id does not exist');
+      }),
+      map(
+        ([info, questions]: [QuizInfo, Question[]]): Quiz => ({
+          answers: [],
+          info,
+          questions,
+        })
+      )
     );
   }
 }
