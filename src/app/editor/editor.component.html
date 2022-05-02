@@ -1,0 +1,32 @@
+<div
+  class="loader-container"
+  *ngIf="!quiz"
+  @loader
+>
+  <div class="loader">
+    <mat-card class="mat-elevation-z6">
+      <mat-spinner diameter="60"></mat-spinner>
+    </mat-card>
+  </div>
+</div>
+
+<mat-toolbar
+  color="primary"
+  class="mat-elevation-z6"
+  style="z-index: 10"
+>
+  <button
+    type="button"
+    mat-icon-button
+  >
+    <mat-icon>home</mat-icon>
+  </button>
+  <span>Edit quizee</span>
+</mat-toolbar>
+<div
+  fxLayout="row"
+  style="height: 100%"
+>
+  <app-overview [fxFlex]="(100 / 12) * 2 + '%'"></app-overview>
+  <mat-divider [vertical]="true"></mat-divider>
+</div>
