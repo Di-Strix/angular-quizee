@@ -26,7 +26,7 @@ export class QuizeeEditingService {
         questionsCount: 0,
       },
       answers: [],
-      questions: [{ caption: 'abc', answerOptions: [], id: '1', type: 'ONE_TRUE' }],
+      questions: [],
     });
   }
 
