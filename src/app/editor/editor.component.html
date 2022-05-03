@@ -12,8 +12,7 @@
 
 <mat-toolbar
   color="primary"
-  class="mat-elevation-z6"
-  style="z-index: 10"
+  class="header mat-elevation-z6"
 >
   <button
     type="button"
@@ -23,23 +22,31 @@
   </button>
   <span>Edit {{ (quizeeEditingService.get() | async)?.info?.caption || '' }}</span>
 </mat-toolbar>
-<div
-  fxLayout="row"
-  fxFlex
->
-  <div [fxFlex]="(100 / 12) * 2 + '%'">
-    <mat-card style="border-radius: 0">
-      <mat-form-field fxFlex="100%">
-        <mat-label>Quizee name</mat-label>
-        <input
-          matInput
-          [formControl]="quizeeName"
-          required
-        />
-        <mat-error>Quizee name shouldn't be empty</mat-error>
-      </mat-form-field>
-    </mat-card>
-    <app-overview></app-overview>
+<div class="editor-container">
+  <div
+    fxLayout="row"
+    fxFlex
+  >
+    <div
+      fxLayout="column"
+      [fxFlex]="(100 / 12) * 2 + '%'"
+    >
+      <mat-card class="mat-elevation-z2 full-width-card">
+        <mat-form-field fxFlex>
+          <mat-label>Quizee name</mat-label>
+          <input
+            matInput
+            [formControl]="quizeeName"
+            required
+          />
+          <mat-error>Quizee name shouldn't be empty</mat-error>
+        </mat-form-field>
+      </mat-card>
+      <app-overview
+        fxFlex="grow"
+        style="overflow-y: auto"
+      ></app-overview>
+    </div>
+    <mat-divider [vertical]="true"></mat-divider>
   </div>
-  <mat-divider [vertical]="true"></mat-divider>
 </div>
