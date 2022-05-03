@@ -2,9 +2,8 @@ import { animate, style, transition, trigger } from '@angular/animations';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { Quiz } from '@di-strix/quizee-types';
 
-import { Subscription } from 'rxjs';
+import { Subscription, filter, first, map, pairwise, startWith } from 'rxjs';
 
 import { QuizeeService } from '../shared/services/quizee.service';
 
@@ -22,29 +21,31 @@ import { QuizeeEditingService } from './quizee-editing.service';
   ],
 })
 export class EditorComponent implements OnInit, OnDestroy {
-  quiz?: Quiz;
   subs: Subscription = new Subscription();
   quizeeName = new FormControl('', [Validators.required]);
 
   constructor(
     private route: ActivatedRoute,
     private quizeeService: QuizeeService,
-    private quizeeEditingService: QuizeeEditingService
+    public quizeeEditingService: QuizeeEditingService
   ) {}
 
   ngOnInit(): void {
+    this.quizeeEditingService
+      .get()
+      .pipe(first())
+      .subscribe((quiz) => this.quizeeName.setValue(quiz.info.caption));
+
     this.subs.add(
-      this.quizeeEditingService.get().subscribe((quiz) => {
-        this.quiz = quiz;
-        this.quizeeName.setValue(quiz.info.caption);
-      })
+      this.quizeeName.valueChanges
+        .pipe(
+          startWith(''),
+          pairwise(),
+          filter(([previous, current]) => previous !== current),
+          map(([_, current]) => current)
+        )
+        .subscribe((current) => this.quizeeEditingService.modify({ info: { caption: current.trimStart() } }))
     );
-
-    this.quizeeName.valueChanges.subscribe((value) => {
-      if (this.quiz?.info.caption === value) return;
-
-      this.quizeeEditingService.modify({ info: { caption: value.trimStart() } });
-    });
 
     this.route.paramMap.subscribe((params) => {
       const id = params.get('id');

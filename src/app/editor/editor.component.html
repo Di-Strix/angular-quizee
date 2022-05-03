@@ -1,6 +1,6 @@
 <div
   class="loader-container"
-  *ngIf="!quiz"
+  *ngIf="!(quizeeEditingService.get() | async)"
   @loader
 >
   <div class="loader">
@@ -21,7 +21,7 @@
   >
     <mat-icon>home</mat-icon>
   </button>
-  <span>Edit {{ quiz?.info?.caption || '' }}</span>
+  <span>Edit {{ (quizeeEditingService.get() | async)?.info?.caption || '' }}</span>
 </mat-toolbar>
 <div
   fxLayout="row"
@@ -33,7 +33,6 @@
         <mat-label>Quizee name</mat-label>
         <input
           matInput
-          [value]="quiz?.info?.caption || ''"
           [formControl]="quizeeName"
           required
         />
