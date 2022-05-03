@@ -11,16 +11,9 @@ import { QuizeeEditingService } from '../quizee-editing.service';
   styleUrls: ['./overview.component.scss'],
 })
 export class OverviewComponent implements OnInit, OnDestroy {
-  quiz?: Quiz;
-  subs: Subscription = new Subscription();
+  constructor(public quizeeEditingService: QuizeeEditingService) {}
 
-  constructor(private quizeeEditingService: QuizeeEditingService) {}
+  ngOnInit(): void {}
 
-  ngOnInit(): void {
-    this.subs.add(this.quizeeEditingService.get().subscribe((quiz) => (this.quiz = quiz)));
-  }
-
-  ngOnDestroy(): void {
-    this.subs.unsubscribe();
-  }
+  ngOnDestroy(): void {}
 }
