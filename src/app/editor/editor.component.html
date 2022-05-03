@@ -27,6 +27,20 @@
   fxLayout="row"
   style="height: 100%"
 >
-  <app-overview [fxFlex]="(100 / 12) * 2 + '%'"></app-overview>
+  <div [fxFlex]="(100 / 12) * 2 + '%'">
+    <mat-card style="border-radius: 0">
+      <mat-form-field fxFlex="100%">
+        <mat-label>Quizee name</mat-label>
+        <input
+          matInput
+          [value]="quiz?.info?.caption || ''"
+          [formControl]="quizeeName"
+          required
+        />
+        <mat-error>Quizee name shouldn't be empty</mat-error>
+      </mat-form-field>
+    </mat-card>
+    <app-overview></app-overview>
+  </div>
   <mat-divider [vertical]="true"></mat-divider>
 </div>
