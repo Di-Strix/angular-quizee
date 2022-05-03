@@ -1,0 +1,23 @@
+.card {
+  margin: 0.5rem;
+  aspect-ratio: 16 / 9;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  .preview-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    h3 {
+      margin: 0;
+    }
+
+    .preview-icon {
+      width: 3rem;
+      height: 3rem;
+      font-size: 3rem;
+    }
+  }
+}

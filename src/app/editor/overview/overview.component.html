@@ -1,0 +1,26 @@
+<ng-container *ngIf="quiz">
+  <mat-card
+    *ngFor="let question of quiz.questions"
+    class="card"
+  >
+    <div class="preview-container">
+      <mat-icon
+        class="preview-icon"
+        color="primary"
+      >
+        <ng-container [ngSwitch]="question.type">
+          <ng-container *ngSwitchCase="'ONE_TRUE'"> done </ng-container>
+          <ng-container *ngSwitchCase="'SEVERAL_TRUE'"> done_all </ng-container>
+          <ng-container *ngSwitchCase="'WRITE_ANSWER'"> edit </ng-container>
+        </ng-container>
+      </mat-icon>
+      <h3>
+        <ng-container [ngSwitch]="question.type">
+          <ng-container *ngSwitchCase="'ONE_TRUE'"> One True </ng-container>
+          <ng-container *ngSwitchCase="'SEVERAL_TRUE'"> Several True </ng-container>
+          <ng-container *ngSwitchCase="'WRITE_ANSWER'"> Write Answer </ng-container>
+        </ng-container>
+      </h3>
+    </div>
+  </mat-card>
+</ng-container>
