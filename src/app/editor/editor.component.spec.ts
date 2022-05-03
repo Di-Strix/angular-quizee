@@ -92,17 +92,6 @@ describe('EditorComponent', () => {
     expect(load).toHaveBeenCalledWith(quizObj);
   });
 
-  it('should save quizee coming from quizeeEditingService', () => {
-    component.ngOnInit();
-
-    const quizee = {
-      [Symbol()]: 'data',
-    };
-
-    quizeeEditingService.quizee$.next(quizee as any as Quiz);
-    expect(component.quiz).toEqual(quizee);
-  });
-
   it('should init new quizee if id is empty', () => {
     activatedRoute.paramMapValues = {
       id: null,
@@ -113,6 +102,5 @@ describe('EditorComponent', () => {
 
     expect(quizeeService.getQuizee).not.toBeCalled();
     expect(create).toHaveBeenCalledTimes(1);
-    expect(component.quiz).toBeTruthy();
   });
 });
