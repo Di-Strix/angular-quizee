@@ -28,7 +28,7 @@ export class EditorComponent implements OnInit, OnDestroy {
 
   constructor(
     private route: ActivatedRoute,
-    public quizeeService: QuizeeService,
+    private quizeeService: QuizeeService,
     private quizeeEditingService: QuizeeEditingService
   ) {}
 
