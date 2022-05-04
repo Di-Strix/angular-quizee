@@ -1,12 +1,12 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute } from '@angular/router';
-import { Quiz } from '@di-strix/quizee-types';
 
 import { Observable, of } from 'rxjs';
 
 import { QuizeeService } from '../shared/services/quizee.service';
 
 import { EditorComponent } from './editor.component';
+import { EditorModule } from './editor.module';
 import { QuizeeEditingService } from './quizee-editing.service';
 
 class ActivatedRouteMock {
@@ -31,7 +31,7 @@ describe('EditorComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [EditorComponent],
-      imports: [],
+      imports: [EditorModule],
       providers: [
         {
           provide: QuizeeService,
@@ -40,9 +40,6 @@ describe('EditorComponent', () => {
         {
           provide: ActivatedRoute,
           useValue: new ActivatedRouteMock(),
-        },
-        {
-          provide: QuizeeEditingService,
         },
       ],
     }).compileComponents();
