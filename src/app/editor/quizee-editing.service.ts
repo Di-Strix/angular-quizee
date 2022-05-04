@@ -1,23 +1,33 @@
 import { Injectable } from '@angular/core';
-import { Quiz } from '@di-strix/quizee-types';
+import { Answer, Question, Quiz } from '@di-strix/quizee-types';
 
 import * as _ from 'lodash';
-import { Observable, ReplaySubject } from 'rxjs';
+import { Observable, ReplaySubject, throwError } from 'rxjs';
+import { v4 as uuidV4 } from 'uuid';
 
 type RecursivePartial<T> = {
   [K in keyof T]?: RecursivePartial<T[K]>;
 };
 
+type QuestionPair = { question: Question; answer: Answer };
+
 @Injectable()
 export class QuizeeEditingService {
   quizee$: ReplaySubject<Quiz> = new ReplaySubject(1);
+  currentQuestion$: ReplaySubject<QuestionPair> = new ReplaySubject(1);
+
   quizee?: Quiz;
+  currentIndex: number = 0;
 
   constructor() {}
 
   load(quizee: Quiz): Observable<Quiz> {
-    this.quizee = quizee;
-    this.quizee$.next(quizee);
+    if (quizee.answers.length !== quizee.questions.length)
+      return throwError(() => new Error("Answers and questions count isn't equal"));
+
+    this.quizee = _.cloneDeep(quizee);
+    this.quizee$.next(_.cloneDeep(quizee));
+    this.selectQuestion(0);
 
     return this.get();
   }
@@ -36,10 +46,39 @@ export class QuizeeEditingService {
   }
 
   modify(changes: RecursivePartial<Quiz>): Observable<Quiz> {
+    if (!this.quizee) return throwError(() => new Error('Quizee is not loaded'));
+
     return this.load(_.merge({}, this.quizee, changes));
   }
 
   get(): Observable<Quiz> {
     return this.quizee$;
+  }
+
+  createQuestion(): Observable<QuestionPair> {
+    if (!this.quizee) return throwError(() => new Error('Quizee is not loaded'));
+
+    const id = uuidV4();
+    this.quizee.answers.push({ answer: [''], answerTo: id, config: { equalCase: false } });
+    this.quizee.questions.push({ id, answerOptions: [], caption: '', type: 'ONE_TRUE' });
+
+    this.quizee$.next(_.cloneDeep(this.quizee));
+    return this.selectQuestion(this.quizee.questions.length - 1);
+  }
+
+  selectQuestion(index: number): Observable<QuestionPair> {
+    if (!this.quizee || index < 0 || !_.inRange(index, this.quizee.questions.length || 0))
+      return throwError(() => new Error('Index is out of range'));
+
+    this.currentIndex = index;
+    this.currentQuestion$.next(
+      _.cloneDeep({ question: this.quizee.questions[index], answer: this.quizee.answers[index] })
+    );
+
+    return this.getCurrentQuestion();
+  }
+
+  getCurrentQuestion(): Observable<QuestionPair> {
+    return this.currentQuestion$;
   }
 }
