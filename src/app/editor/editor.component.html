@@ -43,15 +43,16 @@
         </mat-form-field>
       </mat-card>
       <app-overview
+        #questionsContainer
         fxFlex="grow"
-        style="overflow-y: auto"
+        style="overflow-y: scroll"
       ></app-overview>
       <mat-card class="mat-elevation-z2 mat-reverse-elevation full-width-card">
         <button
           mat-stroked-button
           color="primary"
           fxFlex
-          (click)="quizeeEditingService.createQuestion()"
+          (click)="handleQuestionCreation()"
         >
           <mat-icon>add</mat-icon>
         </button>

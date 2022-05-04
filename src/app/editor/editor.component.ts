@@ -1,5 +1,5 @@
 import { animate, style, transition, trigger } from '@angular/animations';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormControl, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 
@@ -7,6 +7,7 @@ import { Subscription, filter, first, map, pairwise, startWith } from 'rxjs';
 
 import { QuizeeService } from '../shared/services/quizee.service';
 
+import { OverviewComponent } from './overview/overview.component';
 import { QuizeeEditingService } from './quizee-editing.service';
 
 @Component({
@@ -21,6 +22,8 @@ import { QuizeeEditingService } from './quizee-editing.service';
   ],
 })
 export class EditorComponent implements OnInit, OnDestroy {
+  @ViewChild(OverviewComponent, { read: ElementRef }) questionsContainer!: ElementRef<HTMLElement>;
+
   subs: Subscription = new Subscription();
   quizeeName = new FormControl('', [Validators.required]);
 
@@ -68,5 +71,16 @@ export class EditorComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.subs.unsubscribe();
+  }
+
+  handleQuestionCreation() {
+    this.quizeeEditingService.createQuestion();
+
+    setTimeout(() => {
+      this.questionsContainer.nativeElement.scrollTo({
+        behavior: 'smooth',
+        top: this.questionsContainer.nativeElement.scrollHeight,
+      });
+    }, 0);
   }
 }
