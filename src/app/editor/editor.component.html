@@ -46,6 +46,16 @@
         fxFlex="grow"
         style="overflow-y: auto"
       ></app-overview>
+      <mat-card class="mat-elevation-z2 mat-reverse-elevation full-width-card">
+        <button
+          mat-stroked-button
+          color="primary"
+          fxFlex
+          (click)="quizeeEditingService.createQuestion()"
+        >
+          <mat-icon>add</mat-icon>
+        </button>
+      </mat-card>
     </div>
     <mat-divider [vertical]="true"></mat-divider>
   </div>
