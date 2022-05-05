@@ -17,9 +17,14 @@ import { EditorRoutingModule } from './editor-routing.module';
 import { EditorComponent } from './editor.component';
 import { OverviewComponent } from './overview/overview.component';
 import { QuizeeEditingService } from './quizee-editing.service';
+import { RenderSettingsComponentsDirective } from './settings/render-settings-components.directive';
 
 @NgModule({
-  declarations: [EditorComponent, OverviewComponent],
+  declarations: [
+    EditorComponent,
+    OverviewComponent,
+    RenderSettingsComponentsDirective,
+  ],
   imports: [
     CommonModule,
     SharedModule,
