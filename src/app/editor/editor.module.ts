@@ -22,10 +22,12 @@ import { AnswerOptionsComponent } from './settings/answer-options/answer-options
 import { QuestionCaptionComponent } from './settings/question-caption/question-caption.component';
 import { QuestionTypeComponent } from './settings/question-type/question-type.component';
 import { RenderSettingsComponentsDirective } from './settings/render-settings-components.directive';
+import { SettingCardComponent } from './settings/setting-card/setting-card.component';
 
 @NgModule({
   declarations: [
     EditorComponent,
+    SettingCardComponent,
     QuestionCaptionComponent,
     OverviewComponent,
     QuestionTypeComponent,
