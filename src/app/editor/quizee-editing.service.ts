@@ -5,9 +5,7 @@ import * as _ from 'lodash';
 import { Observable, ReplaySubject, throwError } from 'rxjs';
 import { v4 as uuidV4 } from 'uuid';
 
-type RecursivePartial<T> = {
-  [K in keyof T]?: RecursivePartial<T[K]>;
-};
+import { RecursivePartial } from '../shared/helpers/RecursivePartial';
 
 export type QuestionPair = { question: Question; answer: Answer };
 
