@@ -1,0 +1,11 @@
+<app-setting-card title="Question caption">
+  <mat-form-field fxFlex="100%">
+    <mat-label>Question</mat-label>
+    <input
+      matInput
+      [formControl]="questionCaption"
+      required
+    />
+    <mat-error>Question shouldn't be empty</mat-error>
+  </mat-form-field>
+</app-setting-card>

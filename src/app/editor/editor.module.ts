@@ -19,12 +19,14 @@ import { OverviewComponent } from './overview/overview.component';
 import { QuizeeEditingService } from './quizee-editing.service';
 import { AnswerInputComponent } from './settings/answer-input/answer-input.component';
 import { AnswerOptionsComponent } from './settings/answer-options/answer-options.component';
+import { QuestionCaptionComponent } from './settings/question-caption/question-caption.component';
 import { QuestionTypeComponent } from './settings/question-type/question-type.component';
 import { RenderSettingsComponentsDirective } from './settings/render-settings-components.directive';
 
 @NgModule({
   declarations: [
     EditorComponent,
+    QuestionCaptionComponent,
     OverviewComponent,
     QuestionTypeComponent,
     AnswerOptionsComponent,
