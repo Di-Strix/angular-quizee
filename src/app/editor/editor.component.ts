@@ -41,7 +41,7 @@ export class EditorComponent implements OnInit, OnDestroy {
 
     this.subs.add(
       this.quizeeName.valueChanges
-        .pipe(startWith(''), distinctUntilChanged())
+        .pipe(distinctUntilChanged())
         .subscribe((current) => this.quizeeEditingService.modify({ info: { caption: current.trimStart() } }))
     );
 

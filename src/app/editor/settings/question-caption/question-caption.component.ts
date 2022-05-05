@@ -24,7 +24,7 @@ export class QuestionCaptionComponent implements OnInit, OnDestroy {
 
     this.subs.add(
       this.questionCaption.valueChanges
-        .pipe(startWith(''), distinctUntilChanged())
+        .pipe(distinctUntilChanged())
         .subscribe((current) => this.quizeeEditingService.modifyCurrentQuestion({ question: { caption: current } }))
     );
   }
