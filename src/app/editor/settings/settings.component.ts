@@ -12,7 +12,7 @@ import { RenderSettingsComponentsDirective } from './render-settings-components.
 import { SettingsComponentTypes, SettingsConfig } from './settings';
 
 export const settingsConfig: SettingsConfig = {
-  ONE_TRUE: [QuestionCaptionComponent, QuestionTypeComponent],
+  ONE_TRUE: [QuestionCaptionComponent, QuestionTypeComponent, AnswerOptionsComponent],
   SEVERAL_TRUE: [QuestionCaptionComponent, QuestionTypeComponent, AnswerOptionsComponent],
   WRITE_ANSWER: [QuestionCaptionComponent, QuestionTypeComponent, AnswerInputComponent],
 };
