@@ -29,6 +29,8 @@
   >
     <div
       fxLayout="column"
+      [fxFlex.lt-md]="(100 / 12) * 5 + '%'"
+      [fxFlex.lt-lg]="(100 / 12) * 4 + '%'"
       [fxFlex]="(100 / 12) * 2 + '%'"
     >
       <mat-card class="mat-elevation-z2 full-width-card">
@@ -61,11 +63,18 @@
     <mat-divider [vertical]="true"></mat-divider>
     <div
       fxLayout="column"
+      fxFlex
+      fxGrow="1"
+      fxShrink="1"
+      fxHide.lt-md="true"
     >
     </div>
     <mat-divider [vertical]="true"></mat-divider>
     <app-settings
       fxLayout="column"
+      [fxFlex.lt-md]="(100 / 12) * 7 + '%'"
+      [fxFlex.lt-lg]="(100 / 12) * 5 + '%'"
+      [fxFlex]="(100 / 12) * 3 + '%'"
     ></app-settings>
   </div>
 </div>
