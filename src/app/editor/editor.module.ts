@@ -23,14 +23,15 @@ import { QuestionCaptionComponent } from './settings/question-caption/question-c
 import { QuestionTypeComponent } from './settings/question-type/question-type.component';
 import { RenderSettingsComponentsDirective } from './settings/render-settings-components.directive';
 import { SettingCardComponent } from './settings/setting-card/setting-card.component';
+import { SettingsComponent } from './settings/settings.component';
 
 @NgModule({
   declarations: [
     EditorComponent,
+    OverviewComponent,
     SettingsComponent,
     SettingCardComponent,
     QuestionCaptionComponent,
-    OverviewComponent,
     QuestionTypeComponent,
     AnswerOptionsComponent,
     AnswerInputComponent,

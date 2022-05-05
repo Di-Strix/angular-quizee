@@ -1,7 +1,6 @@
 import { FormControl } from '@angular/forms';
 
 import { Observable, Subscription, distinctUntilChanged, first } from 'rxjs';
-import { QuestionPair, QuizeeEditingService } from 'src/app/editor/quizee-editing.service';
 
 import { RecursivePartial } from './RecursivePartial';
 
