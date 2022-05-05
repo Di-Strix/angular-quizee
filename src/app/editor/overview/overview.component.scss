@@ -1,9 +1,22 @@
+@use '@angular/material' as mat;
+
 .card {
   margin: 0.5rem;
   aspect-ratio: 16 / 9;
   display: flex;
   justify-content: center;
   align-items: center;
+  cursor: pointer;
+  border: 2px solid transparent;
+  @include mat.elevation-transition();
+
+  &:hover {
+    @include mat.elevation(5);
+  }
+
+  &.active {
+    border: 2px solid mat.get-color-from-palette(mat.$indigo-palette, 400);
+  }
 
   .preview-container {
     display: flex;
