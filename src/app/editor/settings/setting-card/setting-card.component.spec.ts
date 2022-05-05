@@ -1,5 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
+import { EditorModule } from '../../editor.module';
+
 import { SettingCardComponent } from './setting-card.component';
 
 describe('SettingCardComponent', () => {
@@ -8,9 +10,9 @@ describe('SettingCardComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ SettingCardComponent ]
-    })
-    .compileComponents();
+      declarations: [SettingCardComponent],
+      imports: [EditorModule],
+    }).compileComponents();
   });
 
   beforeEach(() => {

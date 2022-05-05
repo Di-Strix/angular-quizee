@@ -1,5 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
+import { EditorModule } from '../../editor.module';
+
 import { AnswerInputComponent } from './answer-input.component';
 
 describe('AnswerInputComponent', () => {
@@ -8,9 +10,9 @@ describe('AnswerInputComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ AnswerInputComponent ]
-    })
-    .compileComponents();
+      declarations: [AnswerInputComponent],
+      imports: [EditorModule],
+    }).compileComponents();
   });
 
   beforeEach(() => {

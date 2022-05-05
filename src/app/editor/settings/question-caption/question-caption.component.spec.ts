@@ -1,5 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
+import { EditorModule } from '../../editor.module';
+
 import { QuestionCaptionComponent } from './question-caption.component';
 
 describe('QuestionCaptionComponent', () => {
@@ -8,9 +10,9 @@ describe('QuestionCaptionComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ QuestionCaptionComponent ]
-    })
-    .compileComponents();
+      declarations: [QuestionCaptionComponent],
+      imports: [EditorModule],
+    }).compileComponents();
   });
 
   beforeEach(() => {

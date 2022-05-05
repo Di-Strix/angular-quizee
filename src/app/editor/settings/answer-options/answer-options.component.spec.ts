@@ -1,5 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
+import { EditorModule } from '../../editor.module';
+
 import { AnswerOptionsComponent } from './answer-options.component';
 
 describe('AnswerOptionsComponent', () => {
@@ -8,9 +10,9 @@ describe('AnswerOptionsComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ AnswerOptionsComponent ]
-    })
-    .compileComponents();
+      declarations: [AnswerOptionsComponent],
+      imports: [EditorModule],
+    }).compileComponents();
   });
 
   beforeEach(() => {
