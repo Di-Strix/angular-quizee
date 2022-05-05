@@ -27,6 +27,7 @@ import { SettingCardComponent } from './settings/setting-card/setting-card.compo
 @NgModule({
   declarations: [
     EditorComponent,
+    SettingsComponent,
     SettingCardComponent,
     QuestionCaptionComponent,
     OverviewComponent,
