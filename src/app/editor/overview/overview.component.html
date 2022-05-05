@@ -1,5 +1,6 @@
 <mat-card
-  *ngFor="let question of (quizeeEditingService.get() | async)?.questions || []; let index = index"
+  @card
+  *ngFor="let question of (quizeeEditingService.get() | async)?.questions || []; let index = index; trackBy: trackBy"
   class="card"
   [class.active]="(quizeeEditingService.getCurrentQuestion() | async)?.question?.id === question.id"
   (click)="quizeeEditingService.selectQuestion(index)"
