@@ -17,7 +17,7 @@ export class QuizeeEditingService {
   currentQuestion$: ReplaySubject<QuestionPair> = new ReplaySubject(1);
 
   quizee?: Quiz;
-  currentIndex: number = 0;
+  currentIndex: number = -1;
 
   constructor() {}
 
