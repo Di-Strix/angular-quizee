@@ -3,8 +3,9 @@ import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/co
 import { FormControl, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 
-import { Subscription, distinctUntilChanged, first, startWith } from 'rxjs';
+import { Subscription } from 'rxjs';
 
+import { bindToQuizee } from '../shared/helpers/BindToQuizee';
 import { QuizeeService } from '../shared/services/quizee.service';
 
 import { OverviewComponent } from './overview/overview.component';
@@ -34,15 +35,13 @@ export class EditorComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    this.quizeeEditingService
-      .get()
-      .pipe(first())
-      .subscribe((quiz) => this.quizeeName.setValue(quiz.info.caption));
-
     this.subs.add(
-      this.quizeeName.valueChanges
-        .pipe(distinctUntilChanged())
-        .subscribe((current) => this.quizeeEditingService.modify({ info: { caption: current.trimStart() } }))
+      bindToQuizee(this.quizeeName, {
+        getter: () => this.quizeeEditingService.get(),
+        setter: (v) => this.quizeeEditingService.modify(v),
+        dataParser: (q) => q.info.caption,
+        quizeeModifier: (v) => ({ info: { caption: v } }),
+      })
     );
 
     this.route.paramMap.subscribe((params) => {
