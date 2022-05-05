@@ -3,7 +3,7 @@ import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/co
 import { FormControl, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 
-import { Subscription, filter, first, map, pairwise, startWith } from 'rxjs';
+import { Subscription, distinctUntilChanged, first, startWith } from 'rxjs';
 
 import { QuizeeService } from '../shared/services/quizee.service';
 
@@ -41,12 +41,7 @@ export class EditorComponent implements OnInit, OnDestroy {
 
     this.subs.add(
       this.quizeeName.valueChanges
-        .pipe(
-          startWith(''),
-          pairwise(),
-          filter(([previous, current]) => previous !== current),
-          map(([_, current]) => current)
-        )
+        .pipe(startWith(''), distinctUntilChanged())
         .subscribe((current) => this.quizeeEditingService.modify({ info: { caption: current.trimStart() } }))
     );
 
