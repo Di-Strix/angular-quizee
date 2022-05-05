@@ -9,7 +9,7 @@ type RecursivePartial<T> = {
   [K in keyof T]?: RecursivePartial<T[K]>;
 };
 
-type QuestionPair = { question: Question; answer: Answer };
+export type QuestionPair = { question: Question; answer: Answer };
 
 @Injectable()
 export class QuizeeEditingService {
