@@ -3,7 +3,7 @@ import { Quiz } from '@di-strix/quizee-types';
 import * as _ from 'lodash';
 import { first } from 'rxjs';
 
-import { QuizeeEditingService } from './quizee-editing.service';
+import { QuestionPair, QuizeeEditingService } from './quizee-editing.service';
 
 describe('QuizeeEditingService', () => {
   let service: QuizeeEditingService;
@@ -231,6 +231,79 @@ describe('QuizeeEditingService', () => {
       expect(error).not.toHaveBeenCalled();
       expect(next).toHaveBeenCalledTimes(2);
       expect(next.mock.calls[1][0]).not.toEqual(next.mock.calls[0][0]);
+    });
+  });
+
+  describe('modifyCurrentQuestion', () => {
+    it('should throw if quizee is not loaded', () => {
+      service.modifyCurrentQuestion({}).subscribe({ next, error });
+
+      jest.runAllTimers();
+
+      expect(next).not.toHaveBeenCalled();
+      expect(error).toHaveBeenCalled();
+    });
+
+    it('should throw if question is selected', () => {
+      service.createQuestion();
+      service.modifyCurrentQuestion({}).subscribe({ next, error });
+
+      jest.runAllTimers();
+
+      expect(next).not.toHaveBeenCalled();
+      expect(error).toHaveBeenCalled();
+    });
+
+    it('should concat current question with the provided changes', () => {
+      const change1 = {
+        question: {
+          change1: 'change1',
+        },
+      };
+
+      const change2 = {
+        answer: {
+          change2: 'change2',
+        },
+      };
+
+      service.create();
+      service.createQuestion().subscribe({ next, error });
+      service.modifyCurrentQuestion(change1 as any as QuestionPair);
+      service.modifyCurrentQuestion(change2 as any as QuestionPair);
+
+      jest.runAllTimers();
+
+      expect(error).not.toHaveBeenCalled();
+      expect(next).toHaveBeenCalledTimes(3);
+      expect(next.mock.calls[1][0]).toEqual(_.merge({}, next.mock.calls[0][0], change1));
+      expect(next.mock.calls[2][0]).toEqual(_.merge({}, next.mock.calls[1][0], change2));
+    });
+
+    it('should push new quizee', () => {
+      const change1 = {
+        question: {
+          change1: 'change1',
+        },
+      };
+
+      const change2 = {
+        answer: {
+          change2: 'change2',
+        },
+      };
+
+      service.create().subscribe({ next, error });
+      service.createQuestion();
+      service.modifyCurrentQuestion(change1 as any as QuestionPair);
+      service.modifyCurrentQuestion(change2 as any as QuestionPair);
+
+      jest.runAllTimers();
+
+      expect(error).not.toHaveBeenCalled();
+      expect(next).toHaveBeenCalledTimes(4);
+      expect(next.mock.calls[1][0]).not.toEqual(next.mock.calls[0][0]);
+      expect(next.mock.calls[2][0]).not.toEqual(next.mock.calls[1][0]);
     });
   });
 });

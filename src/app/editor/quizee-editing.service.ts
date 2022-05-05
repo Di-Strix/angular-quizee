@@ -78,6 +78,19 @@ export class QuizeeEditingService {
     return this.getCurrentQuestion();
   }
 
+  modifyCurrentQuestion(changes: RecursivePartial<QuestionPair>): Observable<QuestionPair> {
+    if (!this.quizee) return throwError(() => new Error('Quizee is not loaded'));
+    if (this.currentIndex < 0) return throwError(() => new Error('Question is not selected'));
+
+    _.merge(this.quizee.answers[this.currentIndex], changes.answer);
+    _.merge(this.quizee.questions[this.currentIndex], changes.question);
+
+    this.quizee$.next(this.quizee);
+    this.selectQuestion(this.currentIndex);
+
+    return this.getCurrentQuestion();
+  }
+
   getCurrentQuestion(): Observable<QuestionPair> {
     return this.currentQuestion$;
   }
