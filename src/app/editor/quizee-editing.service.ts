@@ -46,7 +46,10 @@ export class QuizeeEditingService {
   modify(changes: RecursivePartial<Quiz>): Observable<Quiz> {
     if (!this.quizee) return throwError(() => new Error('Quizee is not loaded'));
 
-    return this.load(_.merge({}, this.quizee, changes));
+    this.quizee = _.merge({}, this.quizee, changes);
+    this.quizee$.next(_.cloneDeep(this.quizee));
+
+    return this.get();
   }
 
   get(): Observable<Quiz> {

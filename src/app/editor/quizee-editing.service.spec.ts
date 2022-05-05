@@ -134,6 +134,20 @@ describe('QuizeeEditingService', () => {
       expect(next.mock.calls[1][0]).toEqual({ ...next.mock.calls[0][0], ...change1 });
       expect(next.mock.calls[2][0]).toEqual({ ...next.mock.calls[1][0], ...change2 });
     });
+
+    it('should not change selected question', () => {
+      service.create();
+      service.createQuestion();
+      service.createQuestion().subscribe({ next, error });
+      const index = service.currentIndex;
+      service.modify({ info: { caption: 'aaa' } });
+
+      jest.runAllTimers();
+
+      expect(error).not.toHaveBeenCalled();
+      expect(next).toHaveBeenCalledTimes(1);
+      expect(service.currentIndex).toEqual(index);
+    });
   });
 
   describe('get', () => {
