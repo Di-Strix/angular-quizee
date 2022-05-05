@@ -18,7 +18,6 @@ describe('AnswerOptionsComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(AnswerOptionsComponent);
     component = fixture.componentInstance;
-    fixture.detectChanges();
   });
 
   it('should create', () => {

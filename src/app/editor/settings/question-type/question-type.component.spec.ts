@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { EditorModule } from '../../editor.module';
 
@@ -11,14 +12,13 @@ describe('QuestionTypeComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [QuestionTypeComponent],
-      imports: [EditorModule],
+      imports: [BrowserAnimationsModule, EditorModule],
     }).compileComponents();
   });
 
   beforeEach(() => {
     fixture = TestBed.createComponent(QuestionTypeComponent);
     component = fixture.componentInstance;
-    fixture.detectChanges();
   });
 
   it('should create', () => {

@@ -18,7 +18,6 @@ describe('AnswerInputComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(AnswerInputComponent);
     component = fixture.componentInstance;
-    fixture.detectChanges();
   });
 
   it('should create', () => {

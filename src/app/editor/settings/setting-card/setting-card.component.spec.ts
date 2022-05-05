@@ -18,7 +18,6 @@ describe('SettingCardComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(SettingCardComponent);
     component = fixture.componentInstance;
-    fixture.detectChanges();
   });
 
   it('should create', () => {
