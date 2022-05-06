@@ -320,4 +320,71 @@ describe('QuizeeEditingService', () => {
       expect(next.mock.calls[2][0]).not.toEqual(next.mock.calls[1][0]);
     });
   });
+
+
+  describe('pushQuizee', () => {
+    it('should not push if quizee is falsy', () => {
+      const testingService = service as any as { quizee: Quiz; get: () => Observable<Quiz>; pushQuizee: () => void };
+
+      testingService.get().subscribe({ next, error });
+      testingService.pushQuizee();
+
+      jest.runAllTimers();
+
+      expect(testingService.quizee).toBeFalsy();
+      expect(next).not.toHaveBeenCalled();
+      expect(error).not.toHaveBeenCalled();
+    });
+
+    it('should push quizee if it exists', () => {
+      const testingService = service as any as {
+        quizee: Quiz;
+        get: () => Observable<Quiz>;
+        pushQuizee: () => void;
+        create: () => Observable<Quiz>;
+      };
+
+      testingService.create().subscribe({ next, error });
+      testingService.pushQuizee();
+
+      jest.runAllTimers();
+
+      expect(testingService.quizee).toBeTruthy();
+      expect(next).toBeCalledTimes(2);
+      expect(error).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('pushCurrentQuestion', () => {
+    it('should not push if quizee is not created', () => {
+      const testingService = service as any as {
+        get: () => Observable<Quiz>;
+        pushCurrentQuestion: () => void;
+      };
+
+      testingService.get().subscribe({ next, error });
+      testingService.pushCurrentQuestion();
+
+      jest.runAllTimers();
+
+      expect(next).not.toHaveBeenCalled();
+      expect(error).not.toHaveBeenCalled();
+    });
+
+    it('should not push if question is not selected', () => {
+      const testingService = service as any as {
+        create: () => Observable<Quiz>;
+        getCurrentQuestion: () => Observable<QuestionPair>;
+        pushCurrentQuestion: () => void;
+      };
+
+      testingService.getCurrentQuestion().subscribe({ next, error });
+      testingService.pushCurrentQuestion();
+
+      jest.runAllTimers();
+
+      expect(next).not.toHaveBeenCalled();
+      expect(error).not.toHaveBeenCalled();
+    });
+  });
 });

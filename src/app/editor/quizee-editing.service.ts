@@ -24,7 +24,9 @@ export class QuizeeEditingService {
       return throwError(() => new Error("Answers and questions count isn't equal"));
 
     this.quizee = _.cloneDeep(quizee);
-    this.quizee$.next(_.cloneDeep(quizee));
+
+    this.pushQuizee();
+
     this.selectQuestion(0);
 
     return this.get();
@@ -47,7 +49,8 @@ export class QuizeeEditingService {
     if (!this.quizee) return throwError(() => new Error('Quizee is not loaded'));
 
     this.quizee = _.merge({}, this.quizee, changes);
-    this.quizee$.next(_.cloneDeep(this.quizee));
+
+    this.pushQuizee();
 
     return this.get();
   }
@@ -63,7 +66,8 @@ export class QuizeeEditingService {
     this.quizee.answers.push({ answer: [''], answerTo: id, config: { equalCase: false } });
     this.quizee.questions.push({ id, answerOptions: [], caption: '', type: 'ONE_TRUE' });
 
-    this.quizee$.next(_.cloneDeep(this.quizee));
+    this.pushQuizee();
+
     return this.selectQuestion(this.quizee.questions.length - 1);
   }
 
@@ -72,9 +76,7 @@ export class QuizeeEditingService {
       return throwError(() => new Error('Index is out of range'));
 
     this.currentIndex = index;
-    this.currentQuestion$.next(
-      _.cloneDeep({ question: this.quizee.questions[index], answer: this.quizee.answers[index] })
-    );
+    this.pushCurrentQuestion();
 
     return this.getCurrentQuestion();
   }
@@ -86,7 +88,7 @@ export class QuizeeEditingService {
     _.merge(this.quizee.answers[this.currentIndex], changes.answer);
     _.merge(this.quizee.questions[this.currentIndex], changes.question);
 
-    this.quizee$.next(this.quizee);
+    this.pushQuizee();
     this.selectQuestion(this.currentIndex);
 
     return this.getCurrentQuestion();
@@ -94,5 +96,23 @@ export class QuizeeEditingService {
 
   getCurrentQuestion(): Observable<QuestionPair> {
     return this.currentQuestion$;
+  }
+
+
+  private pushQuizee() {
+    if (!this.quizee) return;
+
+    this.quizee$.next(_.cloneDeep(this.quizee));
+  }
+
+  private pushCurrentQuestion() {
+    if (!this.quizee || this.currentIndex < 0) return;
+
+    this.currentQuestion$.next(
+      _.cloneDeep({
+        question: this.quizee.questions[this.currentIndex],
+        answer: this.quizee.answers[this.currentIndex],
+      })
+    );
   }
 }
