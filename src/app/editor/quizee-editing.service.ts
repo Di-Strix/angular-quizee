@@ -72,7 +72,7 @@ export class QuizeeEditingService {
   }
 
   selectQuestion(index: number): Observable<QuestionPair> {
-    if (!this.quizee || index < 0 || !_.inRange(index, this.quizee.questions.length || 0))
+    if (!this.quizee || index < 0 || !_.inRange(index, this.quizee.questions.length))
       return throwError(() => new Error('Index is out of range'));
 
     this.currentIndex = index;
