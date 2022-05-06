@@ -258,8 +258,8 @@ describe('QuizeeEditingService', () => {
       expect(error).toHaveBeenCalled();
     });
 
-    it('should throw if question is selected', () => {
-      service.createQuestion();
+    it('should throw if question is not selected', () => {
+      service.create();
       service.modifyCurrentQuestion({}).subscribe({ next, error });
 
       jest.runAllTimers();
