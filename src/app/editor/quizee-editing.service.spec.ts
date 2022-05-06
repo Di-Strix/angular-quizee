@@ -1,7 +1,7 @@
-import { Quiz } from '@di-strix/quizee-types';
+import { AnswerOption, AnswerOptionId, Quiz } from '@di-strix/quizee-types';
 
 import * as _ from 'lodash';
-import { first } from 'rxjs';
+import { Observable, first } from 'rxjs';
 
 import { QuestionPair, QuizeeEditingService } from './quizee-editing.service';
 
@@ -321,6 +321,99 @@ describe('QuizeeEditingService', () => {
     });
   });
 
+  describe('setAnswer', () => {
+    it('should throw if quizee is not loaded', () => {
+      service.setAnswer([]).subscribe({ next, error });
+
+      jest.runAllTimers();
+
+      expect(next).not.toHaveBeenCalled();
+      expect(error).toHaveBeenCalled();
+    });
+
+    it('should throw if question is not selected', () => {
+      service.create();
+      service.setAnswer([]).subscribe({ next, error });
+
+      jest.runAllTimers();
+
+      expect(next).not.toHaveBeenCalled();
+      expect(error).toHaveBeenCalled();
+    });
+
+    it('should set answer for current question', () => {
+      const answer: AnswerOptionId[] = ['1', '2', '3'];
+
+      service.create();
+      service.createQuestion();
+      service.setAnswer(answer).subscribe({ next, error });
+
+      jest.runAllTimers();
+
+      expect(error).not.toHaveBeenCalled();
+      expect(next).toHaveBeenCalledTimes(1);
+      expect(next.mock.calls[0][0].answer.answer).toEqual(answer);
+    });
+
+    it('should push new quizee', () => {
+      service.create().subscribe({ next, error });
+      service.createQuestion();
+      service.setAnswer(['1']);
+
+      jest.runAllTimers();
+
+      expect(error).not.toHaveBeenCalled();
+      expect(next).toHaveBeenCalledTimes(3);
+      expect(next.mock.calls[0][0]).not.toEqual(next.mock.calls[2][0]);
+    });
+  });
+
+  describe('setAnswerOptions', () => {
+    it('should throw if quizee is not loaded', () => {
+      service.setAnswerOptions([]).subscribe({ next, error });
+
+      jest.runAllTimers();
+
+      expect(next).not.toHaveBeenCalled();
+      expect(error).toHaveBeenCalled();
+    });
+
+    it('should throw if question is not selected', () => {
+      service.create();
+      service.setAnswerOptions([]).subscribe({ next, error });
+
+      jest.runAllTimers();
+
+      expect(next).not.toHaveBeenCalled();
+      expect(error).toHaveBeenCalled();
+    });
+
+    it('should set answer options for current question', () => {
+      const answerOptions: AnswerOption[] = [{ id: '1', value: '' }];
+
+      service.create();
+      service.createQuestion();
+      service.setAnswerOptions(answerOptions).subscribe({ next, error });
+
+      jest.runAllTimers();
+
+      expect(error).not.toHaveBeenCalled();
+      expect(next).toHaveBeenCalledTimes(1);
+      expect(next.mock.calls[0][0].question.answerOptions).toEqual(answerOptions);
+    });
+
+    it('should push new quizee', () => {
+      service.create().subscribe({ next, error });
+      service.createQuestion();
+      service.setAnswerOptions([{ id: '1', value: '' }]);
+
+      jest.runAllTimers();
+
+      expect(error).not.toHaveBeenCalled();
+      expect(next).toHaveBeenCalledTimes(3);
+      expect(next.mock.calls[1][0]).not.toEqual(next.mock.calls[2][0]);
+    });
+  });
 
   describe('pushQuizee', () => {
     it('should not push if quizee is falsy', () => {

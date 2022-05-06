@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Answer, Question, Quiz } from '@di-strix/quizee-types';
+import { Answer, AnswerOption, Question, Quiz } from '@di-strix/quizee-types';
 
 import * as _ from 'lodash';
 import { Observable, ReplaySubject, throwError } from 'rxjs';
@@ -98,6 +98,29 @@ export class QuizeeEditingService {
     return this.currentQuestion$;
   }
 
+  setAnswer(answer: Answer['answer']): Observable<QuestionPair> {
+    if (!this.quizee) return throwError(() => new Error('Quizee is not loaded'));
+    if (this.currentIndex < 0) return throwError(() => new Error('Question is not selected'));
+
+    this.quizee.answers[this.currentIndex].answer = answer;
+
+    this.pushQuizee();
+    this.pushCurrentQuestion();
+
+    return this.getCurrentQuestion();
+  }
+
+  setAnswerOptions(answerOptions: AnswerOption[]): Observable<QuestionPair> {
+    if (!this.quizee) return throwError(() => new Error('Quizee is not loaded'));
+    if (this.currentIndex < 0) return throwError(() => new Error('Question is not selected'));
+
+    this.quizee.questions[this.currentIndex].answerOptions = _.cloneDeep(answerOptions);
+
+    this.pushQuizee();
+    this.pushCurrentQuestion();
+
+    return this.getCurrentQuestion();
+  }
 
   private pushQuizee() {
     if (!this.quizee) return;
