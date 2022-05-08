@@ -27,6 +27,8 @@ import { SeveralTrueComponent } from './settings/answer-options/several-true/sev
 import { QuestionCaptionComponent } from './settings/question-caption/question-caption.component';
 import { QuestionTypeComponent } from './settings/question-type/question-type.component';
 import { RenderSettingsComponentsDirective } from './settings/render-settings-components.directive';
+import { SettingCardContentComponent } from './settings/setting-card/setting-card-content/setting-card-content.component';
+import { SettingCardTitleComponent } from './settings/setting-card/setting-card-title/setting-card-title.component';
 import { SettingCardComponent } from './settings/setting-card/setting-card.component';
 import { SettingsComponent } from './settings/settings.component';
 
@@ -42,6 +44,8 @@ import { SettingsComponent } from './settings/settings.component';
     RenderSettingsComponentsDirective,
     OneTrueComponent,
     SeveralTrueComponent,
+    SettingCardTitleComponent,
+    SettingCardContentComponent,
   ],
   imports: [
     CommonModule,
