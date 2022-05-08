@@ -63,7 +63,7 @@ describe('SeveralTrueComponent', () => {
       });
     });
 
-    describe('assembleAnswers', () => {
+    describe('assembleAnswerOptions', () => {
       it('should work', () => {
         const result = testComponent.assembleAnswerOptions({
           id1: { isCorrect: false, value: 'answerOption1' },

@@ -6,7 +6,7 @@ import * as _ from 'lodash';
 import { Subscription, filter } from 'rxjs';
 import { QuizeeEditingService } from 'src/app/editor/quizee-editing.service';
 
-export interface AOForm {
+export interface SeveralTrueAnswerOptionForm {
   [key: string]: {
     value: string;
     isCorrect: boolean;
@@ -52,7 +52,7 @@ export class SeveralTrueComponent implements OnInit, OnDestroy {
             return answerOption.id;
           });
 
-          this.formGroup.valueChanges.subscribe((object: AOForm) => {
+          this.formGroup.valueChanges.subscribe((object: SeveralTrueAnswerOptionForm) => {
             this.quizeeEditingService.setAnswer(this.assembleAnswers(object));
             this.quizeeEditingService.setAnswerOptions(this.assembleAnswerOptions(object));
           });
@@ -64,11 +64,11 @@ export class SeveralTrueComponent implements OnInit, OnDestroy {
     this.subs.unsubscribe();
   }
 
-  private assembleAnswers(object: AOForm): AnswerOptionId[] {
+  private assembleAnswers(object: SeveralTrueAnswerOptionForm): AnswerOptionId[] {
     return Object.keys(object).reduce((acc, key) => (object[key].isCorrect ? [...acc, key] : acc), Array());
   }
 
-  private assembleAnswerOptions(object: AOForm): AnswerOption[] {
+  private assembleAnswerOptions(object: SeveralTrueAnswerOptionForm): AnswerOption[] {
     return Object.keys(object).reduce((acc, key) => [...acc, { id: key, value: object[key].value }], Array());
   }
 }
