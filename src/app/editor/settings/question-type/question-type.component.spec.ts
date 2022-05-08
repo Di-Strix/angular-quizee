@@ -25,6 +25,8 @@ describe('QuestionTypeComponent', () => {
     fixture = TestBed.createComponent(QuestionTypeComponent);
     service = TestBed.inject(QuizeeEditingService);
     component = fixture.componentInstance;
+
+    jest.useFakeTimers();
   });
 
   it('should create', () => {
