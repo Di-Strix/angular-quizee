@@ -1,1 +1,40 @@
-<p>one-true works!</p>
+<app-setting-card
+  title="Answer options"
+  *ngIf="formGroup"
+  [formGroup]="formGroup"
+>
+  <mat-radio-group
+    fxFlex="100%"
+    fxLayout="column"
+    formControlName="correctAnswer"
+  >
+    <div
+      fxFlex="100%"
+      fxLayout="row"
+      style="align-items: center"
+      *ngFor="let id of ids"
+    >
+      <mat-radio-button
+        color="primary"
+        matTooltip="Mark as correct"
+        matTooltipShowDelay="500"
+        matTooltipPosition="left"
+        [value]="id"
+      >
+      </mat-radio-button>
+      <ng-container
+        [formGroup]="formGroup"
+        formGroupName="values"
+      >
+        <mat-form-field fxFlex="100%">
+          <input
+            matInput
+            [formControlName]="id"
+            required
+          />
+          <mat-error>Answer option shouldn't be empty</mat-error>
+        </mat-form-field>
+      </ng-container>
+    </div>
+  </mat-radio-group>
+</app-setting-card>
