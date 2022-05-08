@@ -27,4 +27,12 @@ describe('OverviewComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
+  describe('trackBy', () => {
+    it('should return item id', () => {
+      const id = '123';
+
+      expect(component.trackBy(0, { id } as any)).toBe(id);
+    });
+  });
 });
