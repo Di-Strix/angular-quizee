@@ -1,8 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, Validators } from '@angular/forms';
 
-import { Subscription } from 'rxjs';
-import { bindToQuizee } from 'src/app/shared/helpers/BindToQuizee';
+import { Subscription, filter } from 'rxjs';
 
 import { QuizeeEditingService } from '../../quizee-editing.service';
 
@@ -19,12 +18,18 @@ export class QuestionCaptionComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.subs.add(
-      bindToQuizee(this.questionCaption, {
-        getter: () => this.quizeeEditingService.getCurrentQuestion(),
-        setter: (v) => this.quizeeEditingService.modifyCurrentQuestion(v),
-        quizeeModifier: (value) => ({ question: { caption: value } }),
-        dataParser: (questionPair) => questionPair.question.caption,
-      })
+      this.quizeeEditingService
+        .getCurrentQuestion()
+        .pipe(filter((questionPair) => this.questionCaption.value !== questionPair.question.caption))
+        .subscribe((pair) => {
+          this.questionCaption.setValue(pair.question.caption);
+        })
+    );
+
+    this.subs.add(
+      this.questionCaption.valueChanges.subscribe((v) =>
+        this.quizeeEditingService.modifyCurrentQuestion({ question: { caption: v } })
+      )
     );
   }
 

@@ -3,9 +3,8 @@ import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/co
 import { FormControl, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 
-import { Subscription } from 'rxjs';
+import { Subscription, filter } from 'rxjs';
 
-import { bindToQuizee } from '../shared/helpers/BindToQuizee';
 import { QuizeeService } from '../shared/services/quizee.service';
 
 import { OverviewComponent } from './overview/overview.component';
@@ -36,12 +35,16 @@ export class EditorComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.subs.add(
-      bindToQuizee(this.quizeeName, {
-        getter: () => this.quizeeEditingService.get(),
-        setter: (v) => this.quizeeEditingService.modify(v),
-        dataParser: (q) => q.info.caption,
-        quizeeModifier: (v) => ({ info: { caption: v } }),
-      })
+      this.quizeeEditingService
+        .get()
+        .pipe(filter((quizee) => this.quizeeName.value !== quizee.info.caption))
+        .subscribe((quizee) => {
+          this.quizeeName.setValue(quizee.info.caption);
+        })
+    );
+
+    this.subs.add(
+      this.quizeeName.valueChanges.subscribe((v) => this.quizeeEditingService.modify({ info: { caption: v } }))
     );
 
     this.route.paramMap.subscribe((params) => {

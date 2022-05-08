@@ -2,8 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, Validators } from '@angular/forms';
 import { QuestionType } from '@di-strix/quizee-types';
 
-import { Subscription } from 'rxjs';
-import { bindToQuizee } from 'src/app/shared/helpers/BindToQuizee';
+import { Subscription, filter } from 'rxjs';
 
 import { QuizeeEditingService } from '../../quizee-editing.service';
 
@@ -26,12 +25,18 @@ export class QuestionTypeComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.subs.add(
-      bindToQuizee(this.questionType, {
-        getter: () => this.quizeeEditingService.getCurrentQuestion(),
-        setter: (v) => this.quizeeEditingService.modifyCurrentQuestion(v),
-        dataParser: (data) => data.question.type,
-        quizeeModifier: (v) => ({ question: { type: v as QuestionType } }),
-      })
+      this.quizeeEditingService
+        .getCurrentQuestion()
+        .pipe(filter((questionPair) => this.questionType.value !== questionPair.question.type))
+        .subscribe((pair) => {
+          this.questionType.setValue(pair.question.type);
+        })
+    );
+
+    this.subs.add(
+      this.questionType.valueChanges.subscribe((v) =>
+        this.quizeeEditingService.modifyCurrentQuestion({ question: { type: v } })
+      )
     );
   }
 
