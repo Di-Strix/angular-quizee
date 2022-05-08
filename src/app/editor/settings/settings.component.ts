@@ -5,15 +5,16 @@ import { Subscription, distinctUntilKeyChanged, tap } from 'rxjs';
 import { QuestionPair, QuizeeEditingService } from '../quizee-editing.service';
 
 import { AnswerInputComponent } from './answer-input/answer-input.component';
-import { AnswerOptionsComponent } from './answer-options/answer-options.component';
+import { OneTrueComponent } from './answer-options/one-true/one-true.component';
+import { SeveralTrueComponent } from './answer-options/several-true/several-true.component';
 import { QuestionCaptionComponent } from './question-caption/question-caption.component';
 import { QuestionTypeComponent } from './question-type/question-type.component';
 import { RenderSettingsComponentsDirective } from './render-settings-components.directive';
 import { SettingsComponentTypes, SettingsConfig } from './settings';
 
 export const settingsConfig: SettingsConfig = {
-  ONE_TRUE: [QuestionCaptionComponent, QuestionTypeComponent, AnswerOptionsComponent],
-  SEVERAL_TRUE: [QuestionCaptionComponent, QuestionTypeComponent, AnswerOptionsComponent],
+  ONE_TRUE: [QuestionCaptionComponent, QuestionTypeComponent, OneTrueComponent],
+  SEVERAL_TRUE: [QuestionCaptionComponent, QuestionTypeComponent, SeveralTrueComponent],
   WRITE_ANSWER: [QuestionCaptionComponent, QuestionTypeComponent, AnswerInputComponent],
 };
 
