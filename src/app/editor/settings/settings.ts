@@ -1,3 +1,4 @@
+import { Type } from '@angular/core';
 import { QuestionType } from '@di-strix/quizee-types';
 
 import { AnswerInputComponent } from './answer-input/answer-input.component';
@@ -7,12 +8,12 @@ import { QuestionCaptionComponent } from './question-caption/question-caption.co
 import { QuestionTypeComponent } from './question-type/question-type.component';
 
 export type SettingsComponentTypes =
-  | typeof QuestionCaptionComponent
-  | typeof QuestionTypeComponent
-  | typeof OneTrueComponent
-  | typeof SeveralTrueComponent
-  | typeof AnswerInputComponent;
+  | QuestionCaptionComponent
+  | QuestionTypeComponent
+  | OneTrueComponent
+  | SeveralTrueComponent
+  | AnswerInputComponent;
 
 export type SettingsConfig = {
-  [T in QuestionType]: Array<SettingsComponentTypes>;
+  [T in QuestionType]: Type<SettingsComponentTypes>[];
 };
