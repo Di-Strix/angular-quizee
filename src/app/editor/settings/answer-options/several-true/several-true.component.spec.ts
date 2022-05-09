@@ -8,33 +8,22 @@ import { QuestionPair, QuizeeEditingService } from 'src/app/editor/quizee-editin
 
 import { SeveralTrueComponent } from './several-true.component';
 
-class QuizeeEditingServiceMock {
-  getCurrentQuestion = jest.fn();
-  setAnswer = jest.fn();
-  setAnswerOptions = jest.fn();
-}
-
 describe('SeveralTrueComponent', () => {
   let component: SeveralTrueComponent;
-  let service: QuizeeEditingServiceMock;
+  let service: QuizeeEditingService;
   let fixture: ComponentFixture<SeveralTrueComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [SeveralTrueComponent],
       imports: [EditorModule],
-      providers: [
-        {
-          provide: QuizeeEditingService,
-          useValue: new QuizeeEditingServiceMock(),
-        },
-      ],
+      providers: [QuizeeEditingService],
     }).compileComponents();
   });
 
   beforeEach(() => {
     fixture = TestBed.createComponent(SeveralTrueComponent);
-    service = TestBed.inject(QuizeeEditingService) as any as QuizeeEditingServiceMock;
+    service = TestBed.inject(QuizeeEditingService);
     component = fixture.componentInstance;
   });
 
@@ -79,15 +68,18 @@ describe('SeveralTrueComponent', () => {
   });
 
   it('should subscribe to current question', () => {
-    service.getCurrentQuestion.mockReturnValue(of());
+    const getCurrentQuestion = jest.spyOn(service, 'getCurrentQuestion');
+    getCurrentQuestion.mockReturnValue(of());
     component.ngOnInit();
 
-    expect(service.getCurrentQuestion).toHaveBeenCalled();
+    expect(getCurrentQuestion).toHaveBeenCalled();
   });
 
   it('should create form controls for each answer option', () => {
     const ids = ['id1', 'id2', 'id3'];
-    service.getCurrentQuestion.mockReturnValue(
+
+    const getCurrentQuestion = jest.spyOn(service, 'getCurrentQuestion');
+    getCurrentQuestion.mockReturnValue(
       of({
         answer: { answer: [], answerTo: 'question id', config: { equalCase: false } },
         question: {
@@ -109,7 +101,9 @@ describe('SeveralTrueComponent', () => {
       jest.useFakeTimers();
 
       const ids = ['id1'];
-      service.getCurrentQuestion.mockReturnValue(
+
+      const getCurrentQuestion = jest.spyOn(service, 'getCurrentQuestion');
+      getCurrentQuestion.mockReturnValue(
         of({
           answer: { answer: [], answerTo: 'question id', config: { equalCase: false } },
           question: {
@@ -120,24 +114,28 @@ describe('SeveralTrueComponent', () => {
           },
         } as QuestionPair)
       );
+      const setAnswer = jest.spyOn(service, 'setAnswer');
+      const setAnswerOptions = jest.spyOn(service, 'setAnswerOptions');
 
       component.ngOnInit();
       component.formGroup.controls['id1'].get('value')?.setValue('id1');
 
       jest.runAllTimers();
 
-      expect(service.setAnswer).toHaveBeenCalledTimes(1);
-      expect(service.setAnswerOptions).toHaveBeenCalledTimes(1);
+      expect(setAnswer).toHaveBeenCalledTimes(1);
+      expect(setAnswerOptions).toHaveBeenCalledTimes(1);
 
-      expect(service.setAnswer.mock.calls[0][0]).toEqual([]);
-      expect(service.setAnswerOptions.mock.calls[0][0]).toEqual([{ id: 'id1', value: 'id1' }]);
+      expect(setAnswer.mock.calls[0][0]).toEqual([]);
+      expect(setAnswerOptions.mock.calls[0][0]).toEqual([{ id: 'id1', value: 'id1' }]);
     });
 
     it('should update quizee on checkbox value change', () => {
       jest.useFakeTimers();
 
       const ids = ['id1'];
-      service.getCurrentQuestion.mockReturnValue(
+
+      const getCurrentQuestion = jest.spyOn(service, 'getCurrentQuestion');
+      getCurrentQuestion.mockReturnValue(
         of({
           answer: { answer: [], answerTo: 'question id', config: { equalCase: false } },
           question: {
@@ -148,17 +146,19 @@ describe('SeveralTrueComponent', () => {
           },
         } as QuestionPair)
       );
+      const setAnswer = jest.spyOn(service, 'setAnswer');
+      const setAnswerOptions = jest.spyOn(service, 'setAnswerOptions');
 
       component.ngOnInit();
       component.formGroup.controls['id1'].get('isCorrect')?.setValue(true);
 
       jest.runAllTimers();
 
-      expect(service.setAnswer).toHaveBeenCalledTimes(1);
-      expect(service.setAnswerOptions).toHaveBeenCalledTimes(1);
+      expect(setAnswer).toHaveBeenCalledTimes(1);
+      expect(setAnswerOptions).toHaveBeenCalledTimes(1);
 
-      expect(service.setAnswer.mock.calls[0][0]).toEqual(['id1']);
-      expect(service.setAnswerOptions.mock.calls[0][0]).toEqual([{ id: 'id1', value: 'id' }]);
+      expect(setAnswer.mock.calls[0][0]).toEqual(['id1']);
+      expect(setAnswerOptions.mock.calls[0][0]).toEqual([{ id: 'id1', value: 'id' }]);
     });
   });
 
@@ -183,7 +183,8 @@ describe('SeveralTrueComponent', () => {
       mockQuestionPair.question.answerOptions = [{ id: 'some-unique-id', value: '1' }];
 
       const subject = new Subject();
-      service.getCurrentQuestion.mockReturnValue(subject);
+      const getCurrentQuestion = jest.spyOn(service, 'getCurrentQuestion');
+      getCurrentQuestion.mockReturnValue(subject as any);
 
       component.ngOnInit();
       subject.next(_.cloneDeep(mockQuestionPair));
@@ -203,7 +204,8 @@ describe('SeveralTrueComponent', () => {
       mockQuestionPair.question.answerOptions = [{ id: 'some-unique-id', value: '1' }];
 
       const subject = new Subject();
-      service.getCurrentQuestion.mockReturnValue(subject);
+      const getCurrentQuestion = jest.spyOn(service, 'getCurrentQuestion');
+      getCurrentQuestion.mockReturnValue(subject as any);
 
       component.ngOnInit();
       subject.next(_.cloneDeep(mockQuestionPair));
@@ -224,7 +226,8 @@ describe('SeveralTrueComponent', () => {
       mockQuestionPair.question.answerOptions = [{ id: 'some-unique-id', value: '1' }];
 
       const subject = new Subject();
-      service.getCurrentQuestion.mockReturnValue(subject);
+      const getCurrentQuestion = jest.spyOn(service, 'getCurrentQuestion');
+      getCurrentQuestion.mockReturnValue(subject as any);
 
       component.ngOnInit();
       subject.next(_.cloneDeep(mockQuestionPair));
