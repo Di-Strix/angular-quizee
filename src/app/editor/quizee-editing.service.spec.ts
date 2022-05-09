@@ -202,14 +202,15 @@ describe('QuizeeEditingService', () => {
       expect(next.mock.calls[0]).not.toEqual(next.mock.calls[1]);
     });
 
-    it('should create question with empty answer and answerOption', () => {
+    it('should create question with initial answer and answerOption', () => {
       service.create();
       service.createQuestion().subscribe({ next, error });
 
       jest.runAllTimers();
 
-      expect(next.mock.calls[0][0].answer.answer.length).toBe(0);
-      expect(next.mock.calls[0][0].question.answerOptions.length).toBe(0);
+      expect(next.mock.calls[0][0].answer.answer.length).toBe(1);
+      expect(next.mock.calls[0][0].question.answerOptions.length).toBe(1);
+      expect(next.mock.calls[0][0].answer.answer[0]).toBe(next.mock.calls[0][0].question.answerOptions[0].id);
     });
   });
 
@@ -578,19 +579,18 @@ describe('QuizeeEditingService', () => {
       service.addAnswerOption();
 
       expect(next).toHaveBeenCalledTimes(2);
-      expect(next.mock.calls[0][0].question.answerOptions.length).toBe(0);
-      expect(next.mock.calls[1][0].question.answerOptions.length).toBe(1);
+      expect(next.mock.calls[0][0].question.answerOptions.length).toBe(1);
+      expect(next.mock.calls[1][0].question.answerOptions.length).toBe(2);
     });
 
     it('should create unique id for each answer option', () => {
       service.create();
       service.createQuestion().subscribe({ next, error });
       service.addAnswerOption();
-      service.addAnswerOption();
 
-      expect(next).toHaveBeenCalledTimes(3);
-      expect(next.mock.calls[2][0].question.answerOptions[0].id).not.toBe(
-        next.mock.calls[2][0].question.answerOptions[1].id
+      expect(next).toHaveBeenCalledTimes(2);
+      expect(next.mock.calls[1][0].question.answerOptions[0].id).not.toBe(
+        next.mock.calls[1][0].question.answerOptions[1].id
       );
     });
   });
@@ -619,7 +619,6 @@ describe('QuizeeEditingService', () => {
       service.create();
       service.createQuestion().subscribe({ next, error });
       service.addAnswerOption();
-      service.addAnswerOption();
 
       jest.runAllTimers();
 
@@ -627,9 +626,9 @@ describe('QuizeeEditingService', () => {
 
       jest.runAllTimers();
 
-      expect(next.mock.calls[2][0].question.answerOptions.length).toBe(2);
-      expect(next.mock.calls[3][0].question.answerOptions[0].id).not.toBe(
-        next.mock.calls[2][0].question.answerOptions[0].id
+      expect(next.mock.calls[1][0].question.answerOptions.length).toBe(2);
+      expect(next.mock.calls[2][0].question.answerOptions[0].id).not.toBe(
+        next.mock.calls[1][0].question.answerOptions[0].id
       );
     });
 

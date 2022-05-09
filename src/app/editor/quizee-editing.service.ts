@@ -62,9 +62,10 @@ export class QuizeeEditingService {
   createQuestion(): Observable<QuestionPair> {
     if (!this.quizee) return throwError(() => new Error('Quizee is not loaded'));
 
-    const id = uuidV4();
-    this.quizee.answers.push({ answer: [], answerTo: id, config: { equalCase: false } });
-    this.quizee.questions.push({ id, answerOptions: [], caption: '', type: 'ONE_TRUE' });
+    const qp = this._createQuestion();
+
+    this.quizee.answers.push(qp.answer);
+    this.quizee.questions.push(qp.question);
 
     this.pushQuizee();
 
@@ -129,7 +130,7 @@ export class QuizeeEditingService {
     this.getCurrentQuestion()
       .pipe(first())
       .subscribe((pair) => {
-        this.setAnswerOptions([...pair.question.answerOptions, { id: uuidV4(), value: '' }]);
+        this.setAnswerOptions([...pair.question.answerOptions, this._createAnswerOption()]);
       });
 
     return this.getCurrentQuestion();
@@ -164,5 +165,19 @@ export class QuizeeEditingService {
         answer: this.quizee.answers[this.currentIndex],
       })
     );
+  }
+
+  private _createQuestion(): QuestionPair {
+    const id = uuidV4();
+    const answerOption = this._createAnswerOption();
+
+    return {
+      answer: { answer: [answerOption.id], answerTo: id, config: { equalCase: false } },
+      question: { id, answerOptions: [answerOption], caption: '', type: 'ONE_TRUE' },
+    };
+  }
+
+  private _createAnswerOption() {
+    return { id: uuidV4(), value: '' };
   }
 }
