@@ -1,33 +1,58 @@
-<app-setting-card title="Answer options">
-  <div
-    fxFlex="100%"
-    fxLayout="column"
-    [formGroup]="formGroup"
-  >
+<app-setting-card>
+  <app-setting-card-title title="Answer options">
+    <span
+      fxFlex
+      fxGrow="1"
+      fxShrink="1"
+    ></span>
+    <button
+      mat-icon-button
+      (click)="createAnswerOption()"
+    >
+      <mat-icon>add</mat-icon>
+    </button>
+  </app-setting-card-title>
+  <app-setting-card-content>
     <div
       fxFlex="100%"
-      fxLayout="row"
-      style="align-items: center"
-      *ngFor="let id of ids"
-      [formGroupName]="id"
+      fxLayout="column"
+      [formGroup]="formGroup"
     >
-      <mat-checkbox
-        style="margin-right: 0.5rem"
-        color="primary"
-        matTooltip="Mark as correct"
-        matTooltipShowDelay="500"
-        matTooltipPosition="left"
-        formControlName="isCorrect"
+      <div
+        fxFlex="100%"
+        fxLayout="row"
+        style="align-items: center"
+        *ngFor="let id of ids; let index = index"
+        [formGroupName]="id"
       >
-      </mat-checkbox>
-      <mat-form-field fxFlex="100%">
-        <input
-          matInput
-          formControlName="value"
-          required
-        />
-        <mat-error>Answer option shouldn't be empty</mat-error>
-      </mat-form-field>
+        <mat-checkbox
+          style="margin-right: 0.5rem"
+          color="primary"
+          matTooltip="Mark as correct"
+          matTooltipShowDelay="500"
+          matTooltipPosition="left"
+          formControlName="isCorrect"
+        >
+        </mat-checkbox>
+        <mat-form-field fxFlex="100%">
+          <mat-label>Answer option #{{ index }}</mat-label>
+          <input
+            matInput
+            formControlName="value"
+            placeholder="Type here your answer option"
+            required
+          />
+          <mat-error>Answer option shouldn't be empty</mat-error>
+        </mat-form-field>
+        <button
+          mat-icon-button
+          color="warn"
+          (click)="removeAnswerOption(id)"
+          [disabled]="ids.length <= 1"
+        >
+          <mat-icon>delete</mat-icon>
+        </button>
+      </div>
     </div>
-  </div>
+  </app-setting-card-content>
 </app-setting-card>

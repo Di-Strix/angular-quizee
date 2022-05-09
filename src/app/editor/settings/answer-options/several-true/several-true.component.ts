@@ -64,6 +64,16 @@ export class SeveralTrueComponent implements OnInit, OnDestroy {
     this.subs.unsubscribe();
   }
 
+  removeAnswerOption(id: AnswerOptionId) {
+    if (this.ids.length <= 1) return;
+
+    this.quizeeEditingService.removeAnswerOption(id);
+  }
+
+  createAnswerOption() {
+    this.quizeeEditingService.addAnswerOption();
+  }
+
   private assembleAnswers(object: SeveralTrueAnswerOptionForm): AnswerOptionId[] {
     return Object.keys(object).reduce((acc, key) => (object[key].isCorrect ? [...acc, key] : acc), Array());
   }

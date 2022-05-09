@@ -244,4 +244,38 @@ describe('SeveralTrueComponent', () => {
       expect(component.formGroup === form).toBeFalsy();
     });
   });
+
+  describe('remove answer option', () => {
+    it('should not remove answer option if it is the last one', () => {
+      const removeAnswerOption = jest.spyOn(service, 'removeAnswerOption');
+      component.ids = ['1'];
+      component.removeAnswerOption('1');
+
+      jest.runAllTimers();
+
+      expect(removeAnswerOption).not.toHaveBeenCalled();
+    });
+
+    it('should prompt service to remove answer option with provided id', () => {
+      const removeAnswerOption = jest.spyOn(service, 'removeAnswerOption');
+      component.ids = ['1', '2'];
+      component.removeAnswerOption('1');
+
+      jest.runAllTimers();
+
+      expect(removeAnswerOption).toHaveBeenCalledTimes(1);
+      expect(removeAnswerOption).toHaveBeenCalledWith('1');
+    });
+  });
+
+  describe('createAnswerOption', () => {
+    it('should prompt service to create answer option', () => {
+      const addAnswerOption = jest.spyOn(service, 'addAnswerOption');
+      component.createAnswerOption();
+
+      jest.runAllTimers();
+
+      expect(addAnswerOption).toHaveBeenCalledTimes(1);
+    });
+  });
 });
