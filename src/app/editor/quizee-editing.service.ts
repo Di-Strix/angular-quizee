@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import { Answer, AnswerOption, Question, Quiz } from '@di-strix/quizee-types';
+import { Answer, AnswerOption, AnswerOptionId, Question, Quiz } from '@di-strix/quizee-types';
 
 import * as _ from 'lodash';
-import { Observable, ReplaySubject, throwError } from 'rxjs';
+import { Observable, ReplaySubject, first, throwError } from 'rxjs';
 import { v4 as uuidV4 } from 'uuid';
 
 import { RecursivePartial } from '../shared/helpers/RecursivePartial';
@@ -118,6 +118,33 @@ export class QuizeeEditingService {
 
     this.pushQuizee();
     this.pushCurrentQuestion();
+
+    return this.getCurrentQuestion();
+  }
+
+  addAnswerOption(): Observable<QuestionPair> {
+    if (!this.quizee) return throwError(() => new Error('Quizee is not loaded'));
+    if (this.currentIndex < 0) return throwError(() => new Error('Question is not selected'));
+
+    this.getCurrentQuestion()
+      .pipe(first())
+      .subscribe((pair) => {
+        this.setAnswerOptions([...pair.question.answerOptions, { id: uuidV4(), value: '' }]);
+      });
+
+    return this.getCurrentQuestion();
+  }
+
+  removeAnswerOption(id: AnswerOptionId): Observable<QuestionPair> {
+    if (!this.quizee) return throwError(() => new Error('Quizee is not loaded'));
+    if (this.currentIndex < 0) return throwError(() => new Error('Question is not selected'));
+
+    this.getCurrentQuestion()
+      .pipe(first())
+      .subscribe((pair) => {
+        this.setAnswerOptions(pair.question.answerOptions.filter((v) => v.id !== id));
+        this.setAnswer(pair.answer.answer.filter((answerId) => answerId !== id));
+      });
 
     return this.getCurrentQuestion();
   }

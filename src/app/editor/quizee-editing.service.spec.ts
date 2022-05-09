@@ -551,4 +551,102 @@ describe('QuizeeEditingService', () => {
       expect(next.mock.calls[1][0].answer.answerTo).toEqual(next.mock.calls[0][0].answer.answerTo);
     });
   });
+
+  describe('addAnswerOption', () => {
+    it('should throw if quizee is not created', () => {
+      service.addAnswerOption().subscribe({ next, error });
+
+      jest.runAllTimers();
+
+      expect(next).not.toHaveBeenCalled();
+      expect(error).toHaveBeenCalled();
+    });
+
+    it('should throw if question is not selected', () => {
+      service.create();
+      service.addAnswerOption().subscribe({ next, error });
+
+      jest.runAllTimers();
+
+      expect(next).not.toHaveBeenCalled();
+      expect(error).toHaveBeenCalled();
+    });
+
+    it('should create new answer option for selected question', () => {
+      service.create();
+      service.createQuestion().subscribe({ next, error });
+      service.addAnswerOption();
+
+      expect(next).toHaveBeenCalledTimes(2);
+      expect(next.mock.calls[0][0].question.answerOptions.length).toBe(0);
+      expect(next.mock.calls[1][0].question.answerOptions.length).toBe(1);
+    });
+
+    it('should create unique id for each answer option', () => {
+      service.create();
+      service.createQuestion().subscribe({ next, error });
+      service.addAnswerOption();
+      service.addAnswerOption();
+
+      expect(next).toHaveBeenCalledTimes(3);
+      expect(next.mock.calls[2][0].question.answerOptions[0].id).not.toBe(
+        next.mock.calls[2][0].question.answerOptions[1].id
+      );
+    });
+  });
+
+  describe('removeAnswerOption', () => {
+    it('should throw if quizee is not created', () => {
+      service.removeAnswerOption('').subscribe({ next, error });
+
+      jest.runAllTimers();
+
+      expect(next).not.toHaveBeenCalled();
+      expect(error).toHaveBeenCalled();
+    });
+
+    it('should throw if question is not selected', () => {
+      service.create();
+      service.removeAnswerOption('').subscribe({ next, error });
+
+      jest.runAllTimers();
+
+      expect(next).not.toHaveBeenCalled();
+      expect(error).toHaveBeenCalled();
+    });
+
+    it('should remove answer option with provided id for selected question', () => {
+      service.create();
+      service.createQuestion().subscribe({ next, error });
+      service.addAnswerOption();
+      service.addAnswerOption();
+
+      jest.runAllTimers();
+
+      service.removeAnswerOption(next.mock.calls[1][0].question.answerOptions[0].id);
+
+      jest.runAllTimers();
+
+      expect(next.mock.calls[2][0].question.answerOptions.length).toBe(2);
+      expect(next.mock.calls[3][0].question.answerOptions[0].id).not.toBe(
+        next.mock.calls[2][0].question.answerOptions[0].id
+      );
+    });
+
+    it('should remove answer with provided id for selected question', () => {
+      service.create();
+      service.createQuestion().subscribe({ next, error });
+      service.addAnswerOption();
+      service.addAnswerOption();
+
+      jest.runAllTimers();
+
+      service.setAnswer([next.mock.calls[1][0].question.answerOptions[0].id]);
+      service.removeAnswerOption(next.mock.calls[1][0].question.answerOptions[0].id);
+
+      jest.runAllTimers();
+
+      expect(next.mock.calls[5][0].answer.answer).toEqual([]);
+    });
+  });
 });
