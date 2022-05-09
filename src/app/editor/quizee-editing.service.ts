@@ -63,7 +63,7 @@ export class QuizeeEditingService {
     if (!this.quizee) return throwError(() => new Error('Quizee is not loaded'));
 
     const id = uuidV4();
-    this.quizee.answers.push({ answer: [''], answerTo: id, config: { equalCase: false } });
+    this.quizee.answers.push({ answer: [], answerTo: id, config: { equalCase: false } });
     this.quizee.questions.push({ id, answerOptions: [], caption: '', type: 'ONE_TRUE' });
 
     this.pushQuizee();

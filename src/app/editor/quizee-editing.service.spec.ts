@@ -201,6 +201,16 @@ describe('QuizeeEditingService', () => {
       expect(next).toHaveBeenCalledTimes(2);
       expect(next.mock.calls[0]).not.toEqual(next.mock.calls[1]);
     });
+
+    it('should create question with empty answer and answerOption', () => {
+      service.create();
+      service.createQuestion().subscribe({ next, error });
+
+      jest.runAllTimers();
+
+      expect(next.mock.calls[0][0].answer.answer.length).toBe(0);
+      expect(next.mock.calls[0][0].question.answerOptions.length).toBe(0);
+    });
   });
 
   describe('selectQuestion', () => {
