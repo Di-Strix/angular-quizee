@@ -3,6 +3,8 @@ import { AnswerOption, AnswerOptionId, Quiz } from '@di-strix/quizee-types';
 import * as _ from 'lodash';
 import { Observable, first } from 'rxjs';
 
+import { RecursivePartial } from '../shared/helpers/RecursivePartial';
+
 import { QuestionPair, QuizeeEditingService } from './quizee-editing.service';
 
 describe('QuizeeEditingService', () => {
@@ -33,10 +35,10 @@ describe('QuizeeEditingService', () => {
 
   describe('load', () => {
     it('should load provided quiz and return observable that emits loaded quizee', () => {
-      const quizee = {
+      const quizee: RecursivePartial<Quiz> = {
         [Symbol()]: 'data',
-        questions: [],
-        answers: [],
+        questions: [{}],
+        answers: [{}],
       };
 
       service.load(quizee as any as Quiz).subscribe({ next, error });
@@ -48,10 +50,10 @@ describe('QuizeeEditingService', () => {
     });
 
     it('should make sure that length of questions and answers is equal', () => {
-      let quizee = {
+      let quizee: RecursivePartial<Quiz> = {
         [Symbol()]: 'data',
-        questions: [{}],
-        answers: [],
+        questions: [{}, {}],
+        answers: [{}],
       };
 
       service.load(quizee as any as Quiz).subscribe({ next, error });
@@ -64,7 +66,7 @@ describe('QuizeeEditingService', () => {
       next.mockReset();
       error.mockReset();
 
-      quizee.questions.pop();
+      quizee.questions?.pop();
 
       service
         .load(quizee as any as Quiz)
@@ -75,6 +77,21 @@ describe('QuizeeEditingService', () => {
 
       expect(next).toHaveBeenCalledWith(quizee);
       expect(error).not.toHaveBeenCalled();
+    });
+
+    it('should check whether quizee contains at least one question', () => {
+      const quizee: RecursivePartial<Quiz> = {
+        [Symbol()]: 'data',
+        questions: [],
+        answers: [],
+      };
+
+      service.load(quizee as any as Quiz).subscribe({ next, error });
+
+      jest.runAllTimers();
+
+      expect(next).not.toHaveBeenCalled();
+      expect(error).toHaveBeenCalled();
     });
   });
 
@@ -112,8 +129,8 @@ describe('QuizeeEditingService', () => {
     it('should emit updates to subscribers', () => {
       const quizee = {
         a: 'data',
-        questions: [],
-        answers: [],
+        questions: [{}],
+        answers: [{}],
       };
       const change1 = {
         b: 'change1',
@@ -154,8 +171,8 @@ describe('QuizeeEditingService', () => {
     it('should return observable that emits current quizee', () => {
       const quizee = {
         [Symbol()]: 'data',
-        questions: [],
-        answers: [],
+        questions: [{}],
+        answers: [{}],
       };
 
       service.load(quizee as any as Quiz);
@@ -226,7 +243,7 @@ describe('QuizeeEditingService', () => {
 
     it('should throw if out of range', () => {
       service.create();
-      service.selectQuestion(0).subscribe({ next, error });
+      service.selectQuestion(1).subscribe({ next, error });
 
       jest.runAllTimers();
 
@@ -261,16 +278,6 @@ describe('QuizeeEditingService', () => {
 
   describe('modifyCurrentQuestion', () => {
     it('should throw if quizee is not loaded', () => {
-      service.modifyCurrentQuestion({}).subscribe({ next, error });
-
-      jest.runAllTimers();
-
-      expect(next).not.toHaveBeenCalled();
-      expect(error).toHaveBeenCalled();
-    });
-
-    it('should throw if question is not selected', () => {
-      service.create();
       service.modifyCurrentQuestion({}).subscribe({ next, error });
 
       jest.runAllTimers();
@@ -342,16 +349,6 @@ describe('QuizeeEditingService', () => {
       expect(error).toHaveBeenCalled();
     });
 
-    it('should throw if question is not selected', () => {
-      service.create();
-      service.setAnswer([]).subscribe({ next, error });
-
-      jest.runAllTimers();
-
-      expect(next).not.toHaveBeenCalled();
-      expect(error).toHaveBeenCalled();
-    });
-
     it('should set answer for current question', () => {
       const answer: AnswerOptionId[] = ['1', '2', '3'];
 
@@ -389,16 +386,6 @@ describe('QuizeeEditingService', () => {
       expect(error).toHaveBeenCalled();
     });
 
-    it('should throw if question is not selected', () => {
-      service.create();
-      service.setAnswerOptions([]).subscribe({ next, error });
-
-      jest.runAllTimers();
-
-      expect(next).not.toHaveBeenCalled();
-      expect(error).toHaveBeenCalled();
-    });
-
     it('should set answer options for current question', () => {
       const answerOptions: AnswerOption[] = [{ id: '1', value: '' }];
 
@@ -426,12 +413,12 @@ describe('QuizeeEditingService', () => {
     });
   });
 
-  describe('pushQuizee', () => {
+  describe('_pushQuizee', () => {
     it('should not push if quizee is falsy', () => {
-      const testingService = service as any as { quizee: Quiz; get: () => Observable<Quiz>; pushQuizee: () => void };
+      const testingService = service as any as { quizee: Quiz; get: () => Observable<Quiz>; _pushQuizee: () => void };
 
       testingService.get().subscribe({ next, error });
-      testingService.pushQuizee();
+      testingService._pushQuizee();
 
       jest.runAllTimers();
 
@@ -444,12 +431,12 @@ describe('QuizeeEditingService', () => {
       const testingService = service as any as {
         quizee: Quiz;
         get: () => Observable<Quiz>;
-        pushQuizee: () => void;
+        _pushQuizee: () => void;
         create: () => Observable<Quiz>;
       };
 
       testingService.create().subscribe({ next, error });
-      testingService.pushQuizee();
+      testingService._pushQuizee();
 
       jest.runAllTimers();
 
@@ -463,11 +450,11 @@ describe('QuizeeEditingService', () => {
         quizee: Quiz;
         create: () => Observable<Quiz>;
         get: () => Observable<Quiz>;
-        pushQuizee: () => void;
+        _pushQuizee: () => void;
       };
 
       testingService.create().subscribe({ next, error });
-      testingService.pushQuizee();
+      testingService._pushQuizee();
       testingService.quizee.info.caption = '123123';
 
       jest.runAllTimers();
@@ -479,15 +466,15 @@ describe('QuizeeEditingService', () => {
     });
   });
 
-  describe('pushCurrentQuestion', () => {
+  describe('_pushCurrentQuestion', () => {
     it('should not push if quizee is not created', () => {
       const testingService = service as any as {
         get: () => Observable<Quiz>;
-        pushCurrentQuestion: () => void;
+        _pushCurrentQuestion: () => void;
       };
 
       testingService.get().subscribe({ next, error });
-      testingService.pushCurrentQuestion();
+      testingService._pushCurrentQuestion();
 
       jest.runAllTimers();
 
@@ -499,11 +486,11 @@ describe('QuizeeEditingService', () => {
       const testingService = service as any as {
         create: () => Observable<Quiz>;
         getCurrentQuestion: () => Observable<QuestionPair>;
-        pushCurrentQuestion: () => void;
+        _pushCurrentQuestion: () => void;
       };
 
       testingService.getCurrentQuestion().subscribe({ next, error });
-      testingService.pushCurrentQuestion();
+      testingService._pushCurrentQuestion();
 
       jest.runAllTimers();
 
@@ -517,12 +504,12 @@ describe('QuizeeEditingService', () => {
         create: () => Observable<Quiz>;
         createQuestion: () => Observable<QuestionPair>;
         getCurrentQuestion: () => Observable<QuestionPair>;
-        pushCurrentQuestion: () => void;
+        _pushCurrentQuestion: () => void;
       };
 
       testingService.create();
       testingService.createQuestion().subscribe({ next, error });
-      testingService.pushCurrentQuestion();
+      testingService._pushCurrentQuestion();
 
       jest.runAllTimers();
 
@@ -536,12 +523,12 @@ describe('QuizeeEditingService', () => {
         create: () => Observable<Quiz>;
         createQuestion: () => Observable<QuestionPair>;
         getCurrentQuestion: () => Observable<QuestionPair>;
-        pushCurrentQuestion: () => void;
+        _pushCurrentQuestion: () => void;
       };
 
       testingService.create();
       testingService.createQuestion().subscribe({ next, error });
-      testingService.pushCurrentQuestion();
+      testingService._pushCurrentQuestion();
       testingService.quizee.answers[0].answerTo = '123123';
 
       jest.runAllTimers();
@@ -555,16 +542,6 @@ describe('QuizeeEditingService', () => {
 
   describe('addAnswerOption', () => {
     it('should throw if quizee is not created', () => {
-      service.addAnswerOption().subscribe({ next, error });
-
-      jest.runAllTimers();
-
-      expect(next).not.toHaveBeenCalled();
-      expect(error).toHaveBeenCalled();
-    });
-
-    it('should throw if question is not selected', () => {
-      service.create();
       service.addAnswerOption().subscribe({ next, error });
 
       jest.runAllTimers();
@@ -605,16 +582,6 @@ describe('QuizeeEditingService', () => {
       expect(error).toHaveBeenCalled();
     });
 
-    it('should throw if question is not selected', () => {
-      service.create();
-      service.removeAnswerOption('').subscribe({ next, error });
-
-      jest.runAllTimers();
-
-      expect(next).not.toHaveBeenCalled();
-      expect(error).toHaveBeenCalled();
-    });
-
     it('should remove answer option with provided id for selected question', () => {
       service.create();
       service.createQuestion().subscribe({ next, error });
@@ -636,16 +603,105 @@ describe('QuizeeEditingService', () => {
       service.create();
       service.createQuestion().subscribe({ next, error });
       service.addAnswerOption();
-      service.addAnswerOption();
 
       jest.runAllTimers();
 
+      expect(next).toHaveBeenCalledTimes(2);
       service.setAnswer([next.mock.calls[1][0].question.answerOptions[0].id]);
       service.removeAnswerOption(next.mock.calls[1][0].question.answerOptions[0].id);
 
       jest.runAllTimers();
 
-      expect(next.mock.calls[5][0].answer.answer).toEqual([]);
+      expect(error).not.toHaveBeenCalled();
+      expect(next).toHaveBeenCalledTimes(4);
+      expect(next.mock.calls[3][0].answer.answer).toEqual([]);
+    });
+  });
+
+  describe('_getCurrentQuestion', () => {
+    it('should throw if quizee is not loaded', () => {
+      expect((async () => (service as any)._getCurrentQuestion())()).rejects.toThrowError();
+    });
+
+    it('should return current question', () => {
+      service.create();
+
+      const qp: QuestionPair = (service as any)._getCurrentQuestion();
+      const quizee: Quiz = (service as any).quizee;
+
+      expect(qp.question).toEqual(quizee.questions[service.currentIndex]);
+      expect(qp.answer).toEqual(quizee.answers[service.currentIndex]);
+    });
+  });
+
+  describe('setQuestionType', () => {
+    it('should throw if quizee is not loaded', () => {
+      service.setQuestionType('ONE_TRUE').subscribe({ next, error });
+
+      jest.runAllTimers();
+
+      expect(next).not.toHaveBeenCalled();
+      expect(error).toHaveBeenCalled();
+    });
+
+    it('should push quizee', () => {
+      service.create().subscribe({ next, error });
+      service.setQuestionType('SEVERAL_TRUE');
+
+      jest.runAllTimers();
+
+      expect(next).toHaveBeenCalledTimes(2);
+      expect(error).not.toHaveBeenCalled();
+    });
+
+    it('should push current question', () => {
+      service.create();
+      service.getCurrentQuestion().subscribe({ next, error });
+      service.setQuestionType('SEVERAL_TRUE');
+
+      jest.runAllTimers();
+
+      expect(next).toHaveBeenCalledTimes(2);
+      expect(error).not.toHaveBeenCalled();
+    });
+
+    it('should change question type', () => {
+      service.create();
+      service.getCurrentQuestion().subscribe({ next, error });
+      service.setQuestionType('SEVERAL_TRUE');
+
+      jest.runAllTimers();
+
+      expect(error).not.toHaveBeenCalled();
+      expect(next.mock.calls[1][0].question.type).toBe('SEVERAL_TRUE');
+      expect(next.mock.calls[1][0].question.type).not.toBe(next.mock.calls[0][0].question.type);
+    });
+
+    it('should clear answer and answer options on switch to WRITE_ANSWER', () => {
+      service.create();
+      service.setAnswerOptions([{ id: 'abc', value: 'abc' }]);
+      service.setAnswer(['abc']);
+
+      service.setQuestionType('WRITE_ANSWER').subscribe({ next, error });
+
+      jest.runAllTimers();
+
+      expect(error).not.toHaveBeenCalled();
+      expect(next.mock.calls[0][0].answer.answer.length).toBe(0);
+      expect(next.mock.calls[0][0].question.answerOptions.length).toBe(0);
+    });
+
+    it('should add answer and answer option when switching from WRITE_ANSWER', () => {
+      service.create();
+      service.setQuestionType('WRITE_ANSWER');
+      service.setQuestionType('ONE_TRUE').subscribe({ next, error });
+
+      jest.runAllTimers();
+
+      expect(error).not.toHaveBeenCalled();
+      expect(next.mock.calls[0][0].answer.answer.length).toBe(1);
+      expect(next.mock.calls[0][0].question.answerOptions.length).toBe(1);
+      expect(next.mock.calls[0][0].answer.answer[0]).toBe(next.mock.calls[0][0].question.answerOptions[0].id);
     });
   });
 });
