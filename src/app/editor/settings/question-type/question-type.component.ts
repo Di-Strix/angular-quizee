@@ -34,9 +34,9 @@ export class QuestionTypeComponent implements OnInit, OnDestroy {
     );
 
     this.subs.add(
-      this.questionType.valueChanges.subscribe((v) =>
-        this.quizeeEditingService.modifyCurrentQuestion({ question: { type: v } })
-      )
+      this.questionType.valueChanges.subscribe((v) => {
+        this.quizeeEditingService.setQuestionType(v);
+      })
     );
   }
 

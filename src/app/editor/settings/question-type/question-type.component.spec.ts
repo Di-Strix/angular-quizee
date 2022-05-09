@@ -49,15 +49,15 @@ describe('QuestionTypeComponent', () => {
       const getCurrentQuestion = jest.spyOn(service, 'getCurrentQuestion');
       getCurrentQuestion.mockReturnValue(of({ question: { type: 'ONE_TRUE' } } as any));
 
-      const modifyCurrentQuestion = jest.spyOn(service, 'modifyCurrentQuestion');
+      const setQuestionType = jest.spyOn(service, 'setQuestionType');
 
       component.ngOnInit();
       component.questionType.setValue('SEVERAL_TRUE');
 
       jest.runAllTimers();
 
-      expect(modifyCurrentQuestion).toHaveBeenCalledTimes(1);
-      expect(modifyCurrentQuestion).toHaveBeenCalledWith({ question: { type: 'SEVERAL_TRUE' } });
+      expect(setQuestionType).toHaveBeenCalledTimes(1);
+      expect(setQuestionType).toHaveBeenCalledWith('SEVERAL_TRUE');
     });
   });
 
