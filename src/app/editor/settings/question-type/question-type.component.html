@@ -1,16 +1,19 @@
-<app-setting-card title="Question type">
-  <mat-form-field fxFlex="100%">
-    <mat-label>Question type</mat-label>
-    <mat-select
-      [formControl]="questionType"
-      required
-    >
-      <mat-option
-        *ngFor="let type of availableTypes"
-        [value]="type.value"
+<app-setting-card>
+  <app-setting-card-title title="Question type"></app-setting-card-title>
+  <app-setting-card-content>
+    <mat-form-field fxFlex="100%">
+      <mat-label>Question type</mat-label>
+      <mat-select
+        [formControl]="questionType"
+        required
       >
-        {{ type.title }}
-      </mat-option>
-    </mat-select>
-  </mat-form-field>
+        <mat-option
+          *ngFor="let type of availableTypes"
+          [value]="type.value"
+        >
+          {{ type.title }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+  </app-setting-card-content>
 </app-setting-card>
