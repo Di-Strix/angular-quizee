@@ -65,6 +65,16 @@ export class OneTrueComponent implements OnInit, OnDestroy {
     this.subs.unsubscribe();
   }
 
+  removeAnswerOption(id: AnswerOptionId) {
+    if (this.ids.length <= 1) return;
+
+    this.quizeeEditingService.removeAnswerOption(id);
+  }
+
+  createAnswerOption() {
+    this.quizeeEditingService.addAnswerOption();
+  }
+
   private assembleAnswers(object: OneTrueAnswerOptionForm): AnswerOptionId[] {
     return _.compact([object.correctAnswer]);
   }

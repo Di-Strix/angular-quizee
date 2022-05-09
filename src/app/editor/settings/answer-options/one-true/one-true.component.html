@@ -1,40 +1,61 @@
-<app-setting-card
-  title="Answer options"
-  *ngIf="formGroup"
-  [formGroup]="formGroup"
->
-  <mat-radio-group
-    fxFlex="100%"
-    fxLayout="column"
-    formControlName="correctAnswer"
-  >
-    <div
-      fxFlex="100%"
-      fxLayout="row"
-      style="align-items: center"
-      *ngFor="let id of ids"
+<app-setting-card *ngIf="formGroup">
+  <app-setting-card-title title="Answer options">
+    <span
+      fxFlex
+      fxGrow="1"
+      fxShrink="1"
+    ></span>
+    <button
+      mat-icon-button
+      (click)="createAnswerOption()"
     >
-      <mat-radio-button
-        color="primary"
-        matTooltip="Mark as correct"
-        matTooltipShowDelay="500"
-        matTooltipPosition="left"
-        [value]="id"
+      <mat-icon>add</mat-icon>
+    </button>
+  </app-setting-card-title>
+  <app-setting-card-content [formGroup]="formGroup">
+    <mat-radio-group
+      fxFlex="100%"
+      fxLayout="column"
+      formControlName="correctAnswer"
+    >
+      <div
+        fxFlex="100%"
+        fxLayout="row"
+        style="align-items: center"
+        *ngFor="let id of ids; let index = index"
       >
-      </mat-radio-button>
-      <ng-container
-        [formGroup]="formGroup"
-        formGroupName="values"
-      >
-        <mat-form-field fxFlex="100%">
-          <input
-            matInput
-            [formControlName]="id"
-            required
-          />
-          <mat-error>Answer option shouldn't be empty</mat-error>
-        </mat-form-field>
-      </ng-container>
-    </div>
-  </mat-radio-group>
+        <mat-radio-button
+          color="primary"
+          matTooltip="Mark as correct"
+          matTooltipShowDelay="500"
+          matTooltipPosition="left"
+          [value]="id"
+        >
+        </mat-radio-button>
+        <ng-container
+          [formGroup]="formGroup"
+          formGroupName="values"
+        >
+          <mat-form-field fxFlex="100%">
+            <mat-label>Answer option #{{ index }}</mat-label>
+            <input
+              matInput
+              [formControlName]="id"
+              placeholder="Type here your answer option"
+              required
+            />
+            <mat-error>Answer option shouldn't be empty</mat-error>
+          </mat-form-field>
+        </ng-container>
+        <button
+          mat-icon-button
+          color="warn"
+          (click)="removeAnswerOption(id)"
+          [disabled]="ids.length <= 1"
+        >
+          <mat-icon>delete</mat-icon>
+        </button>
+      </div>
+    </mat-radio-group>
+  </app-setting-card-content>
 </app-setting-card>
