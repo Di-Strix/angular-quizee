@@ -446,6 +446,26 @@ describe('QuizeeEditingService', () => {
       expect(next).toBeCalledTimes(2);
       expect(error).not.toHaveBeenCalled();
     });
+
+    it('should make deep copy', () => {
+      const testingService = service as any as {
+        quizee: Quiz;
+        create: () => Observable<Quiz>;
+        get: () => Observable<Quiz>;
+        pushQuizee: () => void;
+      };
+
+      testingService.create().subscribe({ next, error });
+      testingService.pushQuizee();
+      testingService.quizee.info.caption = '123123';
+
+      jest.runAllTimers();
+
+      expect(next).toHaveBeenCalledTimes(2);
+      expect(error).not.toHaveBeenCalled();
+      expect(next.mock.calls[1][0].info.caption).not.toEqual('123123');
+      expect(next.mock.calls[1][0].info.caption).toEqual(next.mock.calls[0][0].info.caption);
+    });
   });
 
   describe('pushCurrentQuestion', () => {
@@ -478,6 +498,47 @@ describe('QuizeeEditingService', () => {
 
       expect(next).not.toHaveBeenCalled();
       expect(error).not.toHaveBeenCalled();
+    });
+
+    it('should push', () => {
+      const testingService = service as any as {
+        quizee: Quiz;
+        create: () => Observable<Quiz>;
+        createQuestion: () => Observable<QuestionPair>;
+        getCurrentQuestion: () => Observable<QuestionPair>;
+        pushCurrentQuestion: () => void;
+      };
+
+      testingService.create();
+      testingService.createQuestion().subscribe({ next, error });
+      testingService.pushCurrentQuestion();
+
+      jest.runAllTimers();
+
+      expect(next).toHaveBeenCalledTimes(2);
+      expect(error).not.toHaveBeenCalled();
+    });
+
+    it('should make deep copy', () => {
+      const testingService = service as any as {
+        quizee: Quiz;
+        create: () => Observable<Quiz>;
+        createQuestion: () => Observable<QuestionPair>;
+        getCurrentQuestion: () => Observable<QuestionPair>;
+        pushCurrentQuestion: () => void;
+      };
+
+      testingService.create();
+      testingService.createQuestion().subscribe({ next, error });
+      testingService.pushCurrentQuestion();
+      testingService.quizee.answers[0].answerTo = '123123';
+
+      jest.runAllTimers();
+
+      expect(next).toHaveBeenCalledTimes(2);
+      expect(error).not.toHaveBeenCalled();
+      expect(next.mock.calls[1][0].answer.answerTo).not.toEqual('123123');
+      expect(next.mock.calls[1][0].answer.answerTo).toEqual(next.mock.calls[0][0].answer.answerTo);
     });
   });
 });
