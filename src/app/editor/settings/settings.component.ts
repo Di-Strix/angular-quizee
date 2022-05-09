@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 
-import { Subscription, distinctUntilKeyChanged, tap } from 'rxjs';
+import { Subscription, distinctUntilKeyChanged } from 'rxjs';
 
 import { QuestionPair, QuizeeEditingService } from '../quizee-editing.service';
 
@@ -10,7 +10,7 @@ import { SeveralTrueComponent } from './answer-options/several-true/several-true
 import { QuestionCaptionComponent } from './question-caption/question-caption.component';
 import { QuestionTypeComponent } from './question-type/question-type.component';
 import { RenderSettingsComponentsDirective } from './render-settings-components.directive';
-import { SettingsComponentTypes, SettingsConfig } from './settings';
+import { SettingsConfig } from './settings';
 
 export const settingsConfig: SettingsConfig = {
   ONE_TRUE: [QuestionCaptionComponent, QuestionTypeComponent, OneTrueComponent],
@@ -25,8 +25,6 @@ export const settingsConfig: SettingsConfig = {
 })
 export class SettingsComponent implements OnInit, OnDestroy {
   subs: Subscription = new Subscription();
-  questionPair!: QuestionPair;
-  currentSettings!: SettingsComponentTypes[];
 
   @ViewChild(RenderSettingsComponentsDirective, { static: true }) container!: RenderSettingsComponentsDirective;
 
