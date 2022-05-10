@@ -25,6 +25,7 @@
     "@angular/platform-browser-dynamic": "~13.3.0",
     "@angular/router": "~13.3.0",
     "firebase": "^9.4.0",
+    "joi": "^17.6.0",
     "lodash": "^4.17.21",
     "rxfire": "^6.0.0",
     "rxjs": "~7.5.0",
