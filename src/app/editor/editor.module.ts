@@ -51,7 +51,7 @@ import { SettingsComponent } from './settings/settings.component';
     CommonModule,
     SharedModule,
     EditorRoutingModule,
-    provideFirestore(() => getFirestore()),
+    provideFirestore(/* istanbul ignore next */ () => getFirestore()),
     FlexLayoutModule,
     MatToolbarModule,
     MatButtonModule,
