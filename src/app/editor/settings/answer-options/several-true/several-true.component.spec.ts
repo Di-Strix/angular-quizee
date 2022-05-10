@@ -193,7 +193,6 @@ describe('SeveralTrueComponent', () => {
 
       const form = component.formGroup;
       subject.next(_.cloneDeep(mockQuestionPair));
-      component.ngOnInit();
 
       jest.runAllTimers();
 
@@ -215,7 +214,6 @@ describe('SeveralTrueComponent', () => {
       const form = component.formGroup;
       mockQuestionPair.question.answerOptions[0].value = '2';
       subject.next(_.cloneDeep(mockQuestionPair));
-      component.ngOnInit();
 
       jest.runAllTimers();
 
@@ -237,7 +235,6 @@ describe('SeveralTrueComponent', () => {
       const form = component.formGroup;
       mockQuestionPair.answer.answer.push('1');
       subject.next(_.cloneDeep(mockQuestionPair));
-      component.ngOnInit();
 
       jest.runAllTimers();
 
