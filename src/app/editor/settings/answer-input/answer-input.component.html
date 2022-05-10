@@ -1,1 +1,25 @@
-<p>answer-input works!</p>
+<app-setting-card>
+  <app-setting-card-title title="Answer"></app-setting-card-title>
+  <app-setting-card-content>
+    <div fxLayout="column">
+      <mat-form-field fxFlex="100%">
+        <mat-label>Correct answer</mat-label>
+        <input
+          matInput
+          [formControl]="answer"
+          placeholder="Type here correct answer"
+          required
+        />
+        <mat-error>Answer option shouldn't be empty</mat-error>
+      </mat-form-field>
+      <div [formGroup]="config">
+        <mat-checkbox
+          formControlName="equalCase"
+          color="primary"
+        >
+          Strict case checking
+        </mat-checkbox>
+      </div>
+    </div>
+  </app-setting-card-content>
+</app-setting-card>
