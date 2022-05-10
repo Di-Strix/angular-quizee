@@ -677,7 +677,7 @@ describe('QuizeeEditingService', () => {
       expect(next.mock.calls[1][0].question.type).not.toBe(next.mock.calls[0][0].question.type);
     });
 
-    it('should clear answer and answer options on switch to WRITE_ANSWER', () => {
+    it('should clear answer options and set answer to empty string on switch to WRITE_ANSWER', () => {
       service.create();
       service.setAnswerOptions([{ id: 'abc', value: 'abc' }]);
       service.setAnswer(['abc']);
@@ -687,7 +687,8 @@ describe('QuizeeEditingService', () => {
       jest.runAllTimers();
 
       expect(error).not.toHaveBeenCalled();
-      expect(next.mock.calls[0][0].answer.answer.length).toBe(0);
+      expect(next.mock.calls[0][0].answer.answer.length).toBe(1);
+      expect(next.mock.calls[0][0].answer.answer[0]).toBe('');
       expect(next.mock.calls[0][0].question.answerOptions.length).toBe(0);
     });
 

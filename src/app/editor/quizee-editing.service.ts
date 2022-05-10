@@ -173,7 +173,7 @@ export class QuizeeEditingService {
 
     doSwitch(qp.question.type, qt, [
       switchCase('*', 'WRITE_ANSWER', () => {
-        this._setAnswer([]);
+        this._setAnswer(['']);
         this._setAnswerOptions([]);
       }),
       switchCase('WRITE_ANSWER', '*', () => {
