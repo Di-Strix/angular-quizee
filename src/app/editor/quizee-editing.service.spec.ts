@@ -634,6 +634,64 @@ describe('QuizeeEditingService', () => {
     });
   });
 
+  describe('setAnswerConfig', () => {
+    it('should throw if quizee is not loaded', () => {
+      service.setAnswerConfig({}).subscribe({ next, error });
+
+      jest.runAllTimers();
+
+      expect(next).not.toHaveBeenCalled();
+      expect(error).toHaveBeenCalled();
+    });
+
+    it('should push quizee', () => {
+      service.create().subscribe({ next, error });
+      service.setAnswerConfig({});
+
+      jest.runAllTimers();
+
+      expect(next).toHaveBeenCalledTimes(2);
+      expect(error).not.toHaveBeenCalled();
+    });
+
+    it('should push current question', () => {
+      service.create();
+      service.getCurrentQuestion().subscribe({ next, error });
+      service.setAnswerConfig({});
+
+      jest.runAllTimers();
+
+      expect(next).toHaveBeenCalledTimes(2);
+      expect(error).not.toHaveBeenCalled();
+    });
+
+    it('should apply changes', () => {
+      service.create();
+      service.getCurrentQuestion().subscribe({ next, error });
+      service.setAnswerConfig({ equalCase: true });
+
+      jest.runAllTimers();
+
+      expect(next).toHaveBeenCalledTimes(2);
+      expect(next.mock.calls[1][0].answer.config).toEqual({ ...next.mock.calls[0][0].answer.config, equalCase: true });
+      expect(error).not.toHaveBeenCalled();
+    });
+
+    it('should make deep copy', () => {
+      const object = { someArray: [{ a: 1 }] } as any;
+      service.create();
+      service.getCurrentQuestion().subscribe({ next, error });
+      service.setAnswerConfig(object);
+      object.someArray[0].a = 2;
+
+      jest.runAllTimers();
+
+      expect(next).toHaveBeenCalledTimes(2);
+      expect(next.mock.calls[1][0].answer.config.someArray).toEqual([{ a: 1 }]);
+      expect(error).not.toHaveBeenCalled();
+    });
+  });
+
   describe('setQuestionType', () => {
     it('should throw if quizee is not loaded', () => {
       service.setQuestionType('ONE_TRUE').subscribe({ next, error });

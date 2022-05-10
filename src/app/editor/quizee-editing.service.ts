@@ -155,6 +155,23 @@ export class QuizeeEditingService {
     };
   }
 
+  setAnswerConfig(changes: RecursivePartial<Answer['config']>): Observable<QuestionPair> {
+    return this._exec(() => {
+      this._setAnswerConfig(changes);
+
+      this._pushQuizee();
+      this._pushCurrentQuestion();
+
+      return this.getCurrentQuestion();
+    });
+  }
+
+  private _setAnswerConfig(changes: RecursivePartial<Answer['config']>): void {
+    if (!this.quizee) throw new Error('Quizee is not loaded');
+
+    _.merge(this._getCurrentQuestion().answer.config, changes);
+  }
+
   setQuestionType(qt: QuestionType): Observable<QuestionPair> {
     return this._exec(() => {
       this._setQuestionType(qt);
