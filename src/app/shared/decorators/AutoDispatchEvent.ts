@@ -12,6 +12,24 @@ const isEntry = (target: any, key: string) => target[configKey].entry === key;
 const clearEntry = (target: any) => (target[configKey].entry = null);
 const setEntry = (target: any, key: string) => (target[configKey].entry = key);
 
+/**
+ * Calls provided dispatchers after function execution.
+ *
+ * ---
+ *
+ * Wraps function into try-catch so dispatchers won't be called if any error occurs.
+ * Transforms error `throwError()` rxjs function
+ *
+ * ---
+ *
+ * #### To prevent dispatchers from being invoked, simply throw an exception
+ *
+ * ---
+ *
+ * Nested functions wrapped with this decorator may be safely called. Dispatcher will be called only once
+ *
+ * @param callDispatchers list of dispatcher names to be invoked
+ */
 export const AutoDispatchEvent = (callDispatchers: string[]) => {
   return (
     target: any,
@@ -60,6 +78,12 @@ export const AutoDispatchEvent = (callDispatchers: string[]) => {
   };
 };
 
+/**
+ * Registers dispatcher for current class.
+ *
+ * #### Function should take no arguments
+ * @param name custom dispatcher name. By default function name used
+ */
 export const RegisterDispatcher = (name?: string) => {
   return (target: any, propertyKey: string, descriptor: TypedPropertyDescriptor<() => any>) => {
     checkConfig(target);
