@@ -1,4 +1,4 @@
-name: Codecov
+name: Run tests
 on: [push, pull_request]
 jobs:
   run:
@@ -13,7 +13,5 @@ jobs:
           node-version: 16.x
       - name: Install dependencies
         run: npm ci
-      - name: Generate coverage report
-        run: npm run test:coverage
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v2
+      - name: Run tests
+        run: npm run test
