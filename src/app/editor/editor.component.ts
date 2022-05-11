@@ -1,7 +1,9 @@
 import { animate, style, transition, trigger } from '@angular/animations';
+import { Location } from '@angular/common';
 import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormControl, Validators } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { MatDialog } from '@angular/material/dialog';
+import { ActivatedRoute, Router } from '@angular/router';
 
 import { Subscription, filter } from 'rxjs';
 
@@ -9,6 +11,7 @@ import { QuizeeService } from '../shared/services/quizee.service';
 
 import { OverviewComponent } from './overview/overview.component';
 import { QuizeeEditingService } from './quizee-editing.service';
+import { QuizeeNotFoundDialogComponent } from './quizee-not-found-dialog/quizee-not-found-dialog.component';
 
 @Component({
   selector: 'app-editor',
@@ -30,7 +33,10 @@ export class EditorComponent implements OnInit, OnDestroy {
   constructor(
     private route: ActivatedRoute,
     private quizeeService: QuizeeService,
-    public quizeeEditingService: QuizeeEditingService
+    public quizeeEditingService: QuizeeEditingService,
+    public router: Router,
+    public location: Location,
+    public dialog: MatDialog
   ) {}
 
   ngOnInit(): void {
@@ -56,8 +62,12 @@ export class EditorComponent implements OnInit, OnDestroy {
             this.quizeeEditingService.load(value);
           },
           error: (_) => {
-            // TODO: Show dialog prompting to create a new quizee
-            this.quizeeEditingService.create();
+            this.dialog
+              .open(QuizeeNotFoundDialogComponent)
+              .afterClosed()
+              .subscribe((create) => {
+                create ? this.router.navigate(['../'], { relativeTo: this.route }) : this.router.navigate(['']);
+              });
           },
         });
       } else {

@@ -1,7 +1,10 @@
+import { Location } from '@angular/common';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ActivatedRoute } from '@angular/router';
+import { MatDialog } from '@angular/material/dialog';
+import { ActivatedRoute, Router } from '@angular/router';
+import { RouterTestingModule } from '@angular/router/testing';
 
-import { Observable, Subject, of } from 'rxjs';
+import { Observable, Subject, of, throwError } from 'rxjs';
 
 import { QuizeeService } from '../shared/services/quizee.service';
 
@@ -27,11 +30,14 @@ describe('EditorComponent', () => {
   let quizeeService: QuizeeServiceMock;
   let activatedRoute: ActivatedRouteMock;
   let quizeeEditingService: QuizeeEditingService;
+  let location: Location;
+  let router: Router;
+  let dialog: MatDialog;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [EditorComponent],
-      imports: [EditorModule],
+      imports: [EditorModule, RouterTestingModule],
       providers: [
         {
           provide: QuizeeService,
@@ -50,6 +56,9 @@ describe('EditorComponent', () => {
     component = fixture.componentInstance;
     quizeeService = TestBed.inject(QuizeeService) as any;
     activatedRoute = TestBed.inject(ActivatedRoute) as any;
+    location = TestBed.inject(Location);
+    dialog = TestBed.inject(MatDialog);
+    router = TestBed.inject(Router);
     quizeeEditingService = TestBed.inject(QuizeeEditingService);
   });
 
@@ -99,6 +108,56 @@ describe('EditorComponent', () => {
 
     expect(quizeeService.getQuizee).not.toBeCalled();
     expect(create).toHaveBeenCalledTimes(1);
+  });
+
+  describe('Quizee get error', () => {
+    it('should prompt to create new quizee if quizee with provided id not found', () => {
+      activatedRoute.paramMapValues = {
+        id: 'someId',
+      };
+
+      quizeeService.response = throwError(() => new Error());
+      const openDialog = jest.spyOn(dialog, 'open');
+
+      component.ngOnInit();
+
+      expect(quizeeService.getQuizee).toBeCalledTimes(1);
+      expect(openDialog).toBeCalledTimes(1);
+    });
+
+    it('should redirect to blank editor if creation approved', () => {
+      activatedRoute.paramMapValues = {
+        id: 'someId',
+      };
+
+      quizeeService.response = throwError(() => new Error());
+      const openDialog = jest.spyOn(dialog, 'open').mockReturnValue({ afterClosed: () => of(true) } as any);
+      const routerNavigate = jest.spyOn(router, 'navigate');
+
+      component.ngOnInit();
+
+      expect(quizeeService.getQuizee).toBeCalledTimes(1);
+      expect(openDialog).toBeCalledTimes(1);
+      expect(routerNavigate).toBeCalledTimes(1);
+      expect(routerNavigate).toBeCalledWith(['../'], { relativeTo: (component as any).route });
+    });
+
+    it('should redirect to home if creation discarded', () => {
+      activatedRoute.paramMapValues = {
+        id: 'someId',
+      };
+
+      quizeeService.response = throwError(() => new Error());
+      const openDialog = jest.spyOn(dialog, 'open').mockReturnValue({ afterClosed: () => of(false) } as any);
+      const routerNavigate = jest.spyOn(router, 'navigate');
+
+      component.ngOnInit();
+
+      expect(quizeeService.getQuizee).toBeCalledTimes(1);
+      expect(openDialog).toBeCalledTimes(1);
+      expect(routerNavigate).toBeCalledTimes(1);
+      expect(routerNavigate).toBeCalledWith(['']);
+    });
   });
 
   describe('handleQuestionCreation', () => {
