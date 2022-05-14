@@ -1,4 +1,5 @@
 import { AnswerOption, AnswerOptionId, Quiz } from '@di-strix/quizee-types';
+import { verifyAnswer, verifyQuestion, verifyQuizee } from '@di-strix/quizee-verification-functions';
 
 import * as _ from 'lodash';
 import { Observable, first } from 'rxjs';
@@ -7,18 +8,86 @@ import { RecursivePartial } from '../shared/helpers/RecursivePartial';
 
 import { QuestionPair, QuizeeEditingService } from './quizee-editing.service';
 
+jest.mock('@di-strix/quizee-verification-functions');
+
 describe('QuizeeEditingService', () => {
   let service: QuizeeEditingService;
   let next: jest.Mock;
   let error: jest.Mock;
 
   beforeEach(() => {
+    jest.resetAllMocks();
+
     service = new QuizeeEditingService();
 
     error = jest.fn();
     next = jest.fn();
 
     jest.useFakeTimers();
+  });
+
+  describe('getQuizeeErrors', () => {
+    it('should call verifier only once per emit', () => {
+      (verifyQuizee as jest.Mock).mockReturnValue([{}]);
+
+      service.create();
+      service.getQuizeeErrors().subscribe({ next, error });
+
+      jest.runAllTimers();
+
+      expect(verifyQuizee).toHaveBeenCalledTimes(1);
+      expect(next).toBeCalledTimes(1);
+      expect(error).not.toHaveBeenCalled();
+    });
+
+    it('should emit exact value to subscriber', () => {
+      const result = { a: 1, b: 2 };
+      (verifyQuizee as jest.Mock).mockReturnValue([result]);
+
+      service.create();
+      service.getQuizeeErrors().subscribe({ next, error });
+
+      jest.runAllTimers();
+
+      expect(next).toBeCalledTimes(1);
+      expect(next).toBeCalledWith(result);
+      expect(error).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('getCurrentQuestionErrors', () => {
+    it('should call verifiers only once per emit', () => {
+      (verifyQuestion as jest.Mock).mockReturnValue([{}]);
+      (verifyAnswer as jest.Mock).mockReturnValue([{}]);
+
+      service.getCurrentQuestionErrors().subscribe({ next, error });
+      service.currentQuestion$.next({} as any);
+
+      jest.runAllTimers();
+
+      expect(verifyQuestion).toHaveBeenCalledTimes(1);
+      expect(verifyAnswer).toHaveBeenCalledTimes(1);
+      expect(next).toBeCalledTimes(1);
+      expect(error).not.toHaveBeenCalled();
+    });
+
+    it('should combine values from verifiers', () => {
+      const vq = { a: 1, b: 2 };
+      const va = { a: 2, b: 3 };
+      const res = { answer: va, question: vq };
+
+      (verifyQuestion as jest.Mock).mockReturnValue([vq]);
+      (verifyAnswer as jest.Mock).mockReturnValue([va]);
+
+      service.getCurrentQuestionErrors().subscribe({ next, error });
+      service.currentQuestion$.next({} as any);
+
+      jest.runAllTimers();
+
+      expect(next).toBeCalledTimes(1);
+      expect(next).toBeCalledWith(res);
+      expect(error).not.toHaveBeenCalled();
+    });
   });
 
   describe('create', () => {

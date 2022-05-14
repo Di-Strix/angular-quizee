@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
 import { Answer, AnswerOption, AnswerOptionId, Question, QuestionType, Quiz } from '@di-strix/quizee-types';
+import { verifyAnswer, verifyQuestion, verifyQuizee } from '@di-strix/quizee-verification-functions';
 
 import * as _ from 'lodash';
-import { Observable, ReplaySubject } from 'rxjs';
+import { Observable, ReplaySubject, from, map, switchMap, zip } from 'rxjs';
 import { v4 as uuidV4 } from 'uuid';
 
 import { AutoDispatchEvent, RegisterDispatcher } from '../shared/decorators/AutoDispatchEvent';
@@ -18,6 +19,19 @@ export class QuizeeEditingService {
 
   quizee?: Quiz;
   currentIndex: number = -1;
+
+  constructor() {}
+
+  getQuizeeErrors() {
+    return this.quizee$.pipe(switchMap((q) => from(verifyQuizee(q))));
+  }
+
+  getCurrentQuestionErrors() {
+    return this.currentQuestion$.pipe(
+      switchMap((q) => zip(from(verifyQuestion(q.question)), from(verifyAnswer(q.answer)))),
+      map(([question, answer]) => ({ question, answer }))
+    );
+  }
 
   @AutoDispatchEvent(['quizee', 'currentQuestion'])
   load(quizee: Quiz): Observable<Quiz> {
