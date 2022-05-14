@@ -31,6 +31,18 @@ describe('QuizeeEditingService', () => {
       expect(next.mock.calls[0][0]).toBeTruthy();
       expect(error).not.toHaveBeenCalled();
     });
+
+    it('should create quizee with initial answer and question', () => {
+      service.create().subscribe({ next, error });
+
+      jest.runAllTimers();
+
+      expect(next).toHaveBeenCalled();
+      expect(next.mock.calls[0][0].answers.length).toEqual(1);
+      expect(next.mock.calls[0][0].questions.length).toEqual(1);
+      expect(next.mock.calls[0][0].info.questionsCount).toEqual(1);
+      expect(error).not.toHaveBeenCalled();
+    });
   });
 
   describe('load', () => {
@@ -228,6 +240,15 @@ describe('QuizeeEditingService', () => {
       expect(next.mock.calls[0][0].answer.answer.length).toBe(1);
       expect(next.mock.calls[0][0].question.answerOptions.length).toBe(1);
       expect(next.mock.calls[0][0].answer.answer[0]).toBe(next.mock.calls[0][0].question.answerOptions[0].id);
+    });
+
+    it('should increment question count', () => {
+      service.create().subscribe({ next, error });
+      service.createQuestion();
+
+      jest.runAllTimers();
+
+      expect(next.mock.calls[1][0].info.questionsCount).toBe(2);
     });
   });
 

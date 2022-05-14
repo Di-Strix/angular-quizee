@@ -39,7 +39,7 @@ export class QuizeeEditingService {
         caption: 'New quizee',
         id: '',
         img: '',
-        questionsCount: 0,
+        questionsCount: 1,
       },
       answers: [question.answer],
       questions: [question.question],
@@ -67,6 +67,7 @@ export class QuizeeEditingService {
 
     this.quizee.answers.push(qp.answer);
     this.quizee.questions.push(qp.question);
+    this.modify({ info: { questionsCount: this.quizee.questions.length } });
 
     this.selectQuestion(this.quizee.questions.length - 1);
 
