@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Answer, AnswerOption, AnswerOptionId, Question, QuestionType, Quiz } from '@di-strix/quizee-types';
+import { VerificationErrors } from '@di-strix/quizee-verification-functions';
 import { verifyAnswer, verifyQuestion, verifyQuizee } from '@di-strix/quizee-verification-functions';
 
 import * as _ from 'lodash';
@@ -22,11 +23,11 @@ export class QuizeeEditingService {
 
   constructor() {}
 
-  getQuizeeErrors() {
+  getQuizeeErrors(): Observable<VerificationErrors> {
     return this.quizee$.pipe(switchMap((q) => from(verifyQuizee(q))));
   }
 
-  getCurrentQuestionErrors() {
+  getCurrentQuestionErrors(): Observable<{ [K in keyof QuestionPair]: VerificationErrors }> {
     return this.currentQuestion$.pipe(
       switchMap((q) => zip(from(verifyQuestion(q.question)), from(verifyAnswer(q.answer)))),
       map(([question, answer]) => ({ question, answer }))
