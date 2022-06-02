@@ -139,7 +139,7 @@ export class QuizeeEditingService {
 
     doSwitch(qp.question.type, qt, [
       switchCase('*', 'WRITE_ANSWER', () => {
-        this.setAnswer(['']);
+        this.setAnswer(['Correct answer']);
         this.setAnswerOptions([]);
       }),
       switchCase('WRITE_ANSWER', '*', () => {
@@ -215,11 +215,11 @@ export class QuizeeEditingService {
 
     return {
       answer: { answer: [answerOption.id], answerTo: id, config: { equalCase: false } },
-      question: { id, answerOptions: [answerOption], caption: '', type: 'ONE_TRUE' },
+      question: { id, answerOptions: [answerOption], caption: 'New question', type: 'ONE_TRUE' },
     };
   }
 
   private _createAnswerOption() {
-    return { id: uuidV4(), value: '' };
+    return { id: uuidV4(), value: 'Answer option' };
   }
 }

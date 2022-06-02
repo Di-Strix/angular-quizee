@@ -112,6 +112,16 @@ describe('QuizeeEditingService', () => {
       expect(next.mock.calls[0][0].info.questionsCount).toEqual(1);
       expect(error).not.toHaveBeenCalled();
     });
+
+    it('should create valid quiz', async () => {
+      const { verifyQuizee } = jest.requireActual('@di-strix/quizee-verification-functions');
+
+      service.create().subscribe({ next, error });
+
+      jest.runAllTimers();
+
+      expect(await verifyQuizee(next.mock.calls[0][0])).toEqual([]);
+    });
   });
 
   describe('load', () => {
@@ -318,6 +328,18 @@ describe('QuizeeEditingService', () => {
       jest.runAllTimers();
 
       expect(next.mock.calls[1][0].info.questionsCount).toBe(2);
+    });
+
+    it('should create valid question', async () => {
+      const { verifyQuestion, verifyAnswer } = jest.requireActual('@di-strix/quizee-verification-functions');
+
+      service.create();
+      service.createQuestion().subscribe({ next, error });
+
+      jest.runAllTimers();
+
+      expect(await verifyQuestion(next.mock.calls[0][0].question)).toEqual([]);
+      expect(await verifyAnswer(next.mock.calls[0][0].answer)).toEqual([]);
     });
   });
 
@@ -660,6 +682,16 @@ describe('QuizeeEditingService', () => {
         next.mock.calls[1][0].question.answerOptions[1].id
       );
     });
+
+    it('should create valid answer option', async () => {
+      const { verifyAnswerOption } = jest.requireActual('@di-strix/quizee-verification-functions');
+
+      service.create();
+      service.createQuestion().subscribe({ next, error });
+      service.addAnswerOption();
+
+      expect(await verifyAnswerOption(next.mock.calls[1][0].question.answerOptions[1])).toEqual([]);
+    });
   });
 
   describe('removeAnswerOption', () => {
@@ -825,7 +857,7 @@ describe('QuizeeEditingService', () => {
       expect(next.mock.calls[1][0].question.type).not.toBe(next.mock.calls[0][0].question.type);
     });
 
-    it('should clear answer options and set answer to empty string on switch to WRITE_ANSWER', () => {
+    it('should clear answer options and set answer on switch to WRITE_ANSWER', () => {
       service.create();
       service.setAnswerOptions([{ id: 'abc', value: 'abc' }]);
       service.setAnswer(['abc']);
@@ -836,8 +868,33 @@ describe('QuizeeEditingService', () => {
 
       expect(error).not.toHaveBeenCalled();
       expect(next.mock.calls[0][0].answer.answer.length).toBe(1);
-      expect(next.mock.calls[0][0].answer.answer[0]).toBe('');
+      expect(next.mock.calls[0][0].answer.answer[0]).not.toBe('');
       expect(next.mock.calls[0][0].question.answerOptions.length).toBe(0);
+    });
+
+    it('should leave question valid after switching in both ways', async () => {
+      const { verifyQuestion, verifyAnswer } = jest.requireActual('@di-strix/quizee-verification-functions');
+
+      service.create();
+      service.createQuestion();
+      service.setQuestionType('WRITE_ANSWER').subscribe({ next, error });
+
+      expect(await verifyQuestion(next.mock.calls[0][0].question)).toEqual([]);
+      expect(await verifyAnswer(next.mock.calls[0][0].answer)).toEqual([]);
+
+      service.setQuestionType('ONE_TRUE').subscribe({ next, error });
+
+      jest.runAllTimers();
+
+      expect(await verifyQuestion(next.mock.calls[1][0].question)).toEqual([]);
+      expect(await verifyAnswer(next.mock.calls[1][0].answer)).toEqual([]);
+
+      service.setQuestionType('SEVERAL_TRUE').subscribe({ next, error });
+
+      jest.runAllTimers();
+
+      expect(await verifyQuestion(next.mock.calls[2][0].question)).toEqual([]);
+      expect(await verifyAnswer(next.mock.calls[2][0].answer)).toEqual([]);
     });
 
     it('should add answer and answer option when switching from WRITE_ANSWER', () => {
