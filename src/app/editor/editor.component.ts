@@ -1,7 +1,7 @@
 import { animate, style, transition, trigger } from '@angular/animations';
 import { Location } from '@angular/common';
 import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { FormControl, Validators } from '@angular/forms';
+import { FormControl } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 
@@ -12,6 +12,7 @@ import { QuizeeService } from '../shared/services/quizee.service';
 import { OverviewComponent } from './overview/overview.component';
 import { QuizeeEditingService } from './quizee-editing.service';
 import { QuizeeNotFoundDialogComponent } from './quizee-not-found-dialog/quizee-not-found-dialog.component';
+import { QuizeeValidators } from './quizee-validators';
 
 @Component({
   selector: 'app-editor',
@@ -28,7 +29,7 @@ export class EditorComponent implements OnInit, OnDestroy {
   @ViewChild(OverviewComponent, { read: ElementRef }) questionsContainer!: ElementRef<HTMLElement>;
 
   subs: Subscription = new Subscription();
-  quizeeName = new FormControl('', [Validators.required]);
+  quizeeName = new FormControl('', null, QuizeeValidators.forQuizee(this.quizeeEditingService, 'info.caption'));
 
   constructor(
     private route: ActivatedRoute,
