@@ -1,2 +1,10 @@
 <h1>{{ title }}</h1>
+<mat-icon
+  @errorBadge
+  color="warn"
+  style="margin-left: 0.2rem"
+  matTooltip="Section contains errors"
+  *ngIf="error"
+  >error</mat-icon
+>
 <ng-content> </ng-content>
