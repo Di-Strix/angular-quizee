@@ -31,7 +31,7 @@ describe('QuizeeValidatorsDirective', () => {
       expect(getQuizeeErrors).toBeCalledTimes(1);
     });
 
-    it('should take only first value', () => {
+    it('should take only first value if once = true', () => {
       const subject = new Subject();
       jest.spyOn(service, 'getQuizeeErrors').mockReturnValue(subject as any);
 
@@ -43,6 +43,24 @@ describe('QuizeeValidatorsDirective', () => {
       jest.runAllTimers();
 
       expect(next).toBeCalledTimes(1);
+      expect(error).not.toBeCalled();
+    });
+
+    it('should take all values value if once = false', () => {
+      const subject = new Subject();
+      jest.spyOn(service, 'getQuizeeErrors').mockReturnValue(subject as any);
+
+      (QuizeeValidators.forQuizee(service, '', false)(null as any) as Observable<ValidationErrors>).subscribe({
+        next,
+        error,
+      });
+
+      subject.next([]);
+      subject.next([]);
+
+      jest.runAllTimers();
+
+      expect(next).toBeCalledTimes(2);
       expect(error).not.toBeCalled();
     });
 
@@ -145,20 +163,21 @@ describe('QuizeeValidatorsDirective', () => {
     it('should call getCurrentQuestionErrors from service', () => {
       const getCurrentQuestionErrors = jest.spyOn(service, 'getCurrentQuestionErrors');
 
-      QuizeeValidators.forCurrentQuestion(service, 'question', '')({} as any);
+      QuizeeValidators.forCurrentQuestion(service, 'question')({} as any);
 
       jest.runAllTimers();
 
       expect(getCurrentQuestionErrors).toBeCalledTimes(1);
     });
 
-    it('should take only first value', () => {
+    it('should take only first value if once = true', () => {
       const subject = new Subject();
       jest.spyOn(service, 'getCurrentQuestionErrors').mockReturnValue(subject as any);
 
-      (
-        QuizeeValidators.forCurrentQuestion(service, 'answer', '')(null as any) as Observable<ValidationErrors>
-      ).subscribe({ next, error });
+      (QuizeeValidators.forCurrentQuestion(service, 'answer')(null as any) as Observable<ValidationErrors>).subscribe({
+        next,
+        error,
+      });
 
       subject.next({ answer: [], question: [] });
       subject.next({ answer: [], question: [] });
@@ -169,8 +188,28 @@ describe('QuizeeValidatorsDirective', () => {
       expect(error).not.toBeCalled();
     });
 
-    it('should filter errors by prop', () => {
-      const errors: { [K in keyof QuestionPair]: VerificationErrors } = {
+    it('should take all values if once = false', () => {
+      const subject = new Subject();
+      jest.spyOn(service, 'getCurrentQuestionErrors').mockReturnValue(subject as any);
+
+      (
+        QuizeeValidators.forCurrentQuestion(service, 'answer', false)(null as any) as Observable<ValidationErrors>
+      ).subscribe({
+        next,
+        error,
+      });
+
+      subject.next({ answer: [], question: [] });
+      subject.next({ answer: [], question: [] });
+
+      jest.runAllTimers();
+
+      expect(next).toBeCalledTimes(2);
+      expect(error).not.toBeCalled();
+    });
+
+    it('should filter errors by path', () => {
+      let errors: { [K in keyof QuestionPair]: VerificationErrors } = {
         answer: [{ context: { label: '' }, message: '', path: [], type: 'type1' }],
         question: [],
       };
@@ -178,7 +217,7 @@ describe('QuizeeValidatorsDirective', () => {
       const subject = new Subject();
       jest.spyOn(service, 'getCurrentQuestionErrors').mockReturnValue(subject as any);
 
-      (QuizeeValidators.forCurrentQuestion(service, 'answer', '')(null as any) as Observable<typeof errors>).subscribe({
+      (QuizeeValidators.forCurrentQuestion(service, 'answer')(null as any) as Observable<typeof errors>).subscribe({
         next,
         error,
       });
@@ -189,10 +228,8 @@ describe('QuizeeValidatorsDirective', () => {
 
       expect(next).toBeCalledWith({ type1: true });
       expect(error).not.toBeCalled();
-    });
 
-    it('should filter errors by path', () => {
-      const errors: { [K in keyof QuestionPair]: VerificationErrors } = {
+      errors = {
         answer: [],
         question: [
           {
@@ -210,11 +247,8 @@ describe('QuizeeValidatorsDirective', () => {
         ],
       };
 
-      const subject = new Subject();
-      jest.spyOn(service, 'getCurrentQuestionErrors').mockReturnValue(subject as any);
-
       (
-        QuizeeValidators.forCurrentQuestion(service, 'question', 'path2')(null as any) as Observable<typeof errors>
+        QuizeeValidators.forCurrentQuestion(service, 'question.path2')(null as any) as Observable<typeof errors>
       ).subscribe({
         next,
         error,
@@ -226,6 +260,32 @@ describe('QuizeeValidatorsDirective', () => {
 
       expect(next).toBeCalledWith({ type2: true });
       expect(error).not.toBeCalled();
+    });
+
+    it('should throw if first part of path is invalid', () => {
+      let errors: { [K in keyof QuestionPair]: VerificationErrors } = {
+        answer: [{ context: { label: '' }, message: '', path: [], type: 'type1' }],
+        question: [],
+      };
+
+      const subject = new Subject();
+      jest.spyOn(service, 'getCurrentQuestionErrors').mockReturnValue(subject as any);
+
+      (
+        QuizeeValidators.forCurrentQuestion(service, 'anotherValue.nestedPath')(null as any) as Observable<
+          typeof errors
+        >
+      ).subscribe({
+        next,
+        error,
+      });
+
+      subject.next(errors);
+
+      jest.runAllTimers();
+
+      expect(next).not.toBeCalled();
+      expect(error).toBeCalled();
     });
 
     it('should return null if no errors by path', () => {
@@ -252,7 +312,7 @@ describe('QuizeeValidatorsDirective', () => {
       jest.spyOn(service, 'getCurrentQuestionErrors').mockReturnValue(subject as any);
 
       (
-        QuizeeValidators.forCurrentQuestion(service, 'answer', 'path3')(null as any) as Observable<typeof errors>
+        QuizeeValidators.forCurrentQuestion(service, 'answer.path3')(null as any) as Observable<typeof errors>
       ).subscribe({
         next,
         error,
@@ -287,7 +347,7 @@ describe('QuizeeValidatorsDirective', () => {
       jest.spyOn(service, 'getCurrentQuestionErrors').mockReturnValue(subject as any);
 
       (
-        QuizeeValidators.forCurrentQuestion(service, 'answer', 'path2')(null as any) as Observable<typeof errors>
+        QuizeeValidators.forCurrentQuestion(service, 'answer.path2')(null as any) as Observable<typeof errors>
       ).subscribe({
         next,
         error,
