@@ -4,6 +4,7 @@ import { FormControl, Validators } from '@angular/forms';
 import { Subscription, filter } from 'rxjs';
 
 import { QuizeeEditingService } from '../../quizee-editing.service';
+import { QuizeeValidators } from '../../quizee-validators';
 
 @Component({
   selector: 'app-question-caption',
@@ -12,7 +13,11 @@ import { QuizeeEditingService } from '../../quizee-editing.service';
 })
 export class QuestionCaptionComponent implements OnInit, OnDestroy {
   subs: Subscription = new Subscription();
-  questionCaption = new FormControl('', [Validators.required]);
+  questionCaption = new FormControl(
+    '',
+    null,
+    QuizeeValidators.forCurrentQuestion(this.quizeeEditingService, 'question', 'caption')
+  );
 
   constructor(public quizeeEditingService: QuizeeEditingService) {}
 
