@@ -7,6 +7,7 @@ import { Subscription, filter } from 'rxjs';
 import { RecursivePartial } from 'src/app/shared/helpers/RecursivePartial';
 
 import { QuizeeEditingService } from '../../quizee-editing.service';
+import { QuizeeValidators } from '../../quizee-validators';
 
 type Config = {
   [P in keyof Answer['config']]: FormControl;
@@ -20,7 +21,11 @@ type Config = {
 export class AnswerInputComponent implements OnInit, OnDestroy {
   subs = new Subscription();
 
-  answer = new FormControl('', [Validators.required]);
+  answer = new FormControl(
+    '',
+    null,
+    QuizeeValidators.forCurrentQuestion(this.quizeeEditingService, 'answer', 'answer[0]')
+  );
   config = new FormGroup({ equalCase: new FormControl(false) } as Config);
 
   constructor(public quizeeEditingService: QuizeeEditingService) {}

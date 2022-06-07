@@ -8,9 +8,8 @@
           matInput
           [formControl]="answer"
           placeholder="Type here correct answer"
-          required
         />
-        <mat-error>Answer option shouldn't be empty</mat-error>
+        <mat-error *ngIf="answer.hasError('array.includes')">Answer shouldn't be empty</mat-error>
       </mat-form-field>
       <div [formGroup]="config">
         <mat-checkbox
