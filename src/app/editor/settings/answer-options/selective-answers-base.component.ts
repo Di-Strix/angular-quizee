@@ -44,8 +44,7 @@ export abstract class SelectiveAnswersBase {
               null,
               QuizeeValidators.forCurrentQuestion(
                 service,
-                'question',
-                `answerOptions[${pair.question.answerOptions.findIndex(({ id }) => id === key)}].value`
+                `question.answerOptions[${pair.question.answerOptions.findIndex(({ id }) => id === key)}].value`
               )
             );
             this.controls.push({ id: key, control });

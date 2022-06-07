@@ -24,7 +24,7 @@ export class AnswerInputComponent implements OnInit, OnDestroy {
   answer = new FormControl(
     '',
     null,
-    QuizeeValidators.forCurrentQuestion(this.quizeeEditingService, 'answer', 'answer[0]')
+    QuizeeValidators.forCurrentQuestion(this.quizeeEditingService, 'answer.answer[0]')
   );
   config = new FormGroup({ equalCase: new FormControl(false) } as Config);
 

@@ -16,7 +16,7 @@ export class QuestionCaptionComponent implements OnInit, OnDestroy {
   questionCaption = new FormControl(
     '',
     null,
-    QuizeeValidators.forCurrentQuestion(this.quizeeEditingService, 'question', 'caption')
+    QuizeeValidators.forCurrentQuestion(this.quizeeEditingService, 'question.caption')
   );
 
   constructor(public quizeeEditingService: QuizeeEditingService) {}
