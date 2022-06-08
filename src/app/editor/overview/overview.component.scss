@@ -8,6 +8,7 @@
   align-items: center;
   cursor: pointer;
   border: 2px solid transparent;
+  user-select: none;
   @include mat.elevation-transition();
 
   &:hover {
