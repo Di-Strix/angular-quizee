@@ -22,6 +22,8 @@ export class QuestionCaptionComponent implements OnInit, OnDestroy {
   constructor(public quizeeEditingService: QuizeeEditingService) {}
 
   ngOnInit(): void {
+    this.questionCaption.markAsTouched();
+
     this.subs.add(
       this.quizeeEditingService
         .getCurrentQuestion()
