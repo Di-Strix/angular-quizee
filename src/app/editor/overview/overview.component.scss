@@ -8,6 +8,7 @@
   align-items: center;
   cursor: pointer;
   border: 2px solid transparent;
+  position: relative;
   user-select: none;
   @include mat.elevation-transition();
 
@@ -17,6 +18,12 @@
 
   &.active {
     border: 2px solid mat.get-color-from-palette(mat.$indigo-palette, 400);
+  }
+
+  .error-badge {
+    position: absolute;
+    left: 0.5rem;
+    bottom: 0.5rem;
   }
 
   .preview-container {

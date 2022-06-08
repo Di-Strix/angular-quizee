@@ -24,4 +24,13 @@
       </ng-container>
     </h3>
   </div>
+  <mat-icon
+    color="warn"
+    class="error-badge"
+    matTooltip="Question contains errors"
+    matTooltipPosition="right"
+    @errorBadge
+    *ngIf="hasError(index)"
+    >error</mat-icon
+  >
 </mat-card>
