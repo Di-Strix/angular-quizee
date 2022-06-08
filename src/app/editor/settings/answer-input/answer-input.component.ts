@@ -31,6 +31,8 @@ export class AnswerInputComponent implements OnInit, OnDestroy {
   constructor(public quizeeEditingService: QuizeeEditingService) {}
 
   ngOnInit(): void {
+    this.answer.markAsTouched();
+
     this.subs.add(
       this.quizeeEditingService
         .getCurrentQuestion()
