@@ -47,6 +47,8 @@ export abstract class SelectiveAnswersBase {
                 `question.answerOptions[${pair.question.answerOptions.findIndex(({ id }) => id === key)}].value`
               )
             );
+            control.markAsTouched();
+
             this.controls.push({ id: key, control });
 
             control.valueChanges.subscribe(() => {
