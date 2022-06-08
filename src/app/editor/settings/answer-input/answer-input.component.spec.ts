@@ -1,30 +1,17 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-
 import * as _ from 'lodash';
 import { Subject, of } from 'rxjs';
 
-import { EditorModule } from '../../editor.module';
 import { QuestionPair, QuizeeEditingService } from '../../quizee-editing.service';
 
 import { AnswerInputComponent } from './answer-input.component';
 
 describe('AnswerInputComponent', () => {
   let component: AnswerInputComponent;
-  let fixture: ComponentFixture<AnswerInputComponent>;
   let service: QuizeeEditingService;
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      declarations: [AnswerInputComponent],
-      imports: [EditorModule],
-      providers: [QuizeeEditingService],
-    }).compileComponents();
-  });
-
   beforeEach(() => {
-    fixture = TestBed.createComponent(AnswerInputComponent);
-    service = TestBed.inject(QuizeeEditingService);
-    component = fixture.componentInstance;
+    service = new QuizeeEditingService();
+    component = new AnswerInputComponent(service);
   });
 
   it('should create', () => {
@@ -211,6 +198,16 @@ describe('AnswerInputComponent', () => {
 
         expect(setValue).not.toHaveBeenCalled();
       });
+    });
+  });
+
+  describe('onDestroy', () => {
+    it('should unsubscribe', () => {
+      const unsubscribe = jest.spyOn(component.subs, 'unsubscribe');
+
+      component.ngOnDestroy();
+
+      expect(unsubscribe).toBeCalledTimes(1);
     });
   });
 });

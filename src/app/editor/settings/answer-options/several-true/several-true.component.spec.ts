@@ -1,7 +1,4 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-
 import * as _ from 'lodash';
-import { EditorModule } from 'src/app/editor/editor.module';
 import { QuizeeEditingService } from 'src/app/editor/quizee-editing.service';
 
 import { SeveralTrueComponent } from './several-true.component';
@@ -9,20 +6,10 @@ import { SeveralTrueComponent } from './several-true.component';
 describe('SeveralTrueComponent', () => {
   let component: SeveralTrueComponent;
   let service: QuizeeEditingService;
-  let fixture: ComponentFixture<SeveralTrueComponent>;
-
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      declarations: [SeveralTrueComponent],
-      imports: [EditorModule],
-      providers: [QuizeeEditingService],
-    }).compileComponents();
-  });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(SeveralTrueComponent);
-    service = TestBed.inject(QuizeeEditingService);
-    component = fixture.componentInstance;
+    service = new QuizeeEditingService();
+    component = new SeveralTrueComponent(service);
 
     jest.useFakeTimers();
   });

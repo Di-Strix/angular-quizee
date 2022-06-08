@@ -1,28 +1,15 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-
 import * as _ from 'lodash';
-import { EditorModule } from 'src/app/editor/editor.module';
 import { QuizeeEditingService } from 'src/app/editor/quizee-editing.service';
 
 import { OneTrueComponent } from './one-true.component';
 
 describe('OneTrueComponent', () => {
   let component: OneTrueComponent;
-  let fixture: ComponentFixture<OneTrueComponent>;
   let service: QuizeeEditingService;
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      declarations: [OneTrueComponent],
-      imports: [EditorModule],
-      providers: [QuizeeEditingService],
-    }).compileComponents();
-  });
-
   beforeEach(() => {
-    fixture = TestBed.createComponent(OneTrueComponent);
-    service = TestBed.inject(QuizeeEditingService);
-    component = fixture.componentInstance;
+    service = new QuizeeEditingService();
+    component = new OneTrueComponent(service);
 
     jest.useFakeTimers();
   });

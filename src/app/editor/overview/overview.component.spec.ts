@@ -1,30 +1,18 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { VerificationErrors } from '@di-strix/quizee-verification-functions';
 
 import { Observable, Subject, of } from 'rxjs';
 
-import { EditorModule } from '../editor.module';
 import { QuizeeEditingService } from '../quizee-editing.service';
 
 import { OverviewComponent } from './overview.component';
 
 describe('OverviewComponent', () => {
   let component: OverviewComponent;
-  let fixture: ComponentFixture<OverviewComponent>;
-  let quizeeEditingService: QuizeeEditingService;
-
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      declarations: [OverviewComponent],
-      providers: [],
-      imports: [EditorModule],
-    }).compileComponents();
-  });
+  let service: QuizeeEditingService;
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(OverviewComponent);
-    component = fixture.componentInstance;
-    quizeeEditingService = TestBed.inject(QuizeeEditingService);
+    service = new QuizeeEditingService();
+    component = new OverviewComponent(service);
   });
 
   it('should create', () => {
@@ -34,7 +22,7 @@ describe('OverviewComponent', () => {
   describe('onInit', () => {
     it('should subscribe to quizeeErrors', () => {
       const subject = new Observable();
-      const getQuizeeErrors = jest.spyOn(quizeeEditingService, 'getQuizeeErrors').mockReturnValue(subject as any);
+      const getQuizeeErrors = jest.spyOn(service, 'getQuizeeErrors').mockReturnValue(subject as any);
 
       component.ngOnInit();
 
@@ -45,7 +33,7 @@ describe('OverviewComponent', () => {
       jest.useFakeTimers();
 
       const subject = new Subject();
-      jest.spyOn(quizeeEditingService, 'getQuizeeErrors').mockReturnValue(subject as any);
+      jest.spyOn(service, 'getQuizeeErrors').mockReturnValue(subject as any);
 
       component.ngOnInit();
 
@@ -81,7 +69,7 @@ describe('OverviewComponent', () => {
           context: { key: '', label: 'questions[1]' },
         },
       ];
-      jest.spyOn(quizeeEditingService, 'getQuizeeErrors').mockReturnValue(of(errors));
+      jest.spyOn(service, 'getQuizeeErrors').mockReturnValue(of(errors));
 
       component.ngOnInit();
 

@@ -10,21 +10,11 @@ import { QuestionCaptionComponent } from './question-caption.component';
 
 describe('QuestionCaptionComponent', () => {
   let component: QuestionCaptionComponent;
-  let fixture: ComponentFixture<QuestionCaptionComponent>;
   let service: QuizeeEditingService;
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      declarations: [QuestionCaptionComponent],
-      imports: [BrowserAnimationsModule, EditorModule],
-      providers: [QuizeeEditingService],
-    }).compileComponents();
-  });
-
   beforeEach(() => {
-    fixture = TestBed.createComponent(QuestionCaptionComponent);
-    service = TestBed.inject(QuizeeEditingService);
-    component = fixture.componentInstance;
+    service = new QuizeeEditingService();
+    component = new QuestionCaptionComponent(service);
 
     jest.useFakeTimers();
   });
