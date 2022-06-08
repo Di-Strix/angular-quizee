@@ -35,7 +35,7 @@ export class QuizeeValidators {
       );
   }
 
-  private static filterErrors(errors: VerificationErrors, path: string): ValidationErrors | null {
+  static filterErrors(errors: VerificationErrors, path: string): ValidationErrors | null {
     const err = errors.filter((err) => err.context?.label?.indexOf(path) === 0)[0];
     return err ? { [err.type]: true } : null;
   }
