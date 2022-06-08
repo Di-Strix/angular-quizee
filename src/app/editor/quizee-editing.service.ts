@@ -19,9 +19,13 @@ export class QuizeeEditingService {
   currentQuestion$: ReplaySubject<QuestionPair> = new ReplaySubject(1);
 
   quizee?: Quiz;
-  currentIndex: number = -1;
+  private currentIndex: number = -1;
 
   constructor() {}
+
+  getCurrentQuestionIndex(): number {
+    return this.currentIndex;
+  }
 
   getQuizeeErrors(): Observable<VerificationErrors> {
     return this.quizee$.pipe(switchMap((q) => from(verifyQuizee(q))));
@@ -103,8 +107,8 @@ export class QuizeeEditingService {
   modifyCurrentQuestion(changes: RecursivePartial<QuestionPair>): Observable<QuestionPair> {
     if (!this.quizee) throw new Error('Quizee is not loaded');
 
-    _.merge(this.quizee.answers[this.currentIndex], changes.answer);
-    _.merge(this.quizee.questions[this.currentIndex], changes.question);
+    _.merge(this.quizee.answers[this.getCurrentQuestionIndex()], changes.answer);
+    _.merge(this.quizee.questions[this.getCurrentQuestionIndex()], changes.question);
 
     return this.getCurrentQuestion();
   }
@@ -117,8 +121,8 @@ export class QuizeeEditingService {
     if (!this.quizee) throw new Error('Quizee is not loaded');
 
     return {
-      question: this.quizee.questions[this.currentIndex],
-      answer: this.quizee.answers[this.currentIndex],
+      question: this.quizee.questions[this.getCurrentQuestionIndex()],
+      answer: this.quizee.answers[this.getCurrentQuestionIndex()],
     };
   }
 
@@ -158,7 +162,7 @@ export class QuizeeEditingService {
   setAnswer(answer: Answer['answer']): Observable<QuestionPair> {
     if (!this.quizee) throw new Error('Quizee is not loaded');
 
-    this.quizee.answers[this.currentIndex].answer = answer;
+    this.quizee.answers[this.getCurrentQuestionIndex()].answer = answer;
 
     return this.getCurrentQuestion();
   }
@@ -167,7 +171,7 @@ export class QuizeeEditingService {
   setAnswerOptions(answerOptions: AnswerOption[]): Observable<QuestionPair> {
     if (!this.quizee) throw new Error('Quizee is not loaded');
 
-    this.quizee.questions[this.currentIndex].answerOptions = _.cloneDeep(answerOptions);
+    this.quizee.questions[this.getCurrentQuestionIndex()].answerOptions = _.cloneDeep(answerOptions);
 
     return this.getCurrentQuestion();
   }

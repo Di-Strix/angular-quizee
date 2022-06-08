@@ -247,14 +247,14 @@ describe('QuizeeEditingService', () => {
       service.create();
       service.createQuestion();
       service.createQuestion().subscribe({ next, error });
-      const index = service.currentIndex;
+      const index = service.getCurrentQuestionIndex();
       service.modify({ info: { caption: 'aaa' } });
 
       jest.runAllTimers();
 
       expect(error).not.toHaveBeenCalled();
       expect(next).toHaveBeenCalledTimes(1);
-      expect(service.currentIndex).toEqual(index);
+      expect(service.getCurrentQuestionIndex()).toEqual(index);
     });
   });
 
@@ -751,8 +751,8 @@ describe('QuizeeEditingService', () => {
       const qp: QuestionPair = (service as any)._getCurrentQuestion();
       const quizee: Quiz = (service as any).quizee;
 
-      expect(qp.question).toEqual(quizee.questions[service.currentIndex]);
-      expect(qp.answer).toEqual(quizee.answers[service.currentIndex]);
+      expect(qp.question).toEqual(quizee.questions[service.getCurrentQuestionIndex()]);
+      expect(qp.answer).toEqual(quizee.answers[service.getCurrentQuestionIndex()]);
     });
   });
 
@@ -908,6 +908,26 @@ describe('QuizeeEditingService', () => {
       expect(next.mock.calls[0][0].answer.answer.length).toBe(1);
       expect(next.mock.calls[0][0].question.answerOptions.length).toBe(1);
       expect(next.mock.calls[0][0].answer.answer[0]).toBe(next.mock.calls[0][0].question.answerOptions[0].id);
+    });
+  });
+
+  describe('getCurrentQuestionIndex', () => {
+    it('should return -1 if question is not created or loaded', () => {
+      expect(service.getCurrentQuestionIndex()).toEqual(-1);
+    });
+
+    it('should return proper index', () => {
+      service.create();
+
+      expect(service.getCurrentQuestionIndex()).toEqual(0);
+
+      service.createQuestion();
+
+      expect(service.getCurrentQuestionIndex()).toEqual(1);
+
+      service.selectQuestion(0);
+
+      expect(service.getCurrentQuestionIndex()).toEqual(0);
     });
   });
 });
