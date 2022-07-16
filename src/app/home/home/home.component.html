@@ -1,0 +1,48 @@
+<mat-toolbar
+  color="primary"
+  class="header mat-elevation-z6"
+>
+  <span style="flex: 1 1 auto"></span>
+  <div
+    fxLayout
+    fxLayoutAlign="center center"
+  >
+    <span>Quizee</span>
+  </div>
+  <span style="flex: 1 1 auto"></span>
+</mat-toolbar>
+<div
+  *ngIf="quizees.length; else loader"
+  class="cards-container"
+  @card-reveal
+>
+  <mat-card *ngFor="let quizee of quizees">
+    <div class="img-container">
+      <img
+        appClassWhenLoaded="loaded"
+        src="https://picsum.photos/300/150"
+      />
+    </div>
+    <mat-card-title>{{ quizee.caption }}</mat-card-title>
+    <mat-card-subtitle>Questions count: {{ quizee.questionsCount }} </mat-card-subtitle>
+    <mat-card-content>
+      <button
+        mat-button
+        style="width: 100%"
+        color="primary"
+        [routerLink]="['solve', quizee.id]"
+      >
+        Start test
+      </button>
+    </mat-card-content>
+  </mat-card>
+</div>
+
+<ng-template #loader>
+  <div
+    @loader
+    class="loader"
+  >
+    <mat-spinner diameter="50"></mat-spinner>
+  </div>
+</ng-template>
