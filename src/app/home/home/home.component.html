@@ -23,7 +23,7 @@
         src="https://picsum.photos/300/150"
       />
     </div>
-    <mat-card-title>{{ quizee.caption }}</mat-card-title>
+    <mat-card-title [title]="quizee.caption">{{ quizee.caption }}</mat-card-title>
     <mat-card-subtitle>Questions count: {{ quizee.questionsCount }} </mat-card-subtitle>
     <mat-card-content>
       <button
