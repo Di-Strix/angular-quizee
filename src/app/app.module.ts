@@ -28,7 +28,7 @@ const withEmulator = <ProviderType>(
 
     if (environment.firebase.useEmulator?.[emulatorName]) {
       const {
-        host = 'http://localhost',
+        host = 'localhost',
         port,
         options = {},
       } = environment.firebase.useEmulator[emulatorName] as EmulatorConfig;
