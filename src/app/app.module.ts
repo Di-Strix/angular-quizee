@@ -7,6 +7,7 @@ import { FIREBASE_OPTIONS } from '@angular/fire/compat';
 import { connectDatabaseEmulator, getDatabase, provideDatabase } from '@angular/fire/database';
 import { connectFirestoreEmulator, getFirestore, provideFirestore } from '@angular/fire/firestore';
 import { connectFunctionsEmulator, getFunctions, provideFunctions } from '@angular/fire/functions';
+import { MatDialogModule } from '@angular/material/dialog';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
@@ -63,6 +64,7 @@ const withEmulator = <ProviderType>(
       });
     }),
     BrowserAnimationsModule,
+    MatDialogModule,
   ],
   providers: [
     ScreenTrackingService,
