@@ -1,0 +1,17 @@
+<h1 mat-dialog-title>Missing Auth!</h1>
+<mat-dialog-content>To perform this action you have to be authorized.</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button
+    mat-button
+    mat-dialog-close
+  >
+    Cancel
+  </button>
+  <button
+    mat-button
+    (click)="authService.logIn()"
+    color="primary"
+  >
+    Log In
+  </button>
+</mat-dialog-actions>
