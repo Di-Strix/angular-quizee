@@ -27,17 +27,17 @@ describe('OneTrueComponent', () => {
   });
 
   describe('remove answer option', () => {
-    it('should not remove answer option if it is the last one', () => {
+    it('should not remove answer option if it is the last one', async () => {
       const removeAnswerOption = jest.spyOn(service, 'removeAnswerOption');
       component.controls = [{ id: '1', control: {} as any }];
       component.removeAnswerOption('1');
 
-      jest.runAllTimers();
+      await jest.runAllTimers();
 
       expect(removeAnswerOption).not.toHaveBeenCalled();
     });
 
-    it('should prompt service to remove answer option with provided id', () => {
+    it('should prompt service to remove answer option with provided id', async () => {
       const removeAnswerOption = jest.spyOn(service, 'removeAnswerOption');
       component.controls = [
         { id: '1', control: {} as any },
@@ -45,7 +45,7 @@ describe('OneTrueComponent', () => {
       ];
       component.removeAnswerOption('1');
 
-      jest.runAllTimers();
+      await jest.runAllTimers();
 
       expect(removeAnswerOption).toHaveBeenCalledTimes(1);
       expect(removeAnswerOption).toHaveBeenCalledWith('1');
@@ -53,11 +53,11 @@ describe('OneTrueComponent', () => {
   });
 
   describe('createAnswerOption', () => {
-    it('should prompt service to create answer option', () => {
+    it('should prompt service to create answer option', async () => {
       const addAnswerOption = jest.spyOn(service, 'addAnswerOption');
       component.createAnswerOption();
 
-      jest.runAllTimers();
+      await jest.runAllTimers();
 
       expect(addAnswerOption).toHaveBeenCalledTimes(1);
     });

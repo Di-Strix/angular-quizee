@@ -1,7 +1,4 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-
 import { Subject } from 'rxjs';
-import { EditorModule } from 'src/app/editor/editor.module';
 import { QuizeeEditingService } from 'src/app/editor/quizee-editing.service';
 import { QuizeeValidators } from 'src/app/editor/quizee-validators';
 
@@ -28,7 +25,7 @@ describe('SettingCardTitleComponent', () => {
     expect(() => component.ngOnInit()).toThrow();
   });
 
-  it('should subscribe to according validator if checkErrors and path are set', () => {
+  it('should subscribe to according validator if checkErrors and path are set', async () => {
     const forQuizee = jest.fn().mockReturnValue(() => new Subject());
     const forCurrentQuestion = jest.fn().mockReturnValue(() => new Subject());
 
@@ -40,7 +37,7 @@ describe('SettingCardTitleComponent', () => {
 
     component.ngOnInit();
 
-    jest.runAllTimers();
+    await jest.runAllTimers();
 
     expect(forQuizee).toBeCalledTimes(1);
     expect(forCurrentQuestion).not.toBeCalled();
@@ -50,13 +47,13 @@ describe('SettingCardTitleComponent', () => {
 
     component.ngOnInit();
 
-    jest.runAllTimers();
+    await jest.runAllTimers();
 
     expect(forQuizee).toBeCalledTimes(1);
     expect(forCurrentQuestion).toBeCalledTimes(1);
   });
 
-  it('should call validator with path and once = false', () => {
+  it('should call validator with path and once = false', async () => {
     const forCurrentQuestion = jest.fn().mockReturnValue(() => new Subject());
 
     QuizeeValidators.forCurrentQuestion = forCurrentQuestion;
@@ -66,13 +63,13 @@ describe('SettingCardTitleComponent', () => {
 
     component.ngOnInit();
 
-    jest.runAllTimers();
+    await jest.runAllTimers();
 
     expect(forCurrentQuestion).toBeCalledTimes(1);
     expect(forCurrentQuestion).toBeCalledWith(service, 'answer.path', false);
   });
 
-  it('should set error depending on pushed value', () => {
+  it('should set error depending on pushed value', async () => {
     const subject = new Subject();
     const forCurrentQuestion = jest.fn().mockReturnValue(() => subject);
 
@@ -84,13 +81,13 @@ describe('SettingCardTitleComponent', () => {
     component.ngOnInit();
     subject.next({});
 
-    jest.runAllTimers();
+    await jest.runAllTimers();
 
     expect(component.error).toBeTruthy();
 
     subject.next(null);
 
-    jest.runAllTimers();
+    await jest.runAllTimers();
 
     expect(component.error).toBeFalsy();
   });

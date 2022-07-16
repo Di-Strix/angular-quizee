@@ -21,17 +21,17 @@ describe('QuizeeValidatorsDirective', () => {
   });
 
   describe('forQuizee', () => {
-    it('should call getQuizeeErrors from service', () => {
+    it('should call getQuizeeErrors from service', async () => {
       const getQuizeeErrors = jest.spyOn(service, 'getQuizeeErrors');
 
       QuizeeValidators.forQuizee(service, '')({} as any);
 
-      jest.runAllTimers();
+      await jest.runAllTimers();
 
       expect(getQuizeeErrors).toBeCalledTimes(1);
     });
 
-    it('should take only first value if once = true', () => {
+    it('should take only first value if once = true', async () => {
       const subject = new Subject();
       jest.spyOn(service, 'getQuizeeErrors').mockReturnValue(subject as any);
 
@@ -40,13 +40,13 @@ describe('QuizeeValidatorsDirective', () => {
       subject.next([]);
       subject.next([]);
 
-      jest.runAllTimers();
+      await jest.runAllTimers();
 
       expect(next).toBeCalledTimes(1);
       expect(error).not.toBeCalled();
     });
 
-    it('should take all values value if once = false', () => {
+    it('should take all values value if once = false', async () => {
       const subject = new Subject();
       jest.spyOn(service, 'getQuizeeErrors').mockReturnValue(subject as any);
 
@@ -58,13 +58,13 @@ describe('QuizeeValidatorsDirective', () => {
       subject.next([]);
       subject.next([]);
 
-      jest.runAllTimers();
+      await jest.runAllTimers();
 
       expect(next).toBeCalledTimes(2);
       expect(error).not.toBeCalled();
     });
 
-    it('should filter errors by path', () => {
+    it('should filter errors by path', async () => {
       const errors: VerificationErrors = [
         {
           message: '',
@@ -90,13 +90,13 @@ describe('QuizeeValidatorsDirective', () => {
 
       subject.next(errors);
 
-      jest.runAllTimers();
+      await jest.runAllTimers();
 
       expect(next).toBeCalledWith({ type2: true });
       expect(error).not.toBeCalled();
     });
 
-    it('should return null if no errors by path', () => {
+    it('should return null if no errors by path', async () => {
       const errors: VerificationErrors = [
         {
           message: '',
@@ -122,13 +122,13 @@ describe('QuizeeValidatorsDirective', () => {
 
       subject.next(errors);
 
-      jest.runAllTimers();
+      await jest.runAllTimers();
 
       expect(next).toBeCalledWith(null);
       expect(error).not.toBeCalled();
     });
 
-    it('should not throw if context is undefined', () => {
+    it('should not throw if context is undefined', async () => {
       const errors: VerificationErrors = [
         {
           message: '',
@@ -152,7 +152,7 @@ describe('QuizeeValidatorsDirective', () => {
 
       subject.next(errors);
 
-      jest.runAllTimers();
+      await jest.runAllTimers();
 
       expect(next).toBeCalledWith(null);
       expect(error).not.toBeCalled();
@@ -160,17 +160,17 @@ describe('QuizeeValidatorsDirective', () => {
   });
 
   describe('forCurrentQuestion', () => {
-    it('should call getCurrentQuestionErrors from service', () => {
+    it('should call getCurrentQuestionErrors from service', async () => {
       const getCurrentQuestionErrors = jest.spyOn(service, 'getCurrentQuestionErrors');
 
       QuizeeValidators.forCurrentQuestion(service, 'question')({} as any);
 
-      jest.runAllTimers();
+      await jest.runAllTimers();
 
       expect(getCurrentQuestionErrors).toBeCalledTimes(1);
     });
 
-    it('should take only first value if once = true', () => {
+    it('should take only first value if once = true', async () => {
       const subject = new Subject();
       jest.spyOn(service, 'getCurrentQuestionErrors').mockReturnValue(subject as any);
 
@@ -182,13 +182,13 @@ describe('QuizeeValidatorsDirective', () => {
       subject.next({ answer: [], question: [] });
       subject.next({ answer: [], question: [] });
 
-      jest.runAllTimers();
+      await jest.runAllTimers();
 
       expect(next).toBeCalledTimes(1);
       expect(error).not.toBeCalled();
     });
 
-    it('should take all values if once = false', () => {
+    it('should take all values if once = false', async () => {
       const subject = new Subject();
       jest.spyOn(service, 'getCurrentQuestionErrors').mockReturnValue(subject as any);
 
@@ -202,13 +202,13 @@ describe('QuizeeValidatorsDirective', () => {
       subject.next({ answer: [], question: [] });
       subject.next({ answer: [], question: [] });
 
-      jest.runAllTimers();
+      await jest.runAllTimers();
 
       expect(next).toBeCalledTimes(2);
       expect(error).not.toBeCalled();
     });
 
-    it('should filter errors by path', () => {
+    it('should filter errors by path', async () => {
       let errors: { [K in keyof QuestionPair]: VerificationErrors } = {
         answer: [{ context: { label: '' }, message: '', path: [], type: 'type1' }],
         question: [],
@@ -224,7 +224,7 @@ describe('QuizeeValidatorsDirective', () => {
 
       subject.next(errors);
 
-      jest.runAllTimers();
+      await jest.runAllTimers();
 
       expect(next).toBeCalledWith({ type1: true });
       expect(error).not.toBeCalled();
@@ -256,13 +256,13 @@ describe('QuizeeValidatorsDirective', () => {
 
       subject.next(errors);
 
-      jest.runAllTimers();
+      await jest.runAllTimers();
 
       expect(next).toBeCalledWith({ type2: true });
       expect(error).not.toBeCalled();
     });
 
-    it('should throw if first part of path is invalid', () => {
+    it('should throw if first part of path is invalid', async () => {
       let errors: { [K in keyof QuestionPair]: VerificationErrors } = {
         answer: [{ context: { label: '' }, message: '', path: [], type: 'type1' }],
         question: [],
@@ -282,13 +282,13 @@ describe('QuizeeValidatorsDirective', () => {
 
       subject.next(errors);
 
-      jest.runAllTimers();
+      await jest.runAllTimers();
 
       expect(next).not.toBeCalled();
       expect(error).toBeCalled();
     });
 
-    it('should return null if no errors by path', () => {
+    it('should return null if no errors by path', async () => {
       const errors: { [K in keyof QuestionPair]: VerificationErrors } = {
         answer: [
           {
@@ -320,13 +320,13 @@ describe('QuizeeValidatorsDirective', () => {
 
       subject.next(errors);
 
-      jest.runAllTimers();
+      await jest.runAllTimers();
 
       expect(next).toBeCalledWith(null);
       expect(error).not.toBeCalled();
     });
 
-    it('should not throw if context is undefined', () => {
+    it('should not throw if context is undefined', async () => {
       const errors: { [K in keyof QuestionPair]: VerificationErrors } = {
         answer: [
           {
@@ -355,7 +355,7 @@ describe('QuizeeValidatorsDirective', () => {
 
       subject.next(errors);
 
-      jest.runAllTimers();
+      await jest.runAllTimers();
 
       expect(next).toBeCalledWith(null);
       expect(error).not.toBeCalled();

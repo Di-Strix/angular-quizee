@@ -74,7 +74,7 @@ describe('SelectiveAnswersBaseComponent', () => {
 
       expect(component.controls.map(({ id }) => id)).toEqual(expect.arrayContaining(ids));
     });
-    it('should update quizee on input value change', () => {
+    it('should update quizee on input value change', async () => {
       jest.useFakeTimers();
 
       const ids = ['id1'];
@@ -98,7 +98,7 @@ describe('SelectiveAnswersBaseComponent', () => {
       component.subscribeToUpdates(service);
       component.controls.find(({ id }) => id === 'id1')?.control.setValue('id1');
 
-      jest.runAllTimers();
+      await jest.runAllTimers();
 
       expect(setAnswer).toHaveBeenCalledTimes(0);
       expect(setAnswerOptions).toHaveBeenCalledTimes(1);
@@ -123,7 +123,7 @@ describe('SelectiveAnswersBaseComponent', () => {
         };
       });
 
-      it('should not update controls if values are the same', () => {
+      it('should not update controls if values are the same', async () => {
         mockQuestionPair.question.answerOptions = [{ id: 'some-unique-id', value: '1' }];
 
         const subject = new Subject();
@@ -133,17 +133,17 @@ describe('SelectiveAnswersBaseComponent', () => {
         component.subscribeToUpdates(service);
         subject.next(_.cloneDeep(mockQuestionPair));
 
-        jest.runAllTimers();
+        await jest.runAllTimers();
 
         const controls = _.cloneDeep(component.controls);
         subject.next(_.cloneDeep(mockQuestionPair));
 
-        jest.runAllTimers();
+        await jest.runAllTimers();
 
         expect(component.controls).toEqual(controls);
       });
 
-      it('should only update controls that are dependent on changed answer options', () => {
+      it('should only update controls that are dependent on changed answer options', async () => {
         mockQuestionPair.question.answerOptions = [
           { id: 'some-unique-id', value: '1' },
           { id: 'another-unique-id', value: '2' },
@@ -156,13 +156,13 @@ describe('SelectiveAnswersBaseComponent', () => {
         component.subscribeToUpdates(service);
         subject.next(_.cloneDeep(mockQuestionPair));
 
-        jest.runAllTimers();
+        await jest.runAllTimers();
 
         const controls = _.cloneDeep(component.controls);
         mockQuestionPair.question.answerOptions[0].value = '2';
         subject.next(_.cloneDeep(mockQuestionPair));
 
-        jest.runAllTimers();
+        await jest.runAllTimers();
 
         expect(component.controls[0]).not.toEqual(controls[0]);
         expect(component.controls[1]).toEqual(controls[1]);

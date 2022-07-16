@@ -168,7 +168,7 @@ describe('EditorComponent', () => {
       expect(createQuestion).toHaveBeenCalledTimes(1);
     });
 
-    it('should scroll container', () => {
+    it('should scroll container', async () => {
       jest.useFakeTimers();
 
       component.questionsContainer = {
@@ -178,7 +178,7 @@ describe('EditorComponent', () => {
       const scrollTo = jest.spyOn(component.questionsContainer.nativeElement, 'scrollTo');
       component.handleQuestionCreation();
 
-      jest.runAllTimers();
+      await jest.runAllTimers();
 
       expect(scrollTo).toHaveBeenCalledTimes(1);
     });
@@ -186,7 +186,7 @@ describe('EditorComponent', () => {
 
   describe('quizee name', () => {
     describe('quizee caption value change', () => {
-      it('should update quizee on input value change', () => {
+      it('should update quizee on input value change', async () => {
         const getCurrentQuestion = jest.spyOn(quizeeEditingService, 'get');
         getCurrentQuestion.mockReturnValue(of({ info: { caption: 'abc' } } as any));
 
@@ -195,7 +195,7 @@ describe('EditorComponent', () => {
         component.ngOnInit();
         component.quizeeName.setValue('abc123');
 
-        jest.runAllTimers();
+        await jest.runAllTimers();
 
         expect(modifyCurrentQuestion).toHaveBeenCalledTimes(1);
         expect(modifyCurrentQuestion).toHaveBeenCalledWith({ info: { caption: 'abc123' } });
@@ -203,7 +203,7 @@ describe('EditorComponent', () => {
     });
 
     describe('question type value change', () => {
-      it('should update input value if its value differs', () => {
+      it('should update input value if its value differs', async () => {
         const subject = new Subject();
         const getCurrentQuestion = jest.spyOn(quizeeEditingService, 'get');
         getCurrentQuestion.mockReturnValue(subject as any);
@@ -213,7 +213,7 @@ describe('EditorComponent', () => {
         component.ngOnInit();
         subject.next({ info: { caption: 'abc' } });
 
-        jest.runAllTimers();
+        await jest.runAllTimers();
 
         subject.next({ info: { caption: 'abc123' } });
 
@@ -222,7 +222,7 @@ describe('EditorComponent', () => {
         expect(setValue.mock.calls[1][0]).toBe('abc123');
       });
 
-      it('should not update input value if it is the same', () => {
+      it('should not update input value if it is the same', async () => {
         const subject = new Subject();
         const getCurrentQuestion = jest.spyOn(quizeeEditingService, 'get');
         getCurrentQuestion.mockReturnValue(subject as any);
@@ -232,7 +232,7 @@ describe('EditorComponent', () => {
         component.ngOnInit();
         subject.next({ info: { caption: 'abc' } });
 
-        jest.runAllTimers();
+        await jest.runAllTimers();
 
         subject.next({ info: { caption: 'abc' } });
 

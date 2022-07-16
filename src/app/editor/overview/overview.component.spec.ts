@@ -29,7 +29,7 @@ describe('OverviewComponent', () => {
       expect(getQuizeeErrors).toBeCalledTimes(1);
     });
 
-    it('should save errors', () => {
+    it('should save errors', async () => {
       jest.useFakeTimers();
 
       const subject = new Subject();
@@ -39,7 +39,7 @@ describe('OverviewComponent', () => {
 
       subject.next(1);
 
-      jest.runAllTimers();
+      await jest.runAllTimers();
 
       expect(component.errors).toBe(1);
     });
@@ -54,7 +54,7 @@ describe('OverviewComponent', () => {
   });
 
   describe('hasError', () => {
-    it('should work', () => {
+    it('should work', async () => {
       const errors: VerificationErrors = [
         {
           message: '',
@@ -73,7 +73,7 @@ describe('OverviewComponent', () => {
 
       component.ngOnInit();
 
-      jest.runAllTimers();
+      await jest.runAllTimers();
 
       expect(component.hasError(0)).toBeTruthy();
       expect(component.hasError(1)).toBeTruthy();

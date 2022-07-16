@@ -28,7 +28,7 @@ describe('AnswerInputComponent', () => {
 
   describe('answer', () => {
     describe('input value change', () => {
-      it('should update quizee on input value change', () => {
+      it('should update quizee on input value change', async () => {
         jest.useFakeTimers();
 
         const getCurrentQuestion = jest.spyOn(service, 'getCurrentQuestion');
@@ -49,7 +49,7 @@ describe('AnswerInputComponent', () => {
         component.ngOnInit();
         component.answer.setValue('Some correct answer');
 
-        jest.runAllTimers();
+        await jest.runAllTimers();
 
         expect(setAnswer).toHaveBeenCalledTimes(1);
         expect(setAnswer.mock.calls[0][0]).toEqual(['Some correct answer']);
@@ -73,7 +73,7 @@ describe('AnswerInputComponent', () => {
         };
       });
 
-      it('should update form if answer changed', () => {
+      it('should update form if answer changed', async () => {
         mockQuestionPair.answer.answer = ['some value'];
 
         const subject = new Subject();
@@ -83,18 +83,18 @@ describe('AnswerInputComponent', () => {
         component.ngOnInit();
         subject.next(_.cloneDeep(mockQuestionPair));
 
-        jest.runAllTimers();
+        await jest.runAllTimers();
 
         expect(component.answer.value).toBe('some value');
         mockQuestionPair.answer.answer = ['some another value'];
         subject.next(_.cloneDeep(mockQuestionPair));
 
-        jest.runAllTimers();
+        await jest.runAllTimers();
 
         expect(component.answer.value).toBe('some another value');
       });
 
-      it('should not update form if value is the same', () => {
+      it('should not update form if value is the same', async () => {
         mockQuestionPair.answer.answer = ['val'];
 
         const subject = new Subject();
@@ -104,7 +104,7 @@ describe('AnswerInputComponent', () => {
         component.ngOnInit();
         subject.next(_.cloneDeep(mockQuestionPair));
 
-        jest.runAllTimers();
+        await jest.runAllTimers();
 
         const setValue = jest.spyOn(component.answer, 'setValue');
         subject.next(_.cloneDeep(mockQuestionPair));
@@ -116,7 +116,7 @@ describe('AnswerInputComponent', () => {
 
   describe('config', () => {
     describe('config change', () => {
-      it('should update quizee on config change', () => {
+      it('should update quizee on config change', async () => {
         jest.useFakeTimers();
 
         const getCurrentQuestion = jest.spyOn(service, 'getCurrentQuestion');
@@ -137,7 +137,7 @@ describe('AnswerInputComponent', () => {
         component.ngOnInit();
         component.config.get('equalCase')?.setValue(true);
 
-        jest.runAllTimers();
+        await jest.runAllTimers();
 
         expect(setAnswerConfig).toHaveBeenCalledTimes(1);
         expect(setAnswerConfig.mock.calls[0][0].equalCase).toEqual(true);
@@ -161,7 +161,7 @@ describe('AnswerInputComponent', () => {
         };
       });
 
-      it('should update form if related config changed', () => {
+      it('should update form if related config changed', async () => {
         mockQuestionPair.answer.config.equalCase = true;
         const subject = new Subject();
         const getCurrentQuestion = jest.spyOn(service, 'getCurrentQuestion');
@@ -170,18 +170,18 @@ describe('AnswerInputComponent', () => {
         component.ngOnInit();
         subject.next(_.cloneDeep(mockQuestionPair));
 
-        jest.runAllTimers();
+        await jest.runAllTimers();
 
         expect(component.config.value.equalCase).toBe(true);
         mockQuestionPair.answer.config.equalCase = false;
         subject.next(_.cloneDeep(mockQuestionPair));
 
-        jest.runAllTimers();
+        await jest.runAllTimers();
 
         expect(component.config.value.equalCase).toBe(false);
       });
 
-      it('should not update form if value is the same', () => {
+      it('should not update form if value is the same', async () => {
         mockQuestionPair.answer.config.equalCase = true;
 
         const subject = new Subject();
@@ -191,7 +191,7 @@ describe('AnswerInputComponent', () => {
         component.ngOnInit();
         subject.next(_.cloneDeep(mockQuestionPair));
 
-        jest.runAllTimers();
+        await jest.runAllTimers();
 
         const setValue = jest.spyOn(component.config, 'setValue');
         subject.next(_.cloneDeep(mockQuestionPair));

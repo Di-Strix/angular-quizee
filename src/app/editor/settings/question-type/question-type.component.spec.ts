@@ -19,19 +19,19 @@ describe('QuestionTypeComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should subscribe to current question', () => {
+  it('should subscribe to current question', async () => {
     const getCurrentQuestion = jest.spyOn(service, 'getCurrentQuestion');
     getCurrentQuestion.mockReturnValue(of());
 
     component.ngOnInit();
 
-    jest.runAllTimers();
+    await jest.runAllTimers();
 
     expect(getCurrentQuestion).toHaveBeenCalled();
   });
 
   describe('input value change', () => {
-    it('should update quizee on input value change', () => {
+    it('should update quizee on input value change', async () => {
       const getCurrentQuestion = jest.spyOn(service, 'getCurrentQuestion');
       getCurrentQuestion.mockReturnValue(of({ question: { type: 'ONE_TRUE' } } as any));
 
@@ -40,7 +40,7 @@ describe('QuestionTypeComponent', () => {
       component.ngOnInit();
       component.questionType.setValue('SEVERAL_TRUE');
 
-      jest.runAllTimers();
+      await jest.runAllTimers();
 
       expect(setQuestionType).toHaveBeenCalledTimes(1);
       expect(setQuestionType).toHaveBeenCalledWith('SEVERAL_TRUE');
@@ -48,7 +48,7 @@ describe('QuestionTypeComponent', () => {
   });
 
   describe('question type value change', () => {
-    it('should update input value if its value differs', () => {
+    it('should update input value if its value differs', async () => {
       const subject = new Subject();
       const getCurrentQuestion = jest.spyOn(service, 'getCurrentQuestion');
       getCurrentQuestion.mockReturnValue(subject as any);
@@ -58,7 +58,7 @@ describe('QuestionTypeComponent', () => {
       component.ngOnInit();
       subject.next({ question: { type: 'ONE_TRUE' } });
 
-      jest.runAllTimers();
+      await jest.runAllTimers();
 
       subject.next({ question: { type: 'SEVERAL_TRUE' } });
 
@@ -67,7 +67,7 @@ describe('QuestionTypeComponent', () => {
       expect(setValue.mock.calls[1][0]).toBe('SEVERAL_TRUE');
     });
 
-    it('should not update input value if it is the same', () => {
+    it('should not update input value if it is the same', async () => {
       const subject = new Subject();
       const getCurrentQuestion = jest.spyOn(service, 'getCurrentQuestion');
       getCurrentQuestion.mockReturnValue(subject as any);
@@ -77,7 +77,7 @@ describe('QuestionTypeComponent', () => {
       component.ngOnInit();
       subject.next({ question: { type: 'ONE_TRUE' } });
 
-      jest.runAllTimers();
+      await jest.runAllTimers();
 
       subject.next({ question: { type: 'ONE_TRUE' } });
 

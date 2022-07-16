@@ -1,10 +1,6 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-
 import { Subject, of } from 'rxjs';
 
-import { EditorModule } from '../../editor.module';
-import { QuestionPair, QuizeeEditingService } from '../../quizee-editing.service';
+import { QuizeeEditingService } from '../../quizee-editing.service';
 
 import { QuestionCaptionComponent } from './question-caption.component';
 
@@ -23,19 +19,19 @@ describe('QuestionCaptionComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should subscribe to current question', () => {
+  it('should subscribe to current question', async () => {
     const getCurrentQuestion = jest.spyOn(service, 'getCurrentQuestion');
     getCurrentQuestion.mockReturnValue(of());
 
     component.ngOnInit();
 
-    jest.runAllTimers();
+    await jest.runAllTimers();
 
     expect(getCurrentQuestion).toHaveBeenCalled();
   });
 
   describe('input value change', () => {
-    it('should update quizee on input value change', () => {
+    it('should update quizee on input value change', async () => {
       const getCurrentQuestion = jest.spyOn(service, 'getCurrentQuestion');
       getCurrentQuestion.mockReturnValue(of({ question: { caption: '' } } as any));
 
@@ -44,7 +40,7 @@ describe('QuestionCaptionComponent', () => {
       component.ngOnInit();
       component.questionCaption.setValue('abc');
 
-      jest.runAllTimers();
+      await jest.runAllTimers();
 
       expect(modifyCurrentQuestion).toHaveBeenCalledTimes(1);
       expect(modifyCurrentQuestion).toHaveBeenCalledWith({ question: { caption: 'abc' } });
@@ -52,7 +48,7 @@ describe('QuestionCaptionComponent', () => {
   });
 
   describe('question caption value change', () => {
-    it('should update input value if its value differs', () => {
+    it('should update input value if its value differs', async () => {
       const subject = new Subject();
       const getCurrentQuestion = jest.spyOn(service, 'getCurrentQuestion');
       getCurrentQuestion.mockReturnValue(subject as any);
@@ -62,7 +58,7 @@ describe('QuestionCaptionComponent', () => {
       component.ngOnInit();
       subject.next({ question: { caption: 'abc' } });
 
-      jest.runAllTimers();
+      await jest.runAllTimers();
 
       subject.next({ question: { caption: 'abc123' } });
 
@@ -71,7 +67,7 @@ describe('QuestionCaptionComponent', () => {
       expect(setValue.mock.calls[1][0]).toBe('abc123');
     });
 
-    it('should not update input value if it is the same', () => {
+    it('should not update input value if it is the same', async () => {
       const subject = new Subject();
       const getCurrentQuestion = jest.spyOn(service, 'getCurrentQuestion');
       getCurrentQuestion.mockReturnValue(subject as any);
@@ -81,7 +77,7 @@ describe('QuestionCaptionComponent', () => {
       component.ngOnInit();
       subject.next({ question: { caption: 'abc' } });
 
-      jest.runAllTimers();
+      await jest.runAllTimers();
 
       subject.next({ question: { caption: 'abc' } });
 
