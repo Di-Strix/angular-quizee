@@ -7,7 +7,7 @@ import { AuthDialogComponent } from './components/auth-dialog/auth-dialog.compon
 import { ClassWhenLoadedDirective } from './directives/class-when-loaded.directive';
 
 @NgModule({
-  declarations: [AuthDialogComponent],
+  declarations: [AuthDialogComponent, ClassWhenLoadedDirective],
   imports: [CommonModule, MatDialogModule, MatButtonModule],
   exports: [AuthDialogComponent, ClassWhenLoadedDirective],
 })
