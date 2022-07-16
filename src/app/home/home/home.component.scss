@@ -17,7 +17,7 @@
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   grid-gap: 1rem;
 
-  mat-card {
+  .mat-card {
     .img-container {
       user-select: none;
       aspect-ratio: 16 / 9;
