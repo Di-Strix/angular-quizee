@@ -17,9 +17,13 @@
   @card-reveal
 >
   <mat-card *ngFor="let quizee of quizees">
-    <div class="img-container">
+    <div
+      class="img-container"
+      #imgContainer
+    >
       <img
         appClassWhenLoaded="loaded"
+        [appApplyClassTo]="imgContainer"
         src="https://picsum.photos/300/150"
       />
     </div>
