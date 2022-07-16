@@ -1,0 +1,28 @@
+<app-setting-card>
+  <app-setting-card-title
+    title="Answer"
+    checkErrors="forCurrentQuestion"
+    path="answer"
+  ></app-setting-card-title>
+  <app-setting-card-content>
+    <div fxLayout="column">
+      <mat-form-field fxFlex="100%">
+        <mat-label>Correct answer</mat-label>
+        <input
+          matInput
+          [formControl]="answer"
+          placeholder="Type here correct answer"
+        />
+        <mat-error *ngIf="answer.hasError('array.includes')">Answer shouldn't be empty</mat-error>
+      </mat-form-field>
+      <div [formGroup]="config">
+        <mat-checkbox
+          formControlName="equalCase"
+          color="primary"
+        >
+          Strict case checking
+        </mat-checkbox>
+      </div>
+    </div>
+  </app-setting-card-content>
+</app-setting-card>

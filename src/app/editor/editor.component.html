@@ -1,0 +1,81 @@
+<div
+  class="loader-container"
+  *ngIf="!(quizeeEditingService.get() | async)"
+  @loader
+>
+  <div class="loader">
+    <mat-card class="mat-elevation-z6">
+      <mat-spinner diameter="60"></mat-spinner>
+    </mat-card>
+  </div>
+</div>
+
+<mat-toolbar
+  color="primary"
+  class="header mat-elevation-z6"
+>
+  <button
+    type="button"
+    mat-icon-button
+    routerLink="/"
+  >
+    <mat-icon>home</mat-icon>
+  </button>
+  <span>Edit {{ (quizeeEditingService.get() | async)?.info?.caption || '' }}</span>
+</mat-toolbar>
+<div class="editor-container">
+  <div
+    fxLayout="row"
+    fxFlex
+  >
+    <div
+      fxLayout="column"
+      [fxFlex.lt-md]="(100 / 12) * 5 + '%'"
+      [fxFlex.lt-lg]="(100 / 12) * 4 + '%'"
+      [fxFlex]="(100 / 12) * 2 + '%'"
+    >
+      <mat-card class="mat-elevation-z2 full-width-card">
+        <mat-form-field fxFlex="100%">
+          <mat-label>Quizee name</mat-label>
+          <input
+            matInput
+            [formControl]="quizeeName"
+          />
+          <mat-error *ngIf="quizeeName.hasError('string.empty')">Quizee name shouldn't be empty </mat-error>
+        </mat-form-field>
+      </mat-card>
+      <app-overview
+        #questionsContainer
+        fxFlex="grow"
+        style="overflow-y: scroll"
+      ></app-overview>
+      <mat-card class="mat-elevation-z2 mat-reverse-elevation full-width-card">
+        <button
+          mat-stroked-button
+          color="primary"
+          fxFlex
+          (click)="handleQuestionCreation()"
+        >
+          <mat-icon>add</mat-icon>
+        </button>
+      </mat-card>
+    </div>
+    <mat-divider [vertical]="true"></mat-divider>
+    <div
+      fxLayout="column"
+      fxFlex
+      fxGrow="1"
+      fxShrink="1"
+      fxHide.lt-md="true"
+    >
+    </div>
+    <mat-divider [vertical]="true"></mat-divider>
+    <app-settings
+      style="overflow-y: scroll"
+      fxLayout="column"
+      [fxFlex.lt-md]="(100 / 12) * 7 + '%'"
+      [fxFlex.lt-lg]="(100 / 12) * 5 + '%'"
+      [fxFlex]="(100 / 12) * 3 + '%'"
+    ></app-settings>
+  </div>
+</div>

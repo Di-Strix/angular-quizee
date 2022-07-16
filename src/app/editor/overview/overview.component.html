@@ -1,0 +1,36 @@
+<mat-card
+  @card
+  *ngFor="let question of (quizeeEditingService.get() | async)?.questions || []; let index = index; trackBy: trackBy"
+  class="card"
+  [class.active]="(quizeeEditingService.getCurrentQuestion() | async)?.question?.id === question.id"
+  (click)="quizeeEditingService.selectQuestion(index)"
+>
+  <div class="preview-container">
+    <mat-icon
+      class="preview-icon"
+      color="primary"
+    >
+      <ng-container [ngSwitch]="question.type">
+        <ng-container *ngSwitchCase="'ONE_TRUE'"> done </ng-container>
+        <ng-container *ngSwitchCase="'SEVERAL_TRUE'"> done_all </ng-container>
+        <ng-container *ngSwitchCase="'WRITE_ANSWER'"> edit </ng-container>
+      </ng-container>
+    </mat-icon>
+    <h3>
+      <ng-container [ngSwitch]="question.type">
+        <ng-container *ngSwitchCase="'ONE_TRUE'"> One True </ng-container>
+        <ng-container *ngSwitchCase="'SEVERAL_TRUE'"> Several True </ng-container>
+        <ng-container *ngSwitchCase="'WRITE_ANSWER'"> Write Answer </ng-container>
+      </ng-container>
+    </h3>
+  </div>
+  <mat-icon
+    color="warn"
+    class="error-badge"
+    matTooltip="Question contains errors"
+    matTooltipPosition="right"
+    @errorBadge
+    *ngIf="hasError(index)"
+    >error</mat-icon
+  >
+</mat-card>

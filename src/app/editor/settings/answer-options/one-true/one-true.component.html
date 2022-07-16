@@ -1,0 +1,66 @@
+<app-setting-card>
+  <app-setting-card-title
+    title="Answer options"
+    checkErrors="forCurrentQuestion"
+    path="question.answerOptions"
+    checkErrors="forCurrentQuestion"
+    path="question.answerOptions"
+  >
+    <span
+      fxFlex
+      fxGrow="1"
+      fxShrink="1"
+    ></span>
+    <button
+      mat-icon-button
+      (click)="createAnswerOption()"
+    >
+      <mat-icon>add</mat-icon>
+    </button>
+  </app-setting-card-title>
+  <app-setting-card-content>
+    <mat-radio-group
+      fxFlex="100%"
+      fxLayout="column"
+      [value]="correctAnswers[0]"
+    >
+      <div
+        fxFlex="100%"
+        fxLayout="row"
+        style="align-items: center"
+        *ngFor="let pair of controls; let index = index; trackBy: trackByControl"
+      >
+        <mat-radio-button
+          color="primary"
+          matTooltip="Mark as correct"
+          matTooltipShowDelay="500"
+          matTooltipPosition="left"
+          [value]="pair.id"
+          (change)="setAnswer(pair.id)"
+        >
+        </mat-radio-button>
+        <ng-container>
+          <mat-form-field fxFlex="100%">
+            <mat-label>Answer option #{{ index }}</mat-label>
+            <input
+              matInput
+              [formControl]="pair.control"
+              placeholder="Type here your answer option"
+            />
+            <mat-error *ngIf="pair.control.errors?.['string.empty'] || false"
+              >Answer option shouldn't be empty</mat-error
+            >
+          </mat-form-field>
+        </ng-container>
+        <button
+          mat-icon-button
+          color="warn"
+          (click)="removeAnswerOption(pair.id)"
+          [disabled]="(controls | keyvalue).length <= 1"
+        >
+          <mat-icon>delete</mat-icon>
+        </button>
+      </div>
+    </mat-radio-group>
+  </app-setting-card-content>
+</app-setting-card>
