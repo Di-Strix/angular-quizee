@@ -19,7 +19,7 @@ export class QuestionTypeComponent implements OnInit, OnDestroy {
   ];
 
   subs = new Subscription();
-  questionType = new FormControl('', [Validators.required]);
+  questionType = new FormControl<QuestionType>('ONE_TRUE', { nonNullable: true, validators: [Validators.required] });
 
   constructor(public quizeeEditingService: QuizeeEditingService) {}
 

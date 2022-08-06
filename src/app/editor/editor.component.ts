@@ -4,6 +4,7 @@ import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/co
 import { FormControl } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
+import { QuizInfo } from '@di-strix/quizee-types';
 
 import { Subscription, filter } from 'rxjs';
 
@@ -29,7 +30,10 @@ export class EditorComponent implements OnInit, OnDestroy {
   @ViewChild(OverviewComponent, { read: ElementRef }) questionsContainer!: ElementRef<HTMLElement>;
 
   subs: Subscription = new Subscription();
-  quizeeName = new FormControl('', null, QuizeeValidators.forQuizee(this.quizeeEditingService, 'info.caption'));
+  quizeeName = new FormControl<QuizInfo['caption']>('', {
+    nonNullable: true,
+    asyncValidators: [QuizeeValidators.forQuizee(this.quizeeEditingService, 'info.caption')],
+  });
 
   constructor(
     private route: ActivatedRoute,
@@ -54,27 +58,29 @@ export class EditorComponent implements OnInit, OnDestroy {
       this.quizeeName.valueChanges.subscribe((v) => this.quizeeEditingService.modify({ info: { caption: v } }))
     );
 
-    this.route.paramMap.subscribe((params) => {
-      const id = params.get('id');
+    this.subs.add(
+      this.route.paramMap.subscribe((params) => {
+        const id = params.get('id');
 
-      if (id?.trim()) {
-        this.quizeeService.getQuizee(id, true).subscribe({
-          next: (value) => {
-            this.quizeeEditingService.load(value);
-          },
-          error: (_) => {
-            this.dialog
-              .open(QuizeeNotFoundDialogComponent)
-              .afterClosed()
-              .subscribe((create) => {
-                create ? this.router.navigate(['../'], { relativeTo: this.route }) : this.router.navigate(['']);
-              });
-          },
-        });
-      } else {
-        this.quizeeEditingService.create();
-      }
-    });
+        if (id?.trim()) {
+          this.quizeeService.getQuizee(id, true).subscribe({
+            next: (value) => {
+              this.quizeeEditingService.load(value);
+            },
+            error: (_) => {
+              this.dialog
+                .open(QuizeeNotFoundDialogComponent)
+                .afterClosed()
+                .subscribe((create) => {
+                  create ? this.router.navigate(['../'], { relativeTo: this.route }) : this.router.navigate(['']);
+                });
+            },
+          });
+        } else {
+          this.quizeeEditingService.create();
+        }
+      })
+    );
   }
 
   ngOnDestroy(): void {

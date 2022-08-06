@@ -56,14 +56,16 @@ describe('QuestionTypeComponent', () => {
       const setValue = jest.spyOn(component.questionType, 'setValue');
 
       component.ngOnInit();
-      subject.next({ question: { type: 'ONE_TRUE' } });
+      subject.next({ question: { type: 'WRITE_ANSWER' } });
 
       await jest.runAllTimers();
 
       subject.next({ question: { type: 'SEVERAL_TRUE' } });
 
+      await jest.runAllTimers();
+
       expect(setValue).toBeCalledTimes(2);
-      expect(setValue.mock.calls[0][0]).toBe('ONE_TRUE');
+      expect(setValue.mock.calls[0][0]).toBe('WRITE_ANSWER');
       expect(setValue.mock.calls[1][0]).toBe('SEVERAL_TRUE');
     });
 
@@ -75,14 +77,14 @@ describe('QuestionTypeComponent', () => {
       const setValue = jest.spyOn(component.questionType, 'setValue');
 
       component.ngOnInit();
-      subject.next({ question: { type: 'ONE_TRUE' } });
+      subject.next({ question: { type: 'WRITE_ANSWER' } });
 
       await jest.runAllTimers();
 
-      subject.next({ question: { type: 'ONE_TRUE' } });
+      subject.next({ question: { type: 'WRITE_ANSWER' } });
 
       expect(setValue).toBeCalledTimes(1);
-      expect(setValue.mock.calls[0][0]).toBe('ONE_TRUE');
+      expect(setValue.mock.calls[0][0]).toBe('WRITE_ANSWER');
     });
   });
 });
