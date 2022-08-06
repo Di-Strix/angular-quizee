@@ -1,11 +1,10 @@
 import { Injectable } from '@angular/core';
+import { AngularFireFunctions } from '@angular/fire/compat/functions';
 import { Firestore, doc, docData } from '@angular/fire/firestore';
-import { Functions } from '@angular/fire/functions';
 import { MatDialog } from '@angular/material/dialog';
 import { CheckAnswers, GetQuizeeList, PublishQuizee } from '@di-strix/quizee-cloud-functions-interfaces';
 import { Question, Quiz, QuizId, QuizInfo } from '@di-strix/quizee-types';
 
-import { HttpsCallable, httpsCallable } from 'firebase/functions';
 import { Observable, filter, first, from, map, merge, of, switchMap, tap, throwError, zipWith } from 'rxjs';
 
 import { AuthDialogComponent } from '../components/auth-dialog/auth-dialog.component';
@@ -20,7 +19,7 @@ type PromiseToObservable<T> = T extends Promise<infer R> ? Observable<R> : never
 export class QuizeeService {
   constructor(
     private firestore: Firestore,
-    private cloudFunctions: Functions,
+    private cloudFunctions: AngularFireFunctions,
     private authService: AuthService,
     private authDialog: MatDialog
   ) {}
@@ -55,22 +54,16 @@ export class QuizeeService {
     );
   }
 
-  getQuizeeList(...args: GetQuizeeList.Args): PromiseToObservable<GetQuizeeList.ReturnType> {
-    return this.callHttpsFunction(httpsCallable(this.cloudFunctions, 'getQuizeeList'), ...args);
+  getQuizeeList(): PromiseToObservable<GetQuizeeList.ReturnType> {
+    return this.cloudFunctions.httpsCallable('getQuizeeList')(null);
   }
 
   checkAnswers(...args: CheckAnswers.Args): PromiseToObservable<CheckAnswers.ReturnType> {
-    return this.callHttpsFunction(httpsCallable(this.cloudFunctions, 'checkAnswers'), ...args);
+    return this.cloudFunctions.httpsCallable('checkAnswers')(...args);
   }
 
   publishQuizee(...args: PublishQuizee.Args): PromiseToObservable<PublishQuizee.ReturnType> {
-    return this.withAuthGuard(() =>
-      this.callHttpsFunction(httpsCallable(this.cloudFunctions, 'publishQuizee'), ...args)
-    );
-  }
-
-  private callHttpsFunction<ReturnType, Args>(fn: HttpsCallable, ...args: Args[]): Observable<ReturnType> {
-    return from(fn(...args)).pipe(map((res) => res.data as ReturnType));
+    return this.withAuthGuard(() => this.cloudFunctions.httpsCallable('publishQuizee')(...args));
   }
 
   private withAuthGuard<T>(fn: () => Observable<T>): Observable<T> {

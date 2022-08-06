@@ -2,42 +2,23 @@ import { NgModule } from '@angular/core';
 import { ScreenTrackingService, UserTrackingService, getAnalytics, provideAnalytics } from '@angular/fire/analytics';
 import { initializeApp, provideFirebaseApp } from '@angular/fire/app';
 import { ReCaptchaV3Provider, initializeAppCheck, provideAppCheck } from '@angular/fire/app-check';
-import { connectAuthEmulator, getAuth, provideAuth } from '@angular/fire/auth';
+import { getAuth, provideAuth } from '@angular/fire/auth';
 import { FIREBASE_OPTIONS } from '@angular/fire/compat';
-import { connectDatabaseEmulator, getDatabase, provideDatabase } from '@angular/fire/database';
-import { connectFirestoreEmulator, getFirestore, provideFirestore } from '@angular/fire/firestore';
-import { connectFunctionsEmulator, getFunctions, provideFunctions } from '@angular/fire/functions';
+import { USE_EMULATOR as USE_AUTH_EMULATOR } from '@angular/fire/compat/auth';
+import { USE_EMULATOR as USE_DATABASE_EMULATOR } from '@angular/fire/compat/database';
+import { USE_EMULATOR as USE_FIRESTORE_EMULATOR } from '@angular/fire/compat/firestore';
+import { USE_EMULATOR as USE_FUNCTIONS_EMULATOR } from '@angular/fire/compat/functions';
+import { getDatabase, provideDatabase } from '@angular/fire/database';
+import { getFirestore, provideFirestore } from '@angular/fire/firestore';
+import { getFunctions, provideFunctions } from '@angular/fire/functions';
 import { MatDialogModule } from '@angular/material/dialog';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { environment } from '../environments/environment';
-import { EmulatorConfig, EmulatorType } from '../environments/firebase.config.interface';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-
-const withEmulator = <ProviderType>(
-  getProvider: () => ProviderType,
-  emulatorName: EmulatorType,
-  connectEmulator: (...rest: any) => any,
-  paramMapper: (provider: ProviderType, host: string, port: number, options: object) => any[] = (...params) => params
-): (() => ProviderType) => {
-  return () => {
-    const provider = getProvider();
-
-    if (environment.firebase.useEmulator?.[emulatorName]) {
-      const {
-        host = 'localhost',
-        port,
-        options = {},
-      } = environment.firebase.useEmulator[emulatorName] as EmulatorConfig;
-      connectEmulator(...paramMapper(provider, host, port, options));
-    }
-
-    return provider;
-  };
-};
 
 @NgModule({
   declarations: [AppComponent],
@@ -46,16 +27,10 @@ const withEmulator = <ProviderType>(
     AppRoutingModule,
     provideFirebaseApp(() => initializeApp(environment.firebase)),
     provideAnalytics(() => getAnalytics()),
-    provideAuth(
-      withEmulator(getAuth, 'auth', connectAuthEmulator, (auth, host, port, options) => [
-        auth,
-        `${host}:${port}`,
-        options,
-      ])
-    ),
-    provideFirestore(withEmulator(getFirestore, 'firestore', connectFirestoreEmulator)),
-    provideDatabase(withEmulator(getDatabase, 'database', connectDatabaseEmulator)),
-    provideFunctions(withEmulator(getFunctions, 'functions', connectFunctionsEmulator)),
+    provideAuth(() => getAuth()),
+    provideFirestore(() => getFirestore()),
+    provideDatabase(() => getDatabase()),
+    provideFunctions(() => getFunctions()),
     provideAppCheck(() => {
       const provider = new ReCaptchaV3Provider(environment.firebase.reCAPTCHAv3Token);
       return initializeAppCheck(undefined, {
@@ -70,6 +45,22 @@ const withEmulator = <ProviderType>(
     ScreenTrackingService,
     UserTrackingService,
     { provide: FIREBASE_OPTIONS, useValue: environment.firebase },
+    {
+      provide: USE_AUTH_EMULATOR,
+      useValue: environment.firebase.useEmulator?.auth,
+    },
+    {
+      provide: USE_FIRESTORE_EMULATOR,
+      useValue: environment.firebase.useEmulator?.firestore,
+    },
+    {
+      provide: USE_DATABASE_EMULATOR,
+      useValue: environment.firebase.useEmulator?.database,
+    },
+    {
+      provide: USE_FUNCTIONS_EMULATOR,
+      useValue: environment.firebase.useEmulator?.functions,
+    },
   ],
   bootstrap: [AppComponent],
 })
