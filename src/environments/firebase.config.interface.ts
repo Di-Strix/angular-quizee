@@ -1,9 +1,3 @@
-export interface EmulatorConfig {
-  host?: string;
-  port: number;
-  options?: object;
-}
-
 export type EmulatorType = 'functions' | 'auth' | 'database' | 'firestore';
 
 export interface FirebaseConfig {
@@ -15,5 +9,5 @@ export interface FirebaseConfig {
   messagingSenderId: string;
   measurementId: string;
   reCAPTCHAv3Token: string;
-  useEmulator?: { [key in EmulatorType]?: EmulatorConfig };
+  useEmulator?: { [key in EmulatorType]?: [host: string, port: number] };
 }
