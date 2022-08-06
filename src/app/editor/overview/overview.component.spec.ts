@@ -45,6 +45,23 @@ describe('OverviewComponent', () => {
     });
   });
 
+  describe('onDestroy', () => {
+    it('should unsubscribe from quizeeErrors', async () => {
+      const subject = new Subject();
+      jest.spyOn(service, 'getQuizeeErrors').mockReturnValue(subject as any);
+
+      component.ngOnInit();
+
+      await jest.runAllTimers();
+
+      component.ngOnDestroy();
+
+      await jest.runAllTimers();
+
+      expect(subject.observed).toBeFalsy();
+    });
+  });
+
   describe('trackBy', () => {
     it('should return item id', () => {
       const id = '123';
