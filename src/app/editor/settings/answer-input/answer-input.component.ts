@@ -1,16 +1,15 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
+import { FormControl, FormGroup } from '@angular/forms';
 import { Answer } from '@di-strix/quizee-types';
 
 import * as _ from 'lodash';
 import { Subscription, filter } from 'rxjs';
-import { RecursivePartial } from 'src/app/shared/helpers/RecursivePartial';
 
 import { QuizeeEditingService } from '../../quizee-editing.service';
 import { QuizeeValidators } from '../../quizee-validators';
 
 type Config = {
-  [P in keyof Answer['config']]: UntypedFormControl;
+  [P in keyof Answer['config']]: FormControl<Answer['config'][P]>;
 };
 
 @Component({
@@ -21,12 +20,11 @@ type Config = {
 export class AnswerInputComponent implements OnInit, OnDestroy {
   subs = new Subscription();
 
-  answer = new UntypedFormControl(
-    '',
-    null,
-    QuizeeValidators.forCurrentQuestion(this.quizeeEditingService, 'answer.answer[0]')
-  );
-  config = new UntypedFormGroup({ equalCase: new UntypedFormControl(false) } as Config);
+  answer = new FormControl<Answer['answer'][0]>('', {
+    nonNullable: true,
+    asyncValidators: [QuizeeValidators.forCurrentQuestion(this.quizeeEditingService, 'answer.answer[0]')],
+  });
+  config = new FormGroup<Config>({ equalCase: new FormControl(false, { nonNullable: true }) });
 
   constructor(public quizeeEditingService: QuizeeEditingService) {}
 
@@ -55,7 +53,7 @@ export class AnswerInputComponent implements OnInit, OnDestroy {
       this.quizeeEditingService.setAnswer([v]);
     });
 
-    this.config.valueChanges.subscribe((v: Answer['config']) => {
+    this.config.valueChanges.subscribe((v) => {
       this.quizeeEditingService.setAnswerConfig(v);
     });
   }

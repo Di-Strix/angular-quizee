@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { UntypedFormControl } from '@angular/forms';
+import { FormControl } from '@angular/forms';
 import { AnswerOption, AnswerOptionId } from '@di-strix/quizee-types';
 
 import * as _ from 'lodash';
@@ -7,16 +7,16 @@ import { Subscription, filter } from 'rxjs';
 import { QuizeeEditingService } from 'src/app/editor/quizee-editing.service';
 import { QuizeeValidators } from 'src/app/editor/quizee-validators';
 
-export interface Control {
+export interface Control<T> {
   id: AnswerOptionId;
-  control: UntypedFormControl;
+  control: FormControl<T>;
 }
 
-export interface Controls extends Array<Control> {}
+export interface Controls<T> extends Array<Control<T>> {}
 
 @Component({ template: '' })
 export abstract class SelectiveAnswersBase {
-  controls: Controls = [];
+  controls: Controls<AnswerOption['value']> = [];
   correctAnswers: AnswerOptionId[] = [];
 
   subscribeToUpdates(service: QuizeeEditingService): Subscription {
@@ -39,14 +39,15 @@ export abstract class SelectiveAnswersBase {
           const controlObj = this.controls.find(({ id }) => id === key);
 
           if (!controlObj) {
-            const control = new UntypedFormControl(
-              value,
-              null,
-              QuizeeValidators.forCurrentQuestion(
-                service,
-                `question.answerOptions[${pair.question.answerOptions.findIndex(({ id }) => id === key)}].value`
-              )
-            );
+            const control = new FormControl<AnswerOption['value']>(value, {
+              nonNullable: true,
+              asyncValidators: [
+                QuizeeValidators.forCurrentQuestion(
+                  service,
+                  `question.answerOptions[${pair.question.answerOptions.findIndex(({ id }) => id === key)}].value`
+                ),
+              ],
+            });
             control.markAsTouched();
 
             this.controls.push({ id: key, control });
@@ -69,7 +70,7 @@ export abstract class SelectiveAnswersBase {
     return this.controls.reduce((acc, { id, control }) => [...acc, { id, value: control.value }], Array());
   }
 
-  trackByControl(index: number, pair: Control) {
+  trackByControl(index: number, pair: Control<AnswerOption['value']>) {
     return pair.id;
   }
 }
