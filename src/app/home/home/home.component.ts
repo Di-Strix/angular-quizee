@@ -1,8 +1,9 @@
 import { animate, query, stagger, style, transition, trigger } from '@angular/animations';
 import { Component, OnInit } from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { QuizInfo } from '@di-strix/quizee-types';
 
-import { Subscription } from 'rxjs';
+import { retry, tap, timer } from 'rxjs';
 import { QuizeeService } from 'src/app/shared/services/quizee.service';
 
 @Component({
@@ -21,7 +22,7 @@ import { QuizeeService } from 'src/app/shared/services/quizee.service';
         ]),
       ]),
     ]),
-    trigger('loader', [
+    trigger('falloff', [
       transition(':enter', [
         style({
           opacity: 0,
@@ -39,10 +40,48 @@ import { QuizeeService } from 'src/app/shared/services/quizee.service';
 })
 export class HomeComponent implements OnInit {
   quizees: QuizInfo[] = [];
+  manualRetryRequired: boolean = false;
 
-  constructor(public quizeeService: QuizeeService) {}
+  constructor(public quizeeService: QuizeeService, private snackBar: MatSnackBar) {}
 
   ngOnInit(): void {
-    this.quizeeService.getQuizeeList().subscribe((v) => (this.quizees = v));
+    this.fetchQuizees();
+  }
+
+  fetchQuizees(): void {
+    this.manualRetryRequired = false;
+
+    const fibonacci = () => {
+      const sequence = [0, 1];
+      return () => {
+        sequence.push(sequence.reduce((acc, val) => acc + val, 0));
+        sequence.shift();
+
+        return sequence[1];
+      };
+    };
+
+    const getNextFibonacciNumber = fibonacci();
+
+    this.quizeeService
+      .getQuizeeList()
+      .pipe(
+        retry({
+          count: 5,
+          delay: () => {
+            const nextDelay = getNextFibonacciNumber();
+
+            this.snackBar.open(
+              `Failed to fetch... Retrying in ${nextDelay} ${nextDelay == 1 ? 'second' : 'seconds'}`,
+              'Hide',
+              { duration: nextDelay * 1000, horizontalPosition: 'right', verticalPosition: 'top' }
+            );
+
+            return timer(nextDelay * 1000);
+          },
+        }),
+        tap(() => (this.manualRetryRequired = false))
+      )
+      .subscribe({ next: (v) => (this.quizees = v), error: () => (this.manualRetryRequired = true) });
   }
 }

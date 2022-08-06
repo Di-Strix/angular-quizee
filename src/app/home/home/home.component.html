@@ -12,7 +12,7 @@
   <span style="flex: 1 1 auto"></span>
 </mat-toolbar>
 <div
-  *ngIf="quizees.length; else loader"
+  *ngIf="quizees.length; else falloff"
   class="cards-container"
   @card-reveal
 >
@@ -42,11 +42,31 @@
   </mat-card>
 </div>
 
-<ng-template #loader>
+<ng-template #falloff>
   <div
-    @loader
-    class="loader"
+    @falloff
+    fxFlex
+    fxLayout="column"
+    class="falloff"
+    *ngIf="manualRetryRequired; else loader"
   >
-    <mat-spinner diameter="50"></mat-spinner>
+    <h1>Error</h1>
+    <h2>Something went wrong while fetching</h2>
+    <button
+      mat-flat-button
+      color="primary"
+      (click)="fetchQuizees()"
+    >
+      Try again
+    </button>
   </div>
+
+  <ng-template #loader>
+    <div
+      @falloff
+      class="falloff"
+    >
+      <mat-spinner diameter="50"></mat-spinner>
+    </div>
+  </ng-template>
 </ng-template>

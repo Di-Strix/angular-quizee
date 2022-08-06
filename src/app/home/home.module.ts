@@ -5,6 +5,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { RouterModule } from '@angular/router';
 
@@ -24,6 +25,7 @@ import { HomeComponent } from './home/home.component';
     MatButtonModule,
     MatProgressSpinnerModule,
     FlexLayoutModule,
+    MatSnackBarModule,
   ],
 })
 export class HomeModule {}
