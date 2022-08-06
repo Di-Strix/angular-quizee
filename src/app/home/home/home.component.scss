@@ -10,6 +10,7 @@
 }
 
 .cards-container {
+  position: relative;
   max-width: 960px;
   width: 100%;
   margin: 0 auto;
@@ -17,6 +18,12 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   grid-gap: 1rem;
+
+  .editor-link {
+    position: fixed;
+    bottom: 1rem;
+    right: 1rem;
+  }
 
   .mat-card {
     .img-container {

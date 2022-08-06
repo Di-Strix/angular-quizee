@@ -1,10 +1,14 @@
 import { animate, query, stagger, style, transition, trigger } from '@angular/animations';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { RouteConfigLoadEnd, RouteConfigLoadStart, Router } from '@angular/router';
 import { QuizInfo } from '@di-strix/quizee-types';
 
-import { retry, tap, timer } from 'rxjs';
+import { Subscription, delay, filter, of, retry, switchMap, tap, timer } from 'rxjs';
 import { QuizeeService } from 'src/app/shared/services/quizee.service';
+
+import { LoadingDialogComponent } from '../loading-dialog/loading-dialog.component';
 
 @Component({
   selector: 'app-home',
@@ -52,14 +56,51 @@ import { QuizeeService } from 'src/app/shared/services/quizee.service';
     ]),
   ],
 })
-export class HomeComponent implements OnInit {
+export class HomeComponent implements OnInit, OnDestroy {
   quizees: QuizInfo[] = [];
   manualRetryRequired: boolean = false;
+  subs = new Subscription();
 
-  constructor(public quizeeService: QuizeeService, private snackBar: MatSnackBar) {}
+  constructor(
+    public quizeeService: QuizeeService,
+    private snackBar: MatSnackBar,
+    private router: Router,
+    private dialog: MatDialog
+  ) {}
 
   ngOnInit(): void {
     this.fetchQuizees();
+
+    this.subs.add(
+      this.router.events
+        .pipe(
+          filter((event) => [RouteConfigLoadStart, RouteConfigLoadEnd].some((instance) => event instanceof instance)),
+          switchMap((event) => of(event).pipe(event instanceof RouteConfigLoadStart ? delay(500) : tap()))
+        )
+        .subscribe((event) => {
+          if (event instanceof RouteConfigLoadStart) {
+            if (event.route.path?.match(/edit/)) {
+              this.dialog.open(LoadingDialogComponent, {
+                data: 'Your editor is being loaded, please wait...',
+                disableClose: true,
+                panelClass: 'no-padding-dialog',
+              });
+            } else if (event.route.path?.match(/solve/)) {
+              this.dialog.open(LoadingDialogComponent, {
+                data: 'Solver is being loaded, please wait...',
+                disableClose: true,
+                panelClass: 'no-padding-dialog',
+              });
+            }
+          } else if (event instanceof RouteConfigLoadEnd) {
+            this.dialog.closeAll();
+          }
+        })
+    );
+  }
+
+  ngOnDestroy(): void {
+    this.subs.unsubscribe();
   }
 
   fetchQuizees(): void {
