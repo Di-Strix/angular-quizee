@@ -17,7 +17,7 @@ exports[`AuthDialogComponent should have correct layout 1`] = `
   </mat-dialog-content>
   <mat-dialog-actions
     align="end"
-    class="mat-dialog-actions"
+    class="mat-dialog-actions mat-dialog-actions-align-end"
   >
     <button
       class="mat-focus-indicator mat-button mat-button-base"
