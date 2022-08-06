@@ -63,48 +63,70 @@ describe('EditorComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should fetch quizee with id from url', () => {
-    const idVal = 'mockValue';
-    activatedRoute.paramMapValues = {
-      id: idVal,
-    };
+  describe('onInit', () => {
+    it('should fetch quizee with id from url', () => {
+      const idVal = 'mockValue';
+      activatedRoute.paramMapValues = {
+        id: idVal,
+      };
 
-    const quizObj = { [Symbol()]: 1 };
-    jest.spyOn(quizeeService, 'getQuizee').mockReturnValue(of(quizObj) as any);
+      const quizObj = { [Symbol()]: 1 };
+      jest.spyOn(quizeeService, 'getQuizee').mockReturnValue(of(quizObj) as any);
 
-    component.ngOnInit();
+      component.ngOnInit();
 
-    expect(quizeeService.getQuizee).toBeCalledTimes(1);
-    expect(quizeeService.getQuizee).toBeCalledWith(idVal, true);
+      expect(quizeeService.getQuizee).toBeCalledTimes(1);
+      expect(quizeeService.getQuizee).toBeCalledWith(idVal, true);
+    });
+
+    it('should push fetched quizee to quizeeEditingService', () => {
+      const idVal = 'mockValue';
+      activatedRoute.paramMapValues = {
+        id: idVal,
+      };
+
+      const load = jest.spyOn(quizeeEditingService, 'load');
+
+      const quizObj = { [Symbol()]: 1 };
+      jest.spyOn(quizeeService, 'getQuizee').mockReturnValue(of(quizObj) as any);
+
+      component.ngOnInit();
+
+      expect(load).toHaveBeenCalledTimes(1);
+      expect(load).toHaveBeenCalledWith(quizObj);
+    });
+
+    it('should init new quizee if id is empty', () => {
+      activatedRoute.paramMapValues = {
+        id: null,
+      };
+      const create = jest.spyOn(quizeeEditingService, 'create');
+
+      component.ngOnInit();
+
+      expect(quizeeService.getQuizee).not.toBeCalled();
+      expect(create).toHaveBeenCalledTimes(1);
+    });
   });
 
-  it('should push fetched quizee to quizeeEditingService', () => {
-    const idVal = 'mockValue';
-    activatedRoute.paramMapValues = {
-      id: idVal,
-    };
+  describe('onDestroy', () => {
+    it('should unsubscribe', async () => {
+      const subject = new Subject();
 
-    const load = jest.spyOn(quizeeEditingService, 'load');
+      quizeeEditingService.get.mockReturnValue(subject as any);
+      activatedRoute.paramMap = subject as any;
+      (component.quizeeName as any).valueChanges = subject as any;
 
-    const quizObj = { [Symbol()]: 1 };
-    jest.spyOn(quizeeService, 'getQuizee').mockReturnValue(of(quizObj) as any);
+      component.ngOnInit();
 
-    component.ngOnInit();
+      await jest.runAllTimers();
 
-    expect(load).toHaveBeenCalledTimes(1);
-    expect(load).toHaveBeenCalledWith(quizObj);
-  });
+      component.ngOnDestroy();
 
-  it('should init new quizee if id is empty', () => {
-    activatedRoute.paramMapValues = {
-      id: null,
-    };
-    const create = jest.spyOn(quizeeEditingService, 'create');
+      await jest.runAllTimers();
 
-    component.ngOnInit();
-
-    expect(quizeeService.getQuizee).not.toBeCalled();
-    expect(create).toHaveBeenCalledTimes(1);
+      expect(subject.observed).toBeFalsy();
+    });
   });
 
   describe('Quizee get error', () => {

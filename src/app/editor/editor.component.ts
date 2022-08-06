@@ -58,27 +58,29 @@ export class EditorComponent implements OnInit, OnDestroy {
       this.quizeeName.valueChanges.subscribe((v) => this.quizeeEditingService.modify({ info: { caption: v } }))
     );
 
-    this.route.paramMap.subscribe((params) => {
-      const id = params.get('id');
+    this.subs.add(
+      this.route.paramMap.subscribe((params) => {
+        const id = params.get('id');
 
-      if (id?.trim()) {
-        this.quizeeService.getQuizee(id, true).subscribe({
-          next: (value) => {
-            this.quizeeEditingService.load(value);
-          },
-          error: (_) => {
-            this.dialog
-              .open(QuizeeNotFoundDialogComponent)
-              .afterClosed()
-              .subscribe((create) => {
-                create ? this.router.navigate(['../'], { relativeTo: this.route }) : this.router.navigate(['']);
-              });
-          },
-        });
-      } else {
-        this.quizeeEditingService.create();
-      }
-    });
+        if (id?.trim()) {
+          this.quizeeService.getQuizee(id, true).subscribe({
+            next: (value) => {
+              this.quizeeEditingService.load(value);
+            },
+            error: (_) => {
+              this.dialog
+                .open(QuizeeNotFoundDialogComponent)
+                .afterClosed()
+                .subscribe((create) => {
+                  create ? this.router.navigate(['../'], { relativeTo: this.route }) : this.router.navigate(['']);
+                });
+            },
+          });
+        } else {
+          this.quizeeEditingService.create();
+        }
+      })
+    );
   }
 
   ngOnDestroy(): void {
