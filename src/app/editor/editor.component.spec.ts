@@ -1,15 +1,12 @@
 import { Location } from '@angular/common';
-import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
-import { ActivatedRoute, Router } from '@angular/router';
-import { RouterTestingModule } from '@angular/router/testing';
+import { Router } from '@angular/router';
 
-import { Observable, Subject, of, throwError } from 'rxjs';
+import { Subject, of, throwError } from 'rxjs';
 
 import { QuizeeService } from '../shared/services/quizee.service';
 
 import { EditorComponent } from './editor.component';
-import { EditorModule } from './editor.module';
 import { QuizeeEditingService } from './quizee-editing.service';
 
 class ActivatedRouteMock {
@@ -18,48 +15,48 @@ class ActivatedRouteMock {
   paramMap = of({ get: (key: string) => this.paramMapValues[key] });
 }
 
-class QuizeeServiceMock {
-  response: Observable<any> = of(undefined);
-
-  getQuizee = jest.fn(() => this.response);
-}
+jest.mock('../shared/services/quizee.service');
+jest.mock('./quizee-editing.service');
+jest.mock('@angular/router');
+jest.mock('@angular/common');
+jest.mock('@angular/material/dialog');
 
 describe('EditorComponent', () => {
   let component: EditorComponent;
-  let fixture: ComponentFixture<EditorComponent>;
-  let quizeeService: QuizeeServiceMock;
+  let quizeeService: jest.MockedClass<typeof QuizeeService>['prototype'];
   let activatedRoute: ActivatedRouteMock;
-  let quizeeEditingService: QuizeeEditingService;
+  let quizeeEditingService: jest.MockedClass<typeof QuizeeEditingService>['prototype'];
   let location: Location;
   let router: Router;
   let dialog: MatDialog;
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      declarations: [EditorComponent],
-      imports: [EditorModule, RouterTestingModule],
-      providers: [
-        {
-          provide: QuizeeService,
-          useValue: new QuizeeServiceMock(),
-        },
-        {
-          provide: ActivatedRoute,
-          useValue: new ActivatedRouteMock(),
-        },
-      ],
-    }).compileComponents();
+  beforeEach(() => {
+    const quizeeEditingService = QuizeeEditingService as jest.MockedClass<typeof QuizeeEditingService>;
+
+    quizeeEditingService.prototype.get.mockReturnValue(of());
+    quizeeEditingService.prototype.getQuizeeErrors.mockReturnValue(of([]));
   });
 
+  beforeEach(async () => {});
+
   beforeEach(() => {
-    fixture = TestBed.createComponent(EditorComponent);
-    component = fixture.componentInstance;
-    quizeeService = TestBed.inject(QuizeeService) as any;
-    activatedRoute = TestBed.inject(ActivatedRoute) as any;
-    location = TestBed.inject(Location);
-    dialog = TestBed.inject(MatDialog);
-    router = TestBed.inject(Router);
-    quizeeEditingService = TestBed.inject(QuizeeEditingService);
+    quizeeService = new (QuizeeService as any)();
+    activatedRoute = new ActivatedRouteMock() as any;
+    location = new (Location as any)();
+    dialog = new (MatDialog as any)();
+    router = new (Router as any)();
+    quizeeEditingService = new QuizeeEditingService() as any;
+
+    component = new EditorComponent(
+      activatedRoute as any,
+      quizeeService,
+      quizeeEditingService,
+      router,
+      location,
+      dialog
+    );
+
+    jest.useFakeTimers();
   });
 
   it('should create', () => {
@@ -73,7 +70,7 @@ describe('EditorComponent', () => {
     };
 
     const quizObj = { [Symbol()]: 1 };
-    quizeeService.response = of(quizObj);
+    jest.spyOn(quizeeService, 'getQuizee').mockReturnValue(of(quizObj) as any);
 
     component.ngOnInit();
 
@@ -90,7 +87,7 @@ describe('EditorComponent', () => {
     const load = jest.spyOn(quizeeEditingService, 'load');
 
     const quizObj = { [Symbol()]: 1 };
-    quizeeService.response = of(quizObj);
+    jest.spyOn(quizeeService, 'getQuizee').mockReturnValue(of(quizObj) as any);
 
     component.ngOnInit();
 
@@ -116,7 +113,7 @@ describe('EditorComponent', () => {
         id: 'someId',
       };
 
-      quizeeService.response = throwError(() => new Error());
+      jest.spyOn(quizeeService, 'getQuizee').mockReturnValue(throwError(() => new Error()));
       const openDialog = jest.spyOn(dialog, 'open');
 
       component.ngOnInit();
@@ -130,7 +127,7 @@ describe('EditorComponent', () => {
         id: 'someId',
       };
 
-      quizeeService.response = throwError(() => new Error());
+      jest.spyOn(quizeeService, 'getQuizee').mockReturnValue(throwError(() => new Error()));
       const openDialog = jest.spyOn(dialog, 'open').mockReturnValue({ afterClosed: () => of(true) } as any);
       const routerNavigate = jest.spyOn(router, 'navigate');
 
@@ -147,7 +144,7 @@ describe('EditorComponent', () => {
         id: 'someId',
       };
 
-      quizeeService.response = throwError(() => new Error());
+      jest.spyOn(quizeeService, 'getQuizee').mockReturnValue(throwError(() => new Error()));
       const openDialog = jest.spyOn(dialog, 'open').mockReturnValue({ afterClosed: () => of(false) } as any);
       const routerNavigate = jest.spyOn(router, 'navigate');
 
@@ -187,18 +184,15 @@ describe('EditorComponent', () => {
   describe('quizee name', () => {
     describe('quizee caption value change', () => {
       it('should update quizee on input value change', async () => {
-        const getCurrentQuestion = jest.spyOn(quizeeEditingService, 'get');
-        getCurrentQuestion.mockReturnValue(of({ info: { caption: 'abc' } } as any));
-
-        const modifyCurrentQuestion = jest.spyOn(quizeeEditingService, 'modify');
+        quizeeEditingService.getCurrentQuestion.mockReturnValue(of({ info: { caption: 'abc' } } as any));
 
         component.ngOnInit();
         component.quizeeName.setValue('abc123');
 
         await jest.runAllTimers();
 
-        expect(modifyCurrentQuestion).toHaveBeenCalledTimes(1);
-        expect(modifyCurrentQuestion).toHaveBeenCalledWith({ info: { caption: 'abc123' } });
+        expect(quizeeEditingService.modify).toHaveBeenCalledTimes(1);
+        expect(quizeeEditingService.modify).toHaveBeenCalledWith({ info: { caption: 'abc123' } });
       });
     });
 
