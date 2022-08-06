@@ -1,5 +1,5 @@
+import { AngularFireFunctions } from '@angular/fire/compat/functions';
 import { Firestore, doc, docData } from '@angular/fire/firestore';
-import { Functions } from '@angular/fire/functions';
 import { MatDialog } from '@angular/material/dialog';
 
 import { httpsCallable } from 'firebase/functions';
@@ -16,7 +16,7 @@ jest.mock('./auth.service');
 const mockCloudFunction = (expectedFnName: string) => {
   const fn = jest.fn();
 
-  (httpsCallable as jest.Mock).mockImplementation((_, calledFnName) => (...args: any) => {
+  (httpsCallable as jest.Mock).mockImplementation((calledFnName) => (...args: any) => {
     if (calledFnName === expectedFnName) return fn(...args);
     else throw new Error(`expected ${expectedFnName} to be called, but got ${calledFnName} called`);
   });
@@ -45,7 +45,12 @@ describe('QuizeeService', () => {
     authService = new AuthService({} as any);
     matDialog = new (MatDialog as any)();
 
-    service = new QuizeeService(undefined as any as Firestore, {} as Functions, authService, matDialog);
+    service = new QuizeeService(
+      undefined as any as Firestore,
+      { httpsCallable } as any as AngularFireFunctions,
+      authService,
+      matDialog
+    );
 
     jest.spyOn(service, 'withAuthGuard' as any).mockImplementation((fn: any) => fn());
 
@@ -234,7 +239,7 @@ describe('QuizeeService', () => {
 
     it('should call cloud function', async () => {
       const mockData = { someMockData: 'abc' };
-      fn.mockImplementation(() => Promise.resolve({ data: mockData }));
+      fn.mockImplementation(() => of(mockData));
 
       service.getQuizeeList().subscribe({ next, error });
 
@@ -247,7 +252,7 @@ describe('QuizeeService', () => {
 
     it('should return cloud function response', async () => {
       const mockData = { someMockData: 'abc' };
-      fn.mockImplementation(() => Promise.resolve({ data: mockData }));
+      fn.mockImplementation(() => of(mockData));
 
       service.getQuizeeList().subscribe({ next, error });
 
@@ -269,7 +274,7 @@ describe('QuizeeService', () => {
 
     it('should call cloud function', async () => {
       const mockData = { someMockData: 'abc' };
-      fn.mockImplementation(() => Promise.resolve({ data: mockData }));
+      fn.mockImplementation(() => of(mockData));
 
       service.checkAnswers({} as any).subscribe({ next, error });
 
@@ -282,7 +287,7 @@ describe('QuizeeService', () => {
 
     it('should return cloud function response', async () => {
       const mockData = { someMockData: 'abc' };
-      fn.mockImplementation(() => Promise.resolve({ data: mockData }));
+      fn.mockImplementation(() => of(mockData));
 
       service.checkAnswers({} as any).subscribe({ next, error });
 
@@ -304,7 +309,7 @@ describe('QuizeeService', () => {
 
     it('should call cloud function', async () => {
       const mockData = { someMockData: 'abc' };
-      fn.mockImplementation(() => Promise.resolve({ data: mockData }));
+      fn.mockImplementation(() => of(mockData));
 
       service.publishQuizee({} as any).subscribe({ next, error });
 
@@ -317,7 +322,7 @@ describe('QuizeeService', () => {
 
     it('should return cloud function response', async () => {
       const mockData = { someMockData: 'abc' };
-      fn.mockImplementation(() => Promise.resolve({ data: mockData }));
+      fn.mockImplementation(() => of(mockData));
 
       service.publishQuizee({} as any).subscribe({ next, error });
 
@@ -329,37 +334,13 @@ describe('QuizeeService', () => {
     });
 
     it('should be called with auth guard', async () => {
+      fn.mockImplementation(() => of());
+
       service.publishQuizee({} as any).subscribe();
 
       await jest.runAllTimers();
 
       expect((service as any).withAuthGuard).toBeCalledTimes(1);
-    });
-  });
-
-  describe('callHttpsFunction', () => {
-    it('should call function with provided args', async () => {
-      const fn = jest.fn().mockReturnValue(Promise.resolve(0));
-
-      (service as any).callHttpsFunction(fn, 1, 2, 3);
-
-      await jest.runAllTimers();
-
-      expect(fn).toBeCalledTimes(1);
-      expect(fn).toBeCalledWith(1, 2, 3);
-    });
-
-    it('should unwrap cloud function response', async () => {
-      const mockData = { 1: 'a', b: 2 };
-      const fn = jest.fn().mockReturnValue(Promise.resolve({ data: mockData }));
-
-      (service as any).callHttpsFunction(fn).subscribe({ next, error });
-
-      await jest.runAllTimers();
-
-      expect(error).not.toBeCalled();
-      expect(next).toBeCalledTimes(1);
-      expect(next).toBeCalledWith(mockData);
     });
   });
 
