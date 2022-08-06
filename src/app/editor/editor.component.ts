@@ -1,7 +1,7 @@
 import { animate, style, transition, trigger } from '@angular/animations';
 import { Location } from '@angular/common';
 import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { FormControl } from '@angular/forms';
+import { UntypedFormControl } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 
@@ -29,7 +29,7 @@ export class EditorComponent implements OnInit, OnDestroy {
   @ViewChild(OverviewComponent, { read: ElementRef }) questionsContainer!: ElementRef<HTMLElement>;
 
   subs: Subscription = new Subscription();
-  quizeeName = new FormControl('', null, QuizeeValidators.forQuizee(this.quizeeEditingService, 'info.caption'));
+  quizeeName = new UntypedFormControl('', null, QuizeeValidators.forQuizee(this.quizeeEditingService, 'info.caption'));
 
   constructor(
     private route: ActivatedRoute,

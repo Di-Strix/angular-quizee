@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { FormControl, Validators } from '@angular/forms';
+import { UntypedFormControl, Validators } from '@angular/forms';
 
 import { Subscription, filter } from 'rxjs';
 
@@ -13,7 +13,7 @@ import { QuizeeValidators } from '../../quizee-validators';
 })
 export class QuestionCaptionComponent implements OnInit, OnDestroy {
   subs: Subscription = new Subscription();
-  questionCaption = new FormControl(
+  questionCaption = new UntypedFormControl(
     '',
     null,
     QuizeeValidators.forCurrentQuestion(this.quizeeEditingService, 'question.caption')

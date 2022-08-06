@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { FormControl } from '@angular/forms';
+import { UntypedFormControl } from '@angular/forms';
 import { AnswerOption, AnswerOptionId } from '@di-strix/quizee-types';
 
 import * as _ from 'lodash';
@@ -9,7 +9,7 @@ import { QuizeeValidators } from 'src/app/editor/quizee-validators';
 
 export interface Control {
   id: AnswerOptionId;
-  control: FormControl;
+  control: UntypedFormControl;
 }
 
 export interface Controls extends Array<Control> {}
@@ -39,7 +39,7 @@ export abstract class SelectiveAnswersBase {
           const controlObj = this.controls.find(({ id }) => id === key);
 
           if (!controlObj) {
-            const control = new FormControl(
+            const control = new UntypedFormControl(
               value,
               null,
               QuizeeValidators.forCurrentQuestion(

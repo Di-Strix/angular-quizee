@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
 import { Answer } from '@di-strix/quizee-types';
 
 import * as _ from 'lodash';
@@ -10,7 +10,7 @@ import { QuizeeEditingService } from '../../quizee-editing.service';
 import { QuizeeValidators } from '../../quizee-validators';
 
 type Config = {
-  [P in keyof Answer['config']]: FormControl;
+  [P in keyof Answer['config']]: UntypedFormControl;
 };
 
 @Component({
@@ -21,12 +21,12 @@ type Config = {
 export class AnswerInputComponent implements OnInit, OnDestroy {
   subs = new Subscription();
 
-  answer = new FormControl(
+  answer = new UntypedFormControl(
     '',
     null,
     QuizeeValidators.forCurrentQuestion(this.quizeeEditingService, 'answer.answer[0]')
   );
-  config = new FormGroup({ equalCase: new FormControl(false) } as Config);
+  config = new UntypedFormGroup({ equalCase: new UntypedFormControl(false) } as Config);
 
   constructor(public quizeeEditingService: QuizeeEditingService) {}
 

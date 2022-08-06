@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { FormControl, Validators } from '@angular/forms';
+import { UntypedFormControl, Validators } from '@angular/forms';
 import { QuestionType } from '@di-strix/quizee-types';
 
 import { Subscription, filter } from 'rxjs';
@@ -19,7 +19,7 @@ export class QuestionTypeComponent implements OnInit, OnDestroy {
   ];
 
   subs = new Subscription();
-  questionType = new FormControl('', [Validators.required]);
+  questionType = new UntypedFormControl('', [Validators.required]);
 
   constructor(public quizeeEditingService: QuizeeEditingService) {}
 
