@@ -408,7 +408,12 @@ describe('QuizeeService', () => {
     });
 
     it('should close dialog and switch to provided stream when authorized after dialog open', async () => {
-      jest.spyOn(matDialog, 'closeAll');
+      const dialogRef = {
+        afterClosed: jest.fn().mockReturnValue(of()),
+        close: jest.fn(),
+      };
+
+      jest.spyOn(matDialog, 'open').mockReturnValue(dialogRef as any);
 
       (service as any).withAuthGuard(() => of(1, 2, 3)).subscribe({ next, error });
 
@@ -420,7 +425,7 @@ describe('QuizeeService', () => {
       expect(error).not.toBeCalled();
       expect(next).toBeCalledTimes(3);
 
-      expect(matDialog.closeAll).toBeCalledTimes(1);
+      expect(dialogRef.close).toBeCalledTimes(1);
     });
 
     it('should not start provided stream every time auth state changes', async () => {
