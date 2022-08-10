@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { AngularFireFunctions } from '@angular/fire/compat/functions';
 import { Firestore, doc, docData } from '@angular/fire/firestore';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { CheckAnswers, GetQuizeeList, PublishQuizee } from '@di-strix/quizee-cloud-functions-interfaces';
 import { Question, Quiz, QuizId, QuizInfo } from '@di-strix/quizee-types';
 
@@ -67,22 +67,23 @@ export class QuizeeService {
   }
 
   private withAuthGuard<T>(fn: () => Observable<T>): Observable<T> {
+    let dialogRef: MatDialogRef<AuthDialogComponent>;
+
     return this.authService.isAuthenticated().pipe(
       first(),
-      switchMap((state) =>
-        !state
-          ? merge(
-              this.authDialog
-                .open(AuthDialogComponent)
-                .afterClosed()
-                .pipe(map(() => false)),
-              this.authService.isAuthenticated().pipe(filter((v) => v))
-            )
-          : of(true)
-      ),
+      switchMap((authenticated) => {
+        if (!authenticated) {
+          dialogRef = this.authDialog.open(AuthDialogComponent);
+          return merge(
+            dialogRef.afterClosed().pipe(map(() => false)),
+            this.authService.isAuthenticated().pipe(filter((v) => v))
+          );
+        }
+        return of(true);
+      }),
       first(),
       switchMap((state) => (!state ? throwError(() => new Error('Auth required')) : of(true))),
-      tap(() => this.authDialog.closeAll()),
+      tap(() => dialogRef?.close()),
       switchMap(() => fn())
     );
   }
