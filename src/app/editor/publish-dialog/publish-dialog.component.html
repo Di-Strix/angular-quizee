@@ -1,0 +1,95 @@
+<h2 mat-dialog-title>Publish in progress...</h2>
+<mat-dialog-content>
+  <mat-vertical-stepper
+    linear
+    #stepper
+  >
+    <mat-step
+      [editable]="false"
+      [completed]="stepperState.validation.done"
+      [hasError]="stepperState.validation.error"
+      errorMessage="Quizee is invalid. Please fix errors and try again"
+      label="Quizee validation"
+    >
+      <div
+        class="step-container"
+        fxLayout="row"
+        fxLayoutGap=".5rem"
+        fxLayoutAlign="start center"
+      >
+        <mat-progress-spinner
+          diameter="20"
+          mode="indeterminate"
+        ></mat-progress-spinner>
+        <h3 class="no-margin">Validating</h3>
+      </div>
+    </mat-step>
+    <mat-step
+      [editable]="false"
+      [completed]="stepperState.publish.done"
+      [hasError]="stepperState.publish.error"
+      errorMessage="Something went wrong while uploading"
+      label="Publish"
+    >
+      <div
+        class="step-container"
+        fxLayout="row"
+        fxLayoutGap=".5rem"
+        fxLayoutAlign="start center"
+      >
+        <mat-progress-spinner
+          diameter="20"
+          mode="indeterminate"
+        ></mat-progress-spinner>
+        <h3 class="no-margin">Publishing</h3>
+      </div>
+    </mat-step>
+    <mat-step
+      [editable]="false"
+      errorMessage="some another message"
+      label="Done"
+    >
+      <p *ngIf="!quizeeId; else success">
+        Some errors occurred during publish process. You can close this dialog or go to the home page
+      </p>
+      <ng-template #success>
+        <p>Done! Now you can close this dialog and edit published quizee or go to the home page</p>
+      </ng-template>
+
+      <div
+        fxLayout="row"
+        fxLayoutGap=".5rem"
+      >
+        <button
+          *ngIf="quizeeId; else retry"
+          mat-raised-button
+          color="primary"
+          matDialogClose
+          routerLink="/"
+        >
+          Go to the home
+        </button>
+        <ng-template #retry>
+          <button
+            mat-raised-button
+            color="primary"
+            [matDialogClose]="{ retry: true }"
+          >
+            Retry
+          </button>
+        </ng-template>
+        <button
+          mat-raised-button
+          matDialogClose
+          [routerLink]="quizeeId ? ['edit', quizeeId] : null"
+        >
+          Close
+        </button>
+      </div>
+    </mat-step>
+
+    <ng-template matStepperIcon="fact_check">
+      <mat-icon>fact_check</mat-icon>
+    </ng-template>
+  </mat-vertical-stepper>
+</mat-dialog-content>

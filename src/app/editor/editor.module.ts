@@ -13,6 +13,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatSelectModule } from '@angular/material/select';
+import { MatStepperModule } from '@angular/material/stepper';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
@@ -21,6 +22,7 @@ import { SharedModule } from '../shared/shared.module';
 import { EditorRoutingModule } from './editor-routing.module';
 import { EditorComponent } from './editor.component';
 import { OverviewComponent } from './overview/overview.component';
+import { PublishDialogComponent } from './publish-dialog/publish-dialog.component';
 import { QuizeeEditingService } from './quizee-editing.service';
 import { QuizeeNotFoundDialogComponent } from './quizee-not-found-dialog/quizee-not-found-dialog.component';
 import { AnswerInputComponent } from './settings/answer-input/answer-input.component';
@@ -49,6 +51,7 @@ import { SettingsComponent } from './settings/settings.component';
     SettingCardTitleComponent,
     SettingCardContentComponent,
     QuizeeNotFoundDialogComponent,
+    PublishDialogComponent,
   ],
   imports: [
     CommonModule,
@@ -69,6 +72,7 @@ import { SettingsComponent } from './settings/settings.component';
     MatTooltipModule,
     MatRadioModule,
     MatDialogModule,
+    MatStepperModule,
   ],
   providers: [QuizeeEditingService],
 })
