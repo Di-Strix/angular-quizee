@@ -28,16 +28,7 @@ describe('EditorComponent', () => {
   let quizeeEditingService: jest.MockedClass<typeof QuizeeEditingService>['prototype'];
   let location: Location;
   let router: Router;
-  let dialog: MatDialog;
-
-  beforeEach(() => {
-    const quizeeEditingService = QuizeeEditingService as jest.MockedClass<typeof QuizeeEditingService>;
-
-    quizeeEditingService.prototype.get.mockReturnValue(of());
-    quizeeEditingService.prototype.getQuizeeErrors.mockReturnValue(of([]));
-  });
-
-  beforeEach(async () => {});
+  let dialog: jest.MockedClass<typeof MatDialog>['prototype'];
 
   beforeEach(() => {
     quizeeService = new (QuizeeService as any)();
@@ -46,6 +37,9 @@ describe('EditorComponent', () => {
     dialog = new (MatDialog as any)();
     router = new (Router as any)();
     quizeeEditingService = new QuizeeEditingService() as any;
+
+    quizeeEditingService.get.mockReturnValue(of());
+    quizeeEditingService.getQuizeeErrors.mockReturnValue(of([]));
 
     component = new EditorComponent(
       activatedRoute as any,
