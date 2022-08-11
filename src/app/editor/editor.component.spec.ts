@@ -28,16 +28,7 @@ describe('EditorComponent', () => {
   let quizeeEditingService: jest.MockedClass<typeof QuizeeEditingService>['prototype'];
   let location: Location;
   let router: Router;
-  let dialog: MatDialog;
-
-  beforeEach(() => {
-    const quizeeEditingService = QuizeeEditingService as jest.MockedClass<typeof QuizeeEditingService>;
-
-    quizeeEditingService.prototype.get.mockReturnValue(of());
-    quizeeEditingService.prototype.getQuizeeErrors.mockReturnValue(of([]));
-  });
-
-  beforeEach(async () => {});
+  let dialog: jest.MockedClass<typeof MatDialog>['prototype'];
 
   beforeEach(() => {
     quizeeService = new (QuizeeService as any)();
@@ -46,6 +37,9 @@ describe('EditorComponent', () => {
     dialog = new (MatDialog as any)();
     router = new (Router as any)();
     quizeeEditingService = new QuizeeEditingService() as any;
+
+    quizeeEditingService.get.mockReturnValue(of());
+    quizeeEditingService.getQuizeeErrors.mockReturnValue(of([]));
 
     component = new EditorComponent(
       activatedRoute as any,
@@ -106,6 +100,56 @@ describe('EditorComponent', () => {
 
       expect(quizeeService.getQuizee).not.toBeCalled();
       expect(create).toHaveBeenCalledTimes(1);
+    });
+
+    describe('Validation error', () => {
+      it('should subscribe to quizee errors', async () => {
+        component.ngOnInit();
+
+        await jest.runAllTimers();
+
+        expect(quizeeEditingService.getQuizeeErrors).toBeCalled();
+      });
+
+      it('should set validation error if any', async () => {
+        const subject = new Subject();
+        quizeeEditingService.getQuizeeErrors.mockReturnValue(subject as any);
+
+        component.ngOnInit();
+        subject.next([{ path: ['questions', 0] }] as any);
+
+        await jest.runAllTimers();
+
+        expect(component.validationError).toMatch(/^Question \d/);
+
+        subject.next([{ path: ['answers', 0] }] as any);
+
+        await jest.runAllTimers();
+
+        expect(component.validationError).toMatch(/^Question \d/);
+
+        subject.next([{ path: ['info'] }] as any);
+
+        await jest.runAllTimers();
+
+        expect(component.validationError).toMatch(/^Quiz contains /);
+      });
+
+      it('should clear validation error if no errors', async () => {
+        const subject = new Subject();
+        quizeeEditingService.getQuizeeErrors.mockReturnValue(subject as any);
+
+        component.ngOnInit();
+        subject.next([{ path: ['questions', 0] }] as any);
+
+        await jest.runAllTimers();
+
+        subject.next([] as any);
+
+        await jest.runAllTimers();
+
+        expect(component.validationError).toEqual('');
+      });
     });
   });
 
@@ -255,6 +299,61 @@ describe('EditorComponent', () => {
         expect(setValue).toBeCalledTimes(1);
         expect(setValue.mock.calls[0][0]).toBe('abc');
       });
+    });
+  });
+
+  describe('publish', () => {
+    let beforeClosed: jest.Mock;
+
+    beforeEach(() => {
+      beforeClosed = jest.fn().mockReturnValue(of());
+
+      dialog.open.mockReturnValue({ beforeClosed } as any);
+    });
+
+    it('should save subscription', async () => {
+      const addSub = jest.spyOn(component.subs, 'add');
+
+      component.publish();
+
+      await jest.runAllTimers();
+
+      expect(addSub).toBeCalledTimes(1);
+    });
+
+    it('should open dialog', async () => {
+      component.publish();
+
+      await jest.runAllTimers();
+
+      expect(dialog.open).toBeCalledTimes(1);
+    });
+
+    it('should reopen dialog if retry: true is returned', async () => {
+      beforeClosed.mockReturnValueOnce(of({ retry: true }));
+
+      component.publish();
+
+      await jest.runAllTimers();
+
+      expect(dialog.open).toBeCalledTimes(2);
+    });
+
+    it('should not reopen dialog id retry is false or undefined', async () => {
+      beforeClosed.mockReturnValueOnce(of({ retry: false }));
+      beforeClosed.mockReturnValueOnce(of(null));
+
+      component.publish();
+
+      await jest.runAllTimers();
+
+      expect(dialog.open).toBeCalledTimes(1);
+
+      component.publish();
+
+      await jest.runAllTimers();
+
+      expect(dialog.open).toBeCalledTimes(2);
     });
   });
 });

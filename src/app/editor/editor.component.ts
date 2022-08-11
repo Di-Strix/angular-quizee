@@ -6,11 +6,12 @@ import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { QuizInfo } from '@di-strix/quizee-types';
 
-import { Subscription, filter } from 'rxjs';
+import { Subscription, filter, of, retry, switchMap, tap } from 'rxjs';
 
 import { QuizeeService } from '../shared/services/quizee.service';
 
 import { OverviewComponent } from './overview/overview.component';
+import { PublishDialogComponent } from './publish-dialog/publish-dialog.component';
 import { QuizeeEditingService } from './quizee-editing.service';
 import { QuizeeNotFoundDialogComponent } from './quizee-not-found-dialog/quizee-not-found-dialog.component';
 import { QuizeeValidators } from './quizee-validators';
@@ -27,6 +28,8 @@ import { QuizeeValidators } from './quizee-validators';
   ],
 })
 export class EditorComponent implements OnInit, OnDestroy {
+  validationError: string = '';
+
   @ViewChild(OverviewComponent, { read: ElementRef }) questionsContainer!: ElementRef<HTMLElement>;
 
   subs: Subscription = new Subscription();
@@ -52,6 +55,18 @@ export class EditorComponent implements OnInit, OnDestroy {
         .subscribe((quizee) => {
           this.quizeeName.setValue(quizee.info.caption);
         })
+    );
+
+    this.subs.add(
+      this.quizeeEditingService.getQuizeeErrors().subscribe((errors) => {
+        if (errors.length) {
+          if (['questions', 'answers'].includes(errors[0].path[0].toString())) {
+            this.validationError = `Question ${+errors[0].path[1] + 1} contains errors`;
+          } else {
+            this.validationError = 'Quiz contains errors. Check quizee name';
+          }
+        } else this.validationError = '';
+      })
     );
 
     this.subs.add(
@@ -96,5 +111,25 @@ export class EditorComponent implements OnInit, OnDestroy {
         top: this.questionsContainer.nativeElement.scrollHeight,
       });
     }, 0);
+  }
+
+  publish() {
+    this.subs.add(
+      of({} as any)
+        .pipe(
+          switchMap(() =>
+            this.dialog
+              .open(PublishDialogComponent, { disableClose: true })
+              .beforeClosed()
+              .pipe(
+                tap((result) => {
+                  if (result?.retry) throw new Error('Retry requested');
+                })
+              )
+          ),
+          retry()
+        )
+        .subscribe()
+    );
   }
 }

@@ -21,7 +21,28 @@
   >
     <mat-icon>home</mat-icon>
   </button>
-  <span>Edit {{ (quizeeEditingService.get() | async)?.info?.caption || '' }}</span>
+  <span style="flex: 1 1 auto"></span>
+  <div
+    fxLayout
+    fxLayoutAlign="center center"
+  >
+    <span>{{ (quizeeEditingService.get() | async)?.info?.caption || '' }}</span>
+  </div>
+  <span style="flex: 1 1 auto"></span>
+  <div
+    [matTooltip]="validationError"
+    [matTooltipDisabled]="!validationError"
+  >
+    <button
+      mat-flat-button
+      class="animated-flat-button"
+      color="primary"
+      (click)="publish()"
+      [disabled]="!!validationError"
+    >
+      <mat-icon>publish</mat-icon> Publish
+    </button>
+  </div>
 </mat-toolbar>
 <div class="editor-container">
   <div
