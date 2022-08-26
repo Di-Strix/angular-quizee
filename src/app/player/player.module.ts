@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
 
 import { SharedModule } from '../shared/shared.module';
 
@@ -9,6 +10,6 @@ import { QuizeeNotFoundComponent } from './quizee-not-found/quizee-not-found.com
 
 @NgModule({
   declarations: [PlayerComponent, QuizeeNotFoundComponent],
-  imports: [CommonModule, PlayerRoutingModule, SharedModule],
+  imports: [CommonModule, PlayerRoutingModule, SharedModule, MatButtonModule],
 })
 export class PlayerModule {}
