@@ -3,7 +3,7 @@ import { CheckAnswers } from '@di-strix/quizee-cloud-functions-interfaces';
 import { Question, Quiz, QuizId } from '@di-strix/quizee-types';
 
 import * as _ from 'lodash';
-import { Observable, ReplaySubject, of, switchMap, tap } from 'rxjs';
+import { Observable, ReplaySubject, of, switchMap, tap, throwError } from 'rxjs';
 
 import { AutoDispatchEvent, RegisterDispatcher } from '../shared/decorators/AutoDispatchEvent';
 import { QuizeeService } from '../shared/services/quizee.service';
@@ -63,6 +63,12 @@ export class PlayerService {
       }),
       switchMap(() => this.quizee$.asObservable())
     );
+  }
+
+  reloadQuizee(): Observable<Quiz> {
+    if (!this.quizee) return throwError(() => new Error('Quizee was not loaded'));
+
+    return this.loadQuizee(this.quizee.info.id);
   }
 
   @AutoDispatchEvent(['commitAllowed'])

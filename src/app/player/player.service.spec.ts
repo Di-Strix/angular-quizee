@@ -432,6 +432,40 @@ describe('PlayerService', () => {
     });
   });
 
+  describe('reloadQuizee', () => {
+    it('should throw if quizee was not loaded', async () => {
+      service.reloadQuizee().subscribe({ next, error });
+
+      await jest.runAllTimers();
+
+      expect(next).not.toBeCalled();
+      expect(error).toBeCalledWith(new Error('Quizee was not loaded'));
+    });
+
+    it('should call loadQuizee with current quizee id', async () => {
+      quizeeService.getQuizee.mockReturnValue(
+        of({
+          answers: [],
+          info: { caption: '', id: '1', img: '', questionsCount: 1 },
+          questions: [{ answerOptions: [], caption: '', id: '', type: 'ONE_TRUE' }],
+        })
+      );
+
+      service.loadQuizee('1').subscribe();
+
+      await jest.runAllTimers();
+
+      const loadQuizee = jest.spyOn(service, 'loadQuizee');
+
+      service.reloadQuizee().subscribe();
+
+      await jest.runAllTimers();
+
+      expect(loadQuizee).toBeCalledTimes(1);
+      expect(loadQuizee).toBeCalledWith('1');
+    });
+  });
+
   describe('answer saving', () => {
     it('should save answer', async () => {
       service.saveAnswer(['1']);
