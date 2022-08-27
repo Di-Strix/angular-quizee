@@ -7,10 +7,11 @@ import { SharedModule } from '../shared/shared.module';
 import { PlayerRoutingModule } from './player-routing.module';
 import { PlayerComponent } from './player.component';
 import { PlayerService } from './player.service';
+import { QuestionScreenComponent } from './question-screen/question-screen.component';
 import { QuizeeNotFoundComponent } from './quizee-not-found/quizee-not-found.component';
 
 @NgModule({
-  declarations: [PlayerComponent, QuizeeNotFoundComponent],
+  declarations: [PlayerComponent, QuizeeNotFoundComponent, QuestionScreenComponent],
   imports: [CommonModule, PlayerRoutingModule, SharedModule, MatButtonModule],
   providers: [PlayerService],
 })
