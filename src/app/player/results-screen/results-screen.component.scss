@@ -1,0 +1,21 @@
+@use '@angular/material' as mat;
+
+$mat-typography: mat.define-typography-config();
+
+:host {
+  align-self: center;
+
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  justify-content: center;
+  align-items: center;
+}
+
+.congratulations {
+  @include mat.typography-level($mat-typography, 'display-2');
+}
+
+.subtitle {
+  @include mat.typography-level($mat-typography, 'headline');
+}
