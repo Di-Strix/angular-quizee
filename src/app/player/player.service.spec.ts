@@ -139,6 +139,80 @@ describe('PlayerService', () => {
     });
   });
 
+  describe('getResult', () => {
+    it('should return stream to result', async () => {
+      service.getResult().subscribe({ next, error });
+
+      await jest.runAllTimers();
+
+      service.result$.next(1);
+      service.result$.next(2);
+
+      await jest.runAllTimers();
+
+      expect(error).not.toBeCalled();
+      expect(next).toBeCalledTimes(2);
+      expect(next).toHaveBeenNthCalledWith(1, 1);
+      expect(next).toHaveBeenNthCalledWith(2, 2);
+    });
+
+    it('should push last value to new subscriber', async () => {
+      service.result$.next(1);
+
+      await jest.runAllTimers();
+
+      service.getResult().subscribe({ next, error });
+
+      await jest.runAllTimers();
+
+      service.result$.next(2);
+
+      await jest.runAllTimers();
+
+      expect(error).not.toBeCalled();
+      expect(next).toBeCalledTimes(2);
+      expect(next).toHaveBeenNthCalledWith(1, 1);
+      expect(next).toHaveBeenNthCalledWith(2, 2);
+    });
+  });
+
+  describe('commitAllowed', () => {
+    it('should return stream to commitAllowed', async () => {
+      service.commitAllowed().subscribe({ next, error });
+
+      await jest.runAllTimers();
+
+      service.commitAllowed$.next(1 as any);
+      service.commitAllowed$.next(2 as any);
+
+      await jest.runAllTimers();
+
+      expect(error).not.toBeCalled();
+      expect(next).toBeCalledTimes(2);
+      expect(next).toHaveBeenNthCalledWith(1, 1);
+      expect(next).toHaveBeenNthCalledWith(2, 2);
+    });
+
+    it('should push last value to new subscriber', async () => {
+      service.commitAllowed$.next(1 as any);
+
+      await jest.runAllTimers();
+
+      service.commitAllowed().subscribe({ next, error });
+
+      await jest.runAllTimers();
+
+      service.commitAllowed$.next(2 as any);
+
+      await jest.runAllTimers();
+
+      expect(error).not.toBeCalled();
+      expect(next).toBeCalledTimes(2);
+      expect(next).toHaveBeenNthCalledWith(1, 1);
+      expect(next).toHaveBeenNthCalledWith(2, 2);
+    });
+  });
+
   describe('loadQuizee', () => {
     it('should update state on loading start', async () => {
       quizeeService.getQuizee.mockReturnValue(of());

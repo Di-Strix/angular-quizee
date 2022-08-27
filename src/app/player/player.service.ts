@@ -38,6 +38,10 @@ export class PlayerService {
     return this.quizee$.asObservable();
   }
 
+  getResult(): Observable<number> {
+    return this.result$.asObservable();
+  }
+
   loadQuizee(id: QuizId): Observable<Quiz> {
     this.state$.next('loadingQuizee');
 
