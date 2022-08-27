@@ -1,9 +1,8 @@
 import { Injectable } from '@angular/core';
 import { CheckAnswers } from '@di-strix/quizee-cloud-functions-interfaces';
-import { Answer, Question, Quiz, QuizId } from '@di-strix/quizee-types';
+import { Question, Quiz, QuizId } from '@di-strix/quizee-types';
 
 import * as _ from 'lodash';
-import { map } from 'lodash';
 import { Observable, ReplaySubject, of, switchMap, tap } from 'rxjs';
 
 import { AutoDispatchEvent, RegisterDispatcher } from '../shared/decorators/AutoDispatchEvent';
@@ -19,6 +18,7 @@ export class PlayerService {
   currentQuestion$ = new ReplaySubject<Question>(1);
   state$ = new ReplaySubject<PlayerState>(1);
   result$ = new ReplaySubject<number>(1);
+  commitAllowed$ = new ReplaySubject<boolean>(1);
 
   quizee?: Quiz;
   answers: PlayerAnswer[] = [];
@@ -42,6 +42,10 @@ export class PlayerService {
     return this.result$.asObservable();
   }
 
+  commitAllowed(): Observable<boolean> {
+    return this.commitAllowed$.asObservable();
+  }
+
   loadQuizee(id: QuizId): Observable<Quiz> {
     this.state$.next('loadingQuizee');
 
@@ -56,8 +60,11 @@ export class PlayerService {
     );
   }
 
-  saveAnswer(answer: PlayerAnswer['answer']) {
+  @AutoDispatchEvent(['commitAllowed'])
+  saveAnswer(answer: PlayerAnswer['answer']): Observable<void> {
     this.savedAnswer = answer;
+
+    return of();
   }
 
   getSavedAnswer(): PlayerAnswer['answer'] {
@@ -65,11 +72,13 @@ export class PlayerService {
   }
 
   @AutoDispatchEvent(['currentQuestion'])
-  commitAnswer(answer?: PlayerAnswer['answer']): Observable<void> {
+  commitAnswer(): Observable<void> {
     const question = this._getCurrentQuestion();
-    if (!question || !this.quizee) throw new Error('Quizee is not loaded');
+    if (!question || !this.quizee) throw new Error('Quizee is not loaded or all the question were answered');
 
-    if (!answer) answer = this.getSavedAnswer();
+    if (!this._getCommitAllowed()) throw new Error('Commit is not allowed since answer is empty');
+
+    const answer = this.getSavedAnswer();
     this.savedAnswer = [];
 
     this.answers.push({ answerTo: question.id, answer });
@@ -109,7 +118,17 @@ export class PlayerService {
 
   private _getCurrentQuestion(): Question | void {
     if (!this.quizee) return;
+    if (this.quizee.questions.length === this.answers.length) return;
 
     return this.quizee.questions[this.answers.length];
+  }
+
+  @RegisterDispatcher('commitAllowed')
+  private _pushCommitAllowed() {
+    this.commitAllowed$.next(this._getCommitAllowed());
+  }
+
+  private _getCommitAllowed(): boolean {
+    return this.savedAnswer.length > 0 && this.savedAnswer[0].length > 0;
   }
 }

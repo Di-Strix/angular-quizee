@@ -393,11 +393,35 @@ describe('PlayerService', () => {
 
   describe('answer saving', () => {
     it('should save answer', async () => {
-      service.saveAnswer(1 as any);
-      expect(service.getSavedAnswer()).toBe(1);
+      service.saveAnswer(['1']);
+      expect(service.getSavedAnswer()).toEqual(['1']);
 
-      service.saveAnswer(2 as any);
-      expect(service.getSavedAnswer()).toBe(2);
+      service.saveAnswer(['2']);
+      expect(service.getSavedAnswer()).toEqual(['2']);
+    });
+
+    it('should update commitAllowed', async () => {
+      service.commitAllowed().subscribe({ next, error });
+      service.saveAnswer([]);
+
+      await jest.runAllTimers();
+
+      expect(next).toBeCalledTimes(1);
+      expect(next).toBeCalledWith(false);
+
+      service.saveAnswer(['']);
+
+      await jest.runAllTimers();
+
+      expect(next).toBeCalledTimes(2);
+      expect(next).toHaveBeenLastCalledWith(false);
+
+      service.saveAnswer(['1']);
+
+      await jest.runAllTimers();
+
+      expect(next).toBeCalledTimes(3);
+      expect(next).toHaveBeenLastCalledWith(true);
     });
   });
 
@@ -413,7 +437,76 @@ describe('PlayerService', () => {
 
       expect(next).not.toBeCalled();
       expect(error).toBeCalledTimes(1);
-      expect(error).toBeCalledWith(new Error('Quizee is not loaded'));
+      expect(error).toBeCalledWith(new Error('Quizee is not loaded or all the question were answered'));
+    });
+
+    it('should throw if commit is not allowed', async () => {
+      quizeeService.getQuizee.mockReturnValue(
+        of({
+          answers: [],
+          info: { caption: '', id: '', img: '', questionsCount: 2 },
+          questions: [
+            { answerOptions: [], caption: '', id: '', type: 'ONE_TRUE' },
+            { answerOptions: [], caption: '', id: '', type: 'ONE_TRUE' },
+          ],
+        } as Quiz)
+      );
+
+      service.loadQuizee('').subscribe();
+
+      service.saveAnswer([]);
+      service.commitAnswer().subscribe({ next, error });
+
+      await jest.runAllTimers();
+
+      expect(next).not.toBeCalled();
+      expect(error).toBeCalledTimes(1);
+      expect(error).toBeCalledWith(new Error('Commit is not allowed since answer is empty'));
+
+      next.mockReset();
+      error.mockReset();
+
+      service.saveAnswer(['']);
+      service.commitAnswer().subscribe({ next, error });
+
+      await jest.runAllTimers();
+
+      expect(next).not.toBeCalled();
+      expect(error).toBeCalledTimes(1);
+      expect(error).toBeCalledWith(new Error('Commit is not allowed since answer is empty'));
+
+      next.mockReset();
+      error.mockReset();
+
+      service.saveAnswer(['1']);
+      service.commitAnswer().subscribe({ error, complete: next });
+
+      await jest.runAllTimers();
+
+      expect(error).not.toBeCalled();
+      expect(next).toBeCalled();
+    });
+
+    it('should throw if answer is empty', async () => {
+      quizeeService.getQuizee.mockReturnValue(
+        of({
+          answers: [],
+          info: { caption: '', id: '', img: '', questionsCount: 1 },
+          questions: [{ answerOptions: [], caption: '', id: '', type: 'ONE_TRUE' }],
+        } as Quiz)
+      );
+
+      service.loadQuizee('').subscribe();
+      service.commitAnswer().subscribe({ next, error });
+      service.saveAnswer(['']).subscribe();
+      service.commitAnswer().subscribe({ next, error });
+
+      await jest.runAllTimers();
+
+      expect(next).not.toBeCalled();
+      expect(error).toBeCalledTimes(2);
+      expect(error).toHaveBeenNthCalledWith(1, new Error('Commit is not allowed since answer is empty'));
+      expect(error).toHaveBeenNthCalledWith(2, new Error('Commit is not allowed since answer is empty'));
     });
 
     it('should save saved answer if no provided', async () => {
@@ -435,25 +528,6 @@ describe('PlayerService', () => {
       expect(service.answers[0].answer).toEqual(['1']);
     });
 
-    it('should save provide answer', async () => {
-      quizeeService.getQuizee.mockReturnValue(
-        of({
-          answers: [],
-          info: { caption: '', id: '', img: '', questionsCount: 1 },
-          questions: [{ answerOptions: [], caption: '', id: '', type: 'ONE_TRUE' }],
-        } as Quiz)
-      );
-
-      service.loadQuizee('').subscribe();
-      service.saveAnswer(['1']);
-      service.commitAnswer(['2']).subscribe({ next, error });
-
-      await jest.runAllTimers();
-
-      expect(error).not.toBeCalled();
-      expect(service.answers[0].answer).toEqual(['2']);
-    });
-
     it('should attach question id to answer', async () => {
       quizeeService.getQuizee.mockReturnValue(
         of({
@@ -464,7 +538,8 @@ describe('PlayerService', () => {
       );
 
       service.loadQuizee('').subscribe();
-      service.commitAnswer(['1']).subscribe({ next, error });
+      service.saveAnswer(['1']).subscribe();
+      service.commitAnswer().subscribe({ next, error });
 
       await jest.runAllTimers();
 
@@ -486,7 +561,8 @@ describe('PlayerService', () => {
 
       service.loadQuizee('').subscribe();
       service.getCurrentQuestion().subscribe({ next, error });
-      service.commitAnswer(['1']).subscribe();
+      service.saveAnswer(['1']).subscribe();
+      service.commitAnswer().subscribe();
 
       await jest.runAllTimers();
 
@@ -507,7 +583,8 @@ describe('PlayerService', () => {
       );
 
       service.loadQuizee('').subscribe();
-      service.commitAnswer(['1']).subscribe();
+      service.saveAnswer(['1']).subscribe();
+      service.commitAnswer().subscribe();
 
       await jest.runAllTimers();
 
@@ -530,7 +607,8 @@ describe('PlayerService', () => {
       );
 
       service.loadQuizee('').subscribe();
-      service.commitAnswer(['1']).subscribe();
+      service.saveAnswer(['1']).subscribe();
+      service.commitAnswer().subscribe();
       service.state$.subscribe({ next, error });
 
       await jest.runAllTimers();
@@ -552,7 +630,8 @@ describe('PlayerService', () => {
       );
 
       service.loadQuizee('').subscribe();
-      service.commitAnswer(['1']).subscribe();
+      service.saveAnswer(['1']).subscribe();
+      service.commitAnswer().subscribe();
       service.result$.subscribe({ next, error });
 
       await jest.runAllTimers();
