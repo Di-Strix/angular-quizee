@@ -1,6 +1,6 @@
 import { Quiz } from '@di-strix/quizee-types';
 
-import { of } from 'rxjs';
+import { Subject, of } from 'rxjs';
 
 import { QuizeeService } from '../shared/services/quizee.service';
 
@@ -388,6 +388,47 @@ describe('PlayerService', () => {
       expect(error).not.toBeCalled();
       expect(next).toBeCalledTimes(1);
       expect(next.mock.calls[0][0]).not.toEqual(quizee.questions[0]);
+    });
+
+    it('should reset state when got quizee', async () => {
+      const quizee: Quiz = {
+        answers: [],
+        info: { caption: '', id: '1', img: '', questionsCount: 2 },
+        questions: [
+          { answerOptions: [], caption: '', id: '', type: 'ONE_TRUE' },
+          { answerOptions: [], caption: '', id: '', type: 'ONE_TRUE' },
+        ],
+      };
+
+      const subject = new Subject();
+
+      quizeeService.getQuizee.mockReturnValue(subject as any);
+
+      service.loadQuizee('1').subscribe();
+      subject.next(quizee);
+
+      await jest.runAllTimers();
+
+      service.saveAnswer(['ABC']);
+      service.commitAnswer();
+      service.saveAnswer(['AAA']);
+
+      await jest.runAllTimers();
+
+      service.loadQuizee('1').subscribe();
+      subject.next(quizee);
+
+      await jest.runAllTimers();
+
+      expect(service.getSavedAnswer()).toEqual([]);
+      expect(service.answers).toEqual([]);
+
+      service.commitAllowed().subscribe({ next, error });
+
+      await jest.runAllTimers();
+
+      expect(error).not.toBeCalled();
+      expect(next).toBeCalledWith(false);
     });
   });
 

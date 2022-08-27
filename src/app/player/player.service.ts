@@ -52,8 +52,13 @@ export class PlayerService {
     return this.quizeeService.getQuizee(id).pipe(
       tap((quizee) => {
         this.quizee = quizee;
+        this.answers = [];
+        this.savedAnswer = [];
+
+        this._pushCommitAllowed();
         this._pushQuizee();
         this._pushCurrentQuestion();
+
         this.state$.next('running');
       }),
       switchMap(() => this.quizee$.asObservable())
