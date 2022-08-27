@@ -12,9 +12,16 @@ import { PlayerService } from './player.service';
 import { QuestionScreenComponent } from './question-screen/question-screen.component';
 import { QuizeeLoaderComponent } from './quizee-loader/quizee-loader.component';
 import { QuizeeNotFoundComponent } from './quizee-not-found/quizee-not-found.component';
+import { ResultsLoaderComponent } from './results-loader/results-loader.component';
 
 @NgModule({
-  declarations: [PlayerComponent, QuizeeNotFoundComponent, QuestionScreenComponent, QuizeeLoaderComponent],
+  declarations: [
+    PlayerComponent,
+    QuizeeNotFoundComponent,
+    QuestionScreenComponent,
+    QuizeeLoaderComponent,
+    ResultsLoaderComponent,
+  ],
   imports: [CommonModule, PlayerRoutingModule, SharedModule, MatButtonModule, MatProgressSpinnerModule, MatIconModule],
   providers: [PlayerService],
 })
