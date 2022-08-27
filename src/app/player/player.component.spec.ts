@@ -1,7 +1,6 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router } from '@angular/router';
 
-import { Observable, Subject, Subscription, of, throwError } from 'rxjs';
+import { Subject, of, throwError } from 'rxjs';
 
 import { PlayerComponent } from './player.component';
 import { PlayerService } from './player.service';
