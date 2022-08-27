@@ -1,1 +1,6 @@
-<p>player works!</p>
+<ng-container [ngSwitch]="playerService.getState() | async">
+  <ng-container *ngSwitchCase="'gotResults'"> results </ng-container>
+  <ng-container *ngSwitchCase="'checkingResults'"> loading results </ng-container>
+  <app-question-screen *ngSwitchCase="'running'"></app-question-screen>
+  <ng-container *ngSwitchDefault> loading quizee </ng-container>
+</ng-container>
