@@ -3,7 +3,7 @@ import { CheckAnswers } from '@di-strix/quizee-cloud-functions-interfaces';
 import { Question, Quiz, QuizId } from '@di-strix/quizee-types';
 
 import * as _ from 'lodash';
-import { Observable, ReplaySubject, of, switchMap, tap, throwError } from 'rxjs';
+import { Observable, ReplaySubject, first, of, switchMap, tap, throwError } from 'rxjs';
 
 import { AutoDispatchEvent, RegisterDispatcher } from '../shared/decorators/AutoDispatchEvent';
 import { QuizeeService } from '../shared/services/quizee.service';
@@ -49,7 +49,9 @@ export class PlayerService {
   loadQuizee(id: QuizId): Observable<Quiz> {
     this.state$.next('loadingQuizee');
 
-    return this.quizeeService.getQuizee(id).pipe(
+    const stream = id === this.quizee?.info.id ? of(this.quizee) : this.quizeeService.getQuizee(id);
+
+    return stream.pipe(
       tap((quizee) => {
         this.quizee = quizee;
         this.answers = [];
@@ -61,7 +63,7 @@ export class PlayerService {
 
         this.state$.next('running');
       }),
-      switchMap(() => this.quizee$.asObservable())
+      switchMap(() => this.getQuizee())
     );
   }
 
@@ -97,6 +99,7 @@ export class PlayerService {
     if (this.answers.length === this.quizee.info.questionsCount) {
       this.state$.next('checkingResults');
       return this.getQuizee().pipe(
+        first(),
         switchMap((quizee) =>
           this.quizeeService.checkAnswers({ answers: this.answers, quizId: quizee.info.id }).pipe(
             tap((result) => {

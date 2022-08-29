@@ -430,6 +430,29 @@ describe('PlayerService', () => {
       expect(error).not.toBeCalled();
       expect(next).toBeCalledWith(false);
     });
+
+    it('should reload loaded quizee if requested id is the same', async () => {
+      const quizee: Quiz = {
+        answers: [],
+        info: { caption: '', id: '1', img: '', questionsCount: 2 },
+        questions: [
+          { answerOptions: [], caption: '', id: '', type: 'ONE_TRUE' },
+          { answerOptions: [], caption: '', id: '', type: 'ONE_TRUE' },
+        ],
+      };
+
+      quizeeService.getQuizee.mockReturnValue(of(quizee));
+
+      service.loadQuizee('1').subscribe();
+
+      await jest.runAllTimers();
+
+      expect(quizeeService.getQuizee).toBeCalledTimes(1);
+
+      service.loadQuizee('1').subscribe();
+
+      expect(quizeeService.getQuizee).toBeCalledTimes(1);
+    });
   });
 
   describe('reloadQuizee', () => {
@@ -714,6 +737,37 @@ describe('PlayerService', () => {
       expect(error).not.toBeCalled();
       expect(next).toBeCalledTimes(1);
       expect(next).toHaveBeenLastCalledWith(100);
+    });
+
+    it('should get only first value from quizee stream when checking answers', async () => {
+      quizeeService.checkAnswers.mockReturnValue(of());
+
+      const quiz = {
+        answers: [],
+        info: { caption: '', id: 'someQuizId', img: '', questionsCount: 1 },
+        questions: [{ answerOptions: [], caption: '', id: 'id1', type: 'ONE_TRUE' }],
+      } as Quiz;
+
+      quizeeService.getQuizee.mockReturnValue(of(quiz));
+
+      const subject = new Subject<Quiz>();
+      jest.spyOn(service, 'getQuizee').mockReturnValue(subject);
+
+      service.loadQuizee('').subscribe();
+      service.saveAnswer(['1']).subscribe();
+      service.commitAnswer().subscribe();
+
+      subject.next(quiz);
+
+      await jest.runAllTimers();
+
+      expect(quizeeService.checkAnswers).toBeCalledTimes(1);
+
+      subject.next(quiz);
+
+      await jest.runAllTimers();
+
+      expect(quizeeService.checkAnswers).toBeCalledTimes(1);
     });
   });
 });
