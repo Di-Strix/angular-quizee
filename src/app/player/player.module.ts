@@ -10,6 +10,8 @@ import { PlayerRoutingModule } from './player-routing.module';
 import { PlayerComponent } from './player.component';
 import { PlayerService } from './player.service';
 import { QuestionScreenComponent } from './question-screen/question-screen.component';
+import { SeveralTrueComponent } from './question-screen/several-true/several-true.component';
+import { WriteAnswerComponent } from './question-screen/write-answer/write-answer.component';
 import { QuizeeLoaderComponent } from './quizee-loader/quizee-loader.component';
 import { QuizeeNotFoundComponent } from './quizee-not-found/quizee-not-found.component';
 import { ResultsLoaderComponent } from './results-loader/results-loader.component';
@@ -23,6 +25,8 @@ import { ResultsScreenComponent } from './results-screen/results-screen.componen
     QuizeeLoaderComponent,
     ResultsLoaderComponent,
     ResultsScreenComponent,
+    SeveralTrueComponent,
+    WriteAnswerComponent,
   ],
   imports: [CommonModule, PlayerRoutingModule, SharedModule, MatButtonModule, MatProgressSpinnerModule, MatIconModule],
   providers: [PlayerService],
