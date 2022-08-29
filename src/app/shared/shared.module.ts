@@ -5,10 +5,11 @@ import { MatDialogModule } from '@angular/material/dialog';
 
 import { AuthDialogComponent } from './components/auth-dialog/auth-dialog.component';
 import { ClassWhenLoadedDirective } from './directives/class-when-loaded.directive';
+import { ContainerRefDirective } from './directives/container-ref.directive';
 
 @NgModule({
-  declarations: [AuthDialogComponent, ClassWhenLoadedDirective],
+  declarations: [AuthDialogComponent, ClassWhenLoadedDirective, ContainerRefDirective],
   imports: [CommonModule, MatDialogModule, MatButtonModule],
-  exports: [AuthDialogComponent, ClassWhenLoadedDirective],
+  exports: [AuthDialogComponent, ClassWhenLoadedDirective, ContainerRefDirective],
 })
 export class SharedModule {}
