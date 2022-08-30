@@ -1,8 +1,7 @@
 <h1 class="congratulations">🎉</h1>
 <h1 class="congratulations">Congratulations!</h1>
 <h2 class="subtitle">You have answered to a {{ score }}% of the questions correctly</h2>
-<div>
-  Now you can
+<div class="actions">
   <button
     mat-button
     (click)="retry.emit()"
@@ -10,7 +9,6 @@
     <mat-icon>replay</mat-icon>
     Try again
   </button>
-  or
   <button
     mat-button
     color="primary"

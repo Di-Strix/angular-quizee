@@ -10,6 +10,8 @@ $mat-typography: mat.define-typography-config();
   flex-grow: 1;
   justify-content: center;
   align-items: center;
+
+  padding: 1rem;
 }
 
 .congratulations {
@@ -18,4 +20,11 @@ $mat-typography: mat.define-typography-config();
 
 .subtitle {
   @include mat.typography-level($mat-typography, 'headline');
+  text-align: center;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
 }
