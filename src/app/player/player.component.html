@@ -1,6 +1,37 @@
 <ng-container [ngSwitch]="playerService.getState() | async">
-  <ng-container *ngSwitchCase="'gotResults'"> results </ng-container>
-  <ng-container *ngSwitchCase="'checkingResults'"> loading results </ng-container>
-  <app-question-screen *ngSwitchCase="'running'"></app-question-screen>
-  <ng-container *ngSwitchDefault> loading quizee </ng-container>
+  <div
+    class="full-size"
+    @viewAnimation
+    *ngSwitchCase="'gotResults'"
+  >
+    <app-results-screen
+      [score]="(playerService.getResult() | async) || 0"
+      (retry)="reloadQuizee()"
+    >
+    </app-results-screen>
+  </div>
+
+  <div
+    class="full-size"
+    @viewAnimation
+    *ngSwitchCase="'checkingResults'"
+  >
+    <app-results-loader></app-results-loader>
+  </div>
+
+  <div
+    class="full-size"
+    @viewAnimation
+    *ngSwitchCase="'running'"
+  >
+    <app-question-screen></app-question-screen>
+  </div>
+
+  <div
+    class="full-size"
+    @viewAnimation
+    *ngSwitchDefault
+  >
+    <app-quizee-loader></app-quizee-loader>
+  </div>
 </ng-container>

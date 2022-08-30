@@ -1,14 +1,19 @@
+import { animate, query, stagger, style, transition, trigger } from '@angular/animations';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { Subscription, first } from 'rxjs';
 
+import { ViewEnterAnimation, ViewLeaveAnimation } from './animations';
 import { PlayerService } from './player.service';
 
 @Component({
   selector: 'app-player',
   templateUrl: './player.component.html',
   styleUrls: ['./player.component.scss'],
+  animations: [
+    trigger('viewAnimation', [transition(':enter', ViewEnterAnimation), transition(':leave', ViewLeaveAnimation)]),
+  ],
 })
 export class PlayerComponent implements OnInit, OnDestroy {
   subs = new Subscription();
@@ -34,5 +39,9 @@ export class PlayerComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.subs.unsubscribe();
+  }
+
+  reloadQuizee() {
+    this.playerService.reloadQuizee().pipe(first()).subscribe();
   }
 }

@@ -106,6 +106,35 @@ describe('PlayerComponent', () => {
     });
   });
 
+  describe('reloadQuizee', () => {
+    it('should call reloadQuizee and subscribe to the result', async () => {
+      const subject = new Subject<any>();
+      playerService.reloadQuizee.mockReturnValue(subject);
+
+      component.reloadQuizee();
+
+      await jest.runAllTimers();
+
+      expect(playerService.reloadQuizee).toBeCalledTimes(1);
+      expect(subject.observed).toBeTruthy();
+    });
+
+    it('should unsubscribe after got result', async () => {
+      const subject = new Subject<any>();
+      playerService.reloadQuizee.mockReturnValue(subject);
+
+      component.reloadQuizee();
+
+      await jest.runAllTimers();
+
+      subject.next(0);
+
+      await jest.runAllTimers();
+
+      expect(subject.observed).toBeFalsy();
+    });
+  });
+
   describe('onDestroy', () => {
     it('should unsubscribe', async () => {
       const subject = new Subject();
