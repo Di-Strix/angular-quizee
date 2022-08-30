@@ -1,0 +1,22 @@
+<div
+  class="container"
+  *ngIf="question"
+>
+  <div class="caption-container">
+    <h1 class="caption">{{ question.caption }}</h1>
+  </div>
+  <div class="answer-options-container">
+    <div class="answer-options">
+      <button
+        mat-flat-button
+        color="primary"
+        class="answer-option"
+        [class.compact]="answerOption.value.length > 150"
+        *ngFor="let answerOption of question.answerOptions"
+        (click)="this.answer.emit([answerOption.id])"
+      >
+        {{ answerOption.value }}
+      </button>
+    </div>
+  </div>
+</div>
