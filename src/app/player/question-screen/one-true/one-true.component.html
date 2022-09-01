@@ -13,7 +13,7 @@
         class="answer-option"
         [class.compact]="answerOption.value.length > 150"
         *ngFor="let answerOption of question.answerOptions"
-        (click)="this.answer.emit([answerOption.id])"
+        (click)="this.performCommit([answerOption.id])"
       >
         {{ answerOption.value }}
       </button>

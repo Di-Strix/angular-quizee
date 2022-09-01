@@ -143,7 +143,7 @@ describe('QuestionScreenComponent', () => {
             expect(oneTrueComponent.question).toEqual(question);
           });
 
-          it('should subscribe to answer', async () => {
+          it('should subscribe to answer and commit events', async () => {
             const question: Question = {
               answerOptions: [],
               caption: '',
@@ -161,6 +161,7 @@ describe('QuestionScreenComponent', () => {
             await jest.runAllTimers();
 
             expect(oneTrueComponent.answer.observed).toBeTruthy();
+            expect(oneTrueComponent.commit.observed).toBeTruthy();
           });
         });
       });
@@ -208,7 +209,7 @@ describe('QuestionScreenComponent', () => {
             expect(oneTrueComponent.question).toEqual(question);
           });
 
-          it('should subscribe to answer', async () => {
+          it('should subscribe to answer and commit events', async () => {
             const question: Question = {
               answerOptions: [],
               caption: '',
@@ -226,6 +227,7 @@ describe('QuestionScreenComponent', () => {
             await jest.runAllTimers();
 
             expect(oneTrueComponent.answer.observed).toBeTruthy();
+            expect(oneTrueComponent.commit.observed).toBeTruthy();
           });
         });
       });
@@ -273,7 +275,7 @@ describe('QuestionScreenComponent', () => {
             expect(oneTrueComponent.question).toEqual(question);
           });
 
-          it('should subscribe to answer', async () => {
+          it('should subscribe to answer and commit events', async () => {
             const question: Question = {
               answerOptions: [],
               caption: '',
@@ -291,6 +293,7 @@ describe('QuestionScreenComponent', () => {
             await jest.runAllTimers();
 
             expect(oneTrueComponent.answer.observed).toBeTruthy();
+            expect(oneTrueComponent.commit.observed).toBeTruthy();
           });
         });
       });
@@ -320,6 +323,7 @@ describe('QuestionScreenComponent', () => {
 
         await jest.runAllTimers();
 
+        expect(playerService.commitAnswer).not.toBeCalled();
         expect(playerService.saveAnswer).toBeCalledTimes(1);
         expect(playerService.saveAnswer).toBeCalledWith(['1']);
       });
@@ -344,6 +348,7 @@ describe('QuestionScreenComponent', () => {
         await jest.runAllTimers();
 
         oneTrueComponent.answer.emit(['1']);
+        oneTrueComponent.commit.emit();
 
         await jest.runAllTimers();
 

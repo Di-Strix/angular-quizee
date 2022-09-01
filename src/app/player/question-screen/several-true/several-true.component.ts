@@ -11,6 +11,7 @@ import { QuestionComponent } from '../question-component.type';
 export class SeveralTrueComponent implements QuestionComponent {
   @Input() question!: Question;
   @Output() answer = new EventEmitter<AnswerOptionId[]>();
+  @Output() commit = new EventEmitter<void>();
 
   constructor() {}
 }
