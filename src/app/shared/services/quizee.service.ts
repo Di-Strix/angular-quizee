@@ -9,7 +9,7 @@ import {
   PublishQuizee,
 } from '@di-strix/quizee-cloud-functions-interfaces';
 
-import { Observable, filter, first, from, map, merge, of, switchMap, tap, throwError, zipWith } from 'rxjs';
+import { Observable, filter, first, map, merge, of, switchMap, tap, throwError } from 'rxjs';
 
 import { AuthDialogComponent } from '../components/auth-dialog/auth-dialog.component';
 
@@ -27,11 +27,11 @@ export class QuizeeService {
     private authDialog: MatDialog
   ) {}
 
-  getQuizee(...args: GetFullQuizee.Args): PromiseToObservable<GetFullQuizee.ReturnType> {
+  getFullQuizee(...args: GetFullQuizee.Args): PromiseToObservable<GetFullQuizee.ReturnType> {
     return this.withAuthGuard(() => this.cloudFunctions.httpsCallable('getFullQuizee')(...args));
   }
 
-  getQuizeePublicData(...args: GetPublicQuizee.Args): PromiseToObservable<GetPublicQuizee.ReturnType> {
+  getPublicQuizee(...args: GetPublicQuizee.Args): PromiseToObservable<GetPublicQuizee.ReturnType> {
     return this.cloudFunctions.httpsCallable('getPublicQuizee')(...args);
   }
 

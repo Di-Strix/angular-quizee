@@ -65,12 +65,12 @@ describe('EditorComponent', () => {
       };
 
       const quizObj = { [Symbol()]: 1 };
-      jest.spyOn(quizeeService, 'getQuizee').mockReturnValue(of(quizObj) as any);
+      jest.spyOn(quizeeService, 'getFullQuizee').mockReturnValue(of(quizObj) as any);
 
       component.ngOnInit();
 
-      expect(quizeeService.getQuizee).toBeCalledTimes(1);
-      expect(quizeeService.getQuizee).toBeCalledWith(idVal);
+      expect(quizeeService.getFullQuizee).toBeCalledTimes(1);
+      expect(quizeeService.getFullQuizee).toBeCalledWith(idVal);
     });
 
     it('should push fetched quizee to quizeeEditingService', () => {
@@ -82,7 +82,7 @@ describe('EditorComponent', () => {
       const load = jest.spyOn(quizeeEditingService, 'load');
 
       const quizObj = { [Symbol()]: 1 };
-      jest.spyOn(quizeeService, 'getQuizee').mockReturnValue(of(quizObj) as any);
+      jest.spyOn(quizeeService, 'getFullQuizee').mockReturnValue(of(quizObj) as any);
 
       component.ngOnInit();
 
@@ -98,7 +98,7 @@ describe('EditorComponent', () => {
 
       component.ngOnInit();
 
-      expect(quizeeService.getQuizee).not.toBeCalled();
+      expect(quizeeService.getFullQuizee).not.toBeCalled();
       expect(create).toHaveBeenCalledTimes(1);
     });
 
@@ -179,12 +179,12 @@ describe('EditorComponent', () => {
         id: 'someId',
       };
 
-      jest.spyOn(quizeeService, 'getQuizee').mockReturnValue(throwError(() => new Error()));
+      jest.spyOn(quizeeService, 'getFullQuizee').mockReturnValue(throwError(() => new Error()));
       const openDialog = jest.spyOn(dialog, 'open');
 
       component.ngOnInit();
 
-      expect(quizeeService.getQuizee).toBeCalledTimes(1);
+      expect(quizeeService.getFullQuizee).toBeCalledTimes(1);
       expect(openDialog).toBeCalledTimes(1);
     });
 
@@ -193,13 +193,13 @@ describe('EditorComponent', () => {
         id: 'someId',
       };
 
-      jest.spyOn(quizeeService, 'getQuizee').mockReturnValue(throwError(() => new Error()));
+      jest.spyOn(quizeeService, 'getFullQuizee').mockReturnValue(throwError(() => new Error()));
       const openDialog = jest.spyOn(dialog, 'open').mockReturnValue({ afterClosed: () => of(true) } as any);
       const routerNavigate = jest.spyOn(router, 'navigate');
 
       component.ngOnInit();
 
-      expect(quizeeService.getQuizee).toBeCalledTimes(1);
+      expect(quizeeService.getFullQuizee).toBeCalledTimes(1);
       expect(openDialog).toBeCalledTimes(1);
       expect(routerNavigate).toBeCalledTimes(1);
       expect(routerNavigate).toBeCalledWith(['../'], { relativeTo: (component as any).route });
@@ -210,13 +210,13 @@ describe('EditorComponent', () => {
         id: 'someId',
       };
 
-      jest.spyOn(quizeeService, 'getQuizee').mockReturnValue(throwError(() => new Error()));
+      jest.spyOn(quizeeService, 'getFullQuizee').mockReturnValue(throwError(() => new Error()));
       const openDialog = jest.spyOn(dialog, 'open').mockReturnValue({ afterClosed: () => of(false) } as any);
       const routerNavigate = jest.spyOn(router, 'navigate');
 
       component.ngOnInit();
 
-      expect(quizeeService.getQuizee).toBeCalledTimes(1);
+      expect(quizeeService.getFullQuizee).toBeCalledTimes(1);
       expect(openDialog).toBeCalledTimes(1);
       expect(routerNavigate).toBeCalledTimes(1);
       expect(routerNavigate).toBeCalledWith(['']);
