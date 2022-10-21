@@ -10,6 +10,10 @@ describe('WriteAnswerComponent', () => {
   });
 
   describe('onInit', () => {
+    beforeEach(() => {
+      component.answerInputRef = { nativeElement: { focus } };
+    });
+
     it('should subscribe to control value changes', async () => {
       const sub = jest.spyOn(component.control.valueChanges, 'subscribe');
 
