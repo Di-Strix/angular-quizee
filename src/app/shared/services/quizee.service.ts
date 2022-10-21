@@ -1,9 +1,13 @@
 import { Injectable } from '@angular/core';
 import { AngularFireFunctions } from '@angular/fire/compat/functions';
-import { Firestore, doc, docData } from '@angular/fire/firestore';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { CheckAnswers, GetQuizeeList, PublishQuizee } from '@di-strix/quizee-cloud-functions-interfaces';
-import { Question, Quiz, QuizId, QuizInfo } from '@di-strix/quizee-types';
+import {
+  CheckAnswers,
+  GetFullQuizee,
+  GetPublicQuizee,
+  GetQuizeeList,
+  PublishQuizee,
+} from '@di-strix/quizee-cloud-functions-interfaces';
 
 import { Observable, filter, first, from, map, merge, of, switchMap, tap, throwError, zipWith } from 'rxjs';
 
@@ -18,40 +22,17 @@ type PromiseToObservable<T> = T extends Promise<infer R> ? Observable<R> : never
 })
 export class QuizeeService {
   constructor(
-    private firestore: Firestore,
     private cloudFunctions: AngularFireFunctions,
     private authService: AuthService,
     private authDialog: MatDialog
   ) {}
 
-  getQuizee(id: QuizId, once: boolean = false): Observable<Quiz> {
-    return this.withAuthGuard(() =>
-      docData<Quiz>(doc(this.firestore, `quizees/${id}`) as any).pipe(
-        once ? first() : tap(),
-        tap((data) => {
-          if (!data) throw new Error('Quizee with given id does not exist');
-        })
-      )
-    );
+  getQuizee(...args: GetFullQuizee.Args): PromiseToObservable<GetFullQuizee.ReturnType> {
+    return this.withAuthGuard(() => this.cloudFunctions.httpsCallable('getFullQuizee')(...args));
   }
 
-  getQuizeePublicData(id: QuizId): Observable<Quiz> {
-    const anchor = doc(this.firestore, `quizees/${id}`);
-
-    return docData<QuizInfo>(doc(anchor, 'info') as any).pipe(
-      zipWith(docData<Question[]>(doc(anchor, 'questions') as any)),
-      first(),
-      tap(([info, questions]: [QuizInfo, Question[]]) => {
-        if (!info || !questions) throw new Error('Quizee with given id does not exist');
-      }),
-      map(
-        ([info, questions]: [QuizInfo, Question[]]): Quiz => ({
-          answers: [],
-          info,
-          questions,
-        })
-      )
-    );
+  getQuizeePublicData(...args: GetPublicQuizee.Args): PromiseToObservable<GetPublicQuizee.ReturnType> {
+    return this.cloudFunctions.httpsCallable('getPublicQuizee')(...args);
   }
 
   getQuizeeList(): PromiseToObservable<GetQuizeeList.ReturnType> {
