@@ -1,0 +1,56 @@
+@use '@angular/material' as mat;
+
+$mat-typography: mat.define-typography-config();
+
+:host,
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+}
+
+.caption-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  flex-grow: 1;
+  flex-shrink: 1;
+  text-align: center;
+
+  margin: 1rem;
+
+  overflow: auto;
+
+  .caption {
+    @include mat.typography-level($mat-typography, 'display-2');
+
+    margin: 0;
+    max-width: 100%;
+    max-height: 100%;
+
+    &.compact {
+      @include mat.typography-level($mat-typography, 'title');
+    }
+  }
+}
+
+.answer-container {
+  display: flex;
+  flex-grow: 1;
+  flex-shrink: 1;
+  margin: 1rem;
+
+  justify-items: center;
+  justify-content: center;
+
+  mat-form-field {
+    width: 100%;
+    max-width: 50rem;
+
+    input {
+      width: 100%;
+    }
+  }
+}
