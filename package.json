@@ -38,7 +38,7 @@
     "@angular/cli": "^14.1.1",
     "@angular/compiler-cli": "^14.1.1",
     "@di-strix/prettier-config": "^1.0.2",
-    "@di-strix/quizee-cloud-functions-interfaces": "^2.0.1",
+    "@di-strix/quizee-cloud-functions-interfaces": "^2.2.1",
     "@di-strix/quizee-types": "^3.0.3",
     "@types/jest": "^28.1.6",
     "@types/lodash": "^4.14.182",
