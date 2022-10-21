@@ -14,13 +14,13 @@ export type PlayerAnswer = CheckAnswers.Args[0]['answers'][0];
 
 @Injectable()
 export class PlayerService {
-  quizee$ = new ReplaySubject<Quiz>(1);
+  quizee$ = new ReplaySubject<Omit<Quiz, 'answers'>>(1);
   currentQuestion$ = new ReplaySubject<Question>(1);
   state$ = new ReplaySubject<PlayerState>(1);
   result$ = new ReplaySubject<number>(1);
   commitAllowed$ = new ReplaySubject<boolean>(1);
 
-  quizee?: Quiz;
+  quizee?: Omit<Quiz, 'answers'>;
   answers: PlayerAnswer[] = [];
   savedAnswer: PlayerAnswer['answer'] = [];
 
@@ -34,7 +34,7 @@ export class PlayerService {
     return this.currentQuestion$.asObservable();
   }
 
-  getQuizee(): Observable<Quiz> {
+  getQuizee(): Observable<Omit<Quiz, 'answers'>> {
     return this.quizee$.asObservable();
   }
 
@@ -46,10 +46,10 @@ export class PlayerService {
     return this.commitAllowed$.asObservable();
   }
 
-  loadQuizee(id: QuizId): Observable<Quiz> {
+  loadQuizee(id: QuizId): Observable<Omit<Quiz, 'answers'>> {
     this.state$.next('loadingQuizee');
 
-    const stream = id === this.quizee?.info.id ? of(this.quizee) : this.quizeeService.getQuizee(id);
+    const stream = id === this.quizee?.info.id ? of(this.quizee) : this.quizeeService.getPublicQuizee(id);
 
     return stream.pipe(
       tap((quizee) => {
@@ -67,7 +67,7 @@ export class PlayerService {
     );
   }
 
-  reloadQuizee(): Observable<Quiz> {
+  reloadQuizee(): Observable<Omit<Quiz, 'answers'>> {
     if (!this.quizee) return throwError(() => new Error('Quizee was not loaded'));
 
     return this.loadQuizee(this.quizee.info.id);

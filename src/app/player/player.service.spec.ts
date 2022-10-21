@@ -215,7 +215,7 @@ describe('PlayerService', () => {
 
   describe('loadQuizee', () => {
     it('should update state on loading start', async () => {
-      quizeeService.getQuizee.mockReturnValue(of());
+      quizeeService.getPublicQuizee.mockReturnValue(of());
 
       service.getState().subscribe({ next, error });
 
@@ -231,7 +231,7 @@ describe('PlayerService', () => {
     });
 
     it('should request quizee from quizee service', async () => {
-      const getQuizee = quizeeService.getQuizee.mockReturnValue(of());
+      const getQuizee = quizeeService.getPublicQuizee.mockReturnValue(of());
 
       service.loadQuizee('1').subscribe();
 
@@ -248,7 +248,7 @@ describe('PlayerService', () => {
         questions: [{ answerOptions: [], caption: '', id: '', type: 'ONE_TRUE' }],
       } as Quiz;
 
-      quizeeService.getQuizee.mockReturnValue(of(mockQuizee));
+      quizeeService.getPublicQuizee.mockReturnValue(of(mockQuizee));
 
       service.getQuizee().subscribe({ next, error });
 
@@ -264,7 +264,7 @@ describe('PlayerService', () => {
     });
 
     it('should not crash if quizee is falsy', async () => {
-      quizeeService.getQuizee.mockReturnValue(of(null as any));
+      quizeeService.getPublicQuizee.mockReturnValue(of(null as any));
 
       service.loadQuizee('').subscribe({ next, error });
 
@@ -287,7 +287,7 @@ describe('PlayerService', () => {
         questions: [question],
       } as Quiz;
 
-      quizeeService.getQuizee.mockReturnValue(of(mockQuizee));
+      quizeeService.getPublicQuizee.mockReturnValue(of(mockQuizee));
 
       service.getCurrentQuestion().subscribe({ next, error });
 
@@ -303,7 +303,7 @@ describe('PlayerService', () => {
     });
 
     it('should update state on loading finish', async () => {
-      quizeeService.getQuizee.mockReturnValue(
+      quizeeService.getPublicQuizee.mockReturnValue(
         of({
           answers: [],
           info: { caption: '', id: '', img: '', questionsCount: 1 },
@@ -336,7 +336,7 @@ describe('PlayerService', () => {
         questions: [{ answerOptions: [], caption: '', id: '', type: 'ONE_TRUE' }],
       };
 
-      quizeeService.getQuizee.mockReturnValue(of(quizee1));
+      quizeeService.getPublicQuizee.mockReturnValue(of(quizee1));
 
       service.loadQuizee('1').subscribe({ next, error });
       service.quizee$.next(quizee2);
@@ -356,7 +356,7 @@ describe('PlayerService', () => {
         questions: [{ answerOptions: [], caption: '', id: '', type: 'ONE_TRUE' }],
       };
 
-      quizeeService.getQuizee.mockReturnValue(of(quizee));
+      quizeeService.getPublicQuizee.mockReturnValue(of(quizee));
 
       service.loadQuizee('1').subscribe({ next, error });
 
@@ -376,7 +376,7 @@ describe('PlayerService', () => {
         questions: [{ answerOptions: [], caption: '', id: '', type: 'ONE_TRUE' }],
       };
 
-      quizeeService.getQuizee.mockReturnValue(of(quizee));
+      quizeeService.getPublicQuizee.mockReturnValue(of(quizee));
 
       service.loadQuizee('1').subscribe();
       service.getCurrentQuestion().subscribe({ next, error });
@@ -402,7 +402,7 @@ describe('PlayerService', () => {
 
       const subject = new Subject();
 
-      quizeeService.getQuizee.mockReturnValue(subject as any);
+      quizeeService.getPublicQuizee.mockReturnValue(subject as any);
 
       service.loadQuizee('1').subscribe();
       subject.next(quizee);
@@ -441,17 +441,17 @@ describe('PlayerService', () => {
         ],
       };
 
-      quizeeService.getQuizee.mockReturnValue(of(quizee));
+      quizeeService.getPublicQuizee.mockReturnValue(of(quizee));
 
       service.loadQuizee('1').subscribe();
 
       await jest.runAllTimers();
 
-      expect(quizeeService.getQuizee).toBeCalledTimes(1);
+      expect(quizeeService.getPublicQuizee).toBeCalledTimes(1);
 
       service.loadQuizee('1').subscribe();
 
-      expect(quizeeService.getQuizee).toBeCalledTimes(1);
+      expect(quizeeService.getPublicQuizee).toBeCalledTimes(1);
     });
   });
 
@@ -466,7 +466,7 @@ describe('PlayerService', () => {
     });
 
     it('should call loadQuizee with current quizee id', async () => {
-      quizeeService.getQuizee.mockReturnValue(
+      quizeeService.getPublicQuizee.mockReturnValue(
         of({
           answers: [],
           info: { caption: '', id: '1', img: '', questionsCount: 1 },
@@ -539,7 +539,7 @@ describe('PlayerService', () => {
     });
 
     it('should throw if commit is not allowed', async () => {
-      quizeeService.getQuizee.mockReturnValue(
+      quizeeService.getPublicQuizee.mockReturnValue(
         of({
           answers: [],
           info: { caption: '', id: '', img: '', questionsCount: 2 },
@@ -586,7 +586,7 @@ describe('PlayerService', () => {
     });
 
     it('should throw if answer is empty', async () => {
-      quizeeService.getQuizee.mockReturnValue(
+      quizeeService.getPublicQuizee.mockReturnValue(
         of({
           answers: [],
           info: { caption: '', id: '', img: '', questionsCount: 1 },
@@ -608,7 +608,7 @@ describe('PlayerService', () => {
     });
 
     it('should save saved answer if no provided', async () => {
-      quizeeService.getQuizee.mockReturnValue(
+      quizeeService.getPublicQuizee.mockReturnValue(
         of({
           answers: [],
           info: { caption: '', id: '', img: '', questionsCount: 1 },
@@ -627,7 +627,7 @@ describe('PlayerService', () => {
     });
 
     it('should attach question id to answer', async () => {
-      quizeeService.getQuizee.mockReturnValue(
+      quizeeService.getPublicQuizee.mockReturnValue(
         of({
           answers: [],
           info: { caption: '', id: '', img: '', questionsCount: 1 },
@@ -649,7 +649,7 @@ describe('PlayerService', () => {
     it('should switch to the next question after answer commit', async () => {
       const secondQuestion = { answerOptions: [], caption: '', id: 'id2', type: 'ONE_TRUE' };
 
-      quizeeService.getQuizee.mockReturnValue(
+      quizeeService.getPublicQuizee.mockReturnValue(
         of({
           answers: [],
           info: { caption: '', id: '', img: '', questionsCount: 2 },
@@ -672,7 +672,7 @@ describe('PlayerService', () => {
     it('should start answer checking if last question was answered', async () => {
       const checkAnswers = quizeeService.checkAnswers.mockReturnValue(of());
 
-      quizeeService.getQuizee.mockReturnValue(
+      quizeeService.getPublicQuizee.mockReturnValue(
         of({
           answers: [],
           info: { caption: '', id: 'someQuizId', img: '', questionsCount: 1 },
@@ -696,7 +696,7 @@ describe('PlayerService', () => {
     it('should update state when got results', async () => {
       quizeeService.checkAnswers.mockReturnValue(of(100));
 
-      quizeeService.getQuizee.mockReturnValue(
+      quizeeService.getPublicQuizee.mockReturnValue(
         of({
           answers: [],
           info: { caption: '', id: 'someQuizId', img: '', questionsCount: 1 },
@@ -719,7 +719,7 @@ describe('PlayerService', () => {
     it('should push result when got', async () => {
       quizeeService.checkAnswers.mockReturnValue(of(100));
 
-      quizeeService.getQuizee.mockReturnValue(
+      quizeeService.getPublicQuizee.mockReturnValue(
         of({
           answers: [],
           info: { caption: '', id: 'someQuizId', img: '', questionsCount: 1 },
@@ -748,7 +748,7 @@ describe('PlayerService', () => {
         questions: [{ answerOptions: [], caption: '', id: 'id1', type: 'ONE_TRUE' }],
       } as Quiz;
 
-      quizeeService.getQuizee.mockReturnValue(of(quiz));
+      quizeeService.getPublicQuizee.mockReturnValue(of(quiz));
 
       const subject = new Subject<Quiz>();
       jest.spyOn(service, 'getQuizee').mockReturnValue(subject);
