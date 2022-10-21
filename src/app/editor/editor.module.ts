@@ -1,6 +1,5 @@
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
-import { getFirestore, provideFirestore } from '@angular/fire/firestore';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -57,7 +56,6 @@ import { SettingsComponent } from './settings/settings.component';
     CommonModule,
     SharedModule,
     EditorRoutingModule,
-    provideFirestore(/* istanbul ignore next */ () => getFirestore()),
     FlexLayoutModule,
     MatToolbarModule,
     MatButtonModule,

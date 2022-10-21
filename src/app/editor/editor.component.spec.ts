@@ -70,7 +70,7 @@ describe('EditorComponent', () => {
       component.ngOnInit();
 
       expect(quizeeService.getQuizee).toBeCalledTimes(1);
-      expect(quizeeService.getQuizee).toBeCalledWith(idVal, true);
+      expect(quizeeService.getQuizee).toBeCalledWith(idVal);
     });
 
     it('should push fetched quizee to quizeeEditingService', () => {
