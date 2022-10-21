@@ -78,7 +78,7 @@ export class EditorComponent implements OnInit, OnDestroy {
         const id = params.get('id');
 
         if (id?.trim()) {
-          this.quizeeService.getQuizee(id, true).subscribe({
+          this.quizeeService.getQuizee(id).subscribe({
             next: (value) => {
               this.quizeeEditingService.load(value);
             },
