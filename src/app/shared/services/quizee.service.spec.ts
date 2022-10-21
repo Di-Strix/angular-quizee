@@ -52,7 +52,7 @@ describe('QuizeeService', () => {
     });
 
     it('should be called with auth guard', async () => {
-      service.getQuizee('1').subscribe();
+      service.getFullQuizee('1').subscribe();
 
       await jest.runAllTimers();
 
@@ -60,7 +60,7 @@ describe('QuizeeService', () => {
     });
 
     it('should call cloud function with provided id', async () => {
-      service.getQuizee('mockId').subscribe();
+      service.getFullQuizee('mockId').subscribe();
 
       await jest.runAllTimers();
 
@@ -76,7 +76,7 @@ describe('QuizeeService', () => {
 
       fn.mockReturnValue(of(mockData));
 
-      service.getQuizee('mockId').subscribe({ next, error });
+      service.getFullQuizee('mockId').subscribe({ next, error });
 
       await jest.runAllTimers();
 
@@ -105,7 +105,7 @@ describe('QuizeeService', () => {
 
       fn.mockReturnValue(of(mockData));
 
-      service.getQuizeePublicData('mock').subscribe({
+      service.getPublicQuizee('mock').subscribe({
         next,
         error,
       });
@@ -118,7 +118,7 @@ describe('QuizeeService', () => {
     });
 
     it('should call cloud function with provided id', async () => {
-      service.getQuizeePublicData('mock').subscribe();
+      service.getPublicQuizee('mock').subscribe();
 
       await jest.runAllTimers();
 
