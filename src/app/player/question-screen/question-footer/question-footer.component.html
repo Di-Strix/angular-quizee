@@ -1,0 +1,12 @@
+<mat-toolbar color="primary">
+  <span class="spacer"></span>
+  <button
+    mat-stroked-button
+    class="continue-button"
+    [disabled]="!(playerService.commitAllowed() | async)"
+    (click)="playerService.commitAnswer()"
+  >
+    Next
+    <mat-icon>chevron_right</mat-icon>
+  </button>
+</mat-toolbar>
