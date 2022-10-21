@@ -769,5 +769,43 @@ describe('PlayerService', () => {
 
       expect(quizeeService.checkAnswers).toBeCalledTimes(1);
     });
+
+    it('should update commitAllowed on question switch', async () => {
+      const quiz = {
+        answers: [],
+        info: { caption: '', id: 'someQuizId', img: '', questionsCount: 1 },
+        questions: [
+          { answerOptions: [], caption: '', id: 'id1', type: 'ONE_TRUE' },
+          { answerOptions: [], caption: '', id: 'id1', type: 'ONE_TRUE' },
+        ],
+      } as Quiz;
+      quizeeService.getPublicQuizee.mockReturnValue(of(quiz));
+
+      service.loadQuizee('').subscribe();
+
+      service.commitAllowed$.subscribe({ next, error });
+
+      next.mockReset();
+      error.mockReset();
+
+      service.saveAnswer(['1']).subscribe();
+      service.commitAnswer().subscribe();
+
+      await jest.runAllTimers();
+
+      expect(next).toBeCalledTimes(2);
+      expect(error).not.toBeCalled();
+
+      next.mockReset();
+      error.mockReset();
+
+      service.saveAnswer(['2']).subscribe();
+      service.commitAnswer().subscribe();
+
+      await jest.runAllTimers();
+
+      expect(next).toBeCalledTimes(2);
+      expect(error).not.toBeCalled();
+    });
   });
 });

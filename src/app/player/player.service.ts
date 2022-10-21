@@ -93,6 +93,7 @@ export class PlayerService {
 
     const answer = this.getSavedAnswer();
     this.savedAnswer = [];
+    this._pushCommitAllowed();
 
     this.answers.push({ answerTo: question.id, answer });
 
