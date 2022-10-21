@@ -44,7 +44,7 @@ export class QuestionScreenComponent implements OnInit, OnDestroy {
 
           const component = this.container.containerRef.createComponent(componentTypes[question.type]);
           component.instance.question = question;
-          component.instance.answer.pipe(first()).subscribe((answer) => {
+          component.instance.answer.subscribe((answer) => {
             this.playerService.saveAnswer(answer);
           });
           component.instance.commit.pipe(first()).subscribe(() => {

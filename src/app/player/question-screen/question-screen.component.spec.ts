@@ -320,12 +320,16 @@ describe('QuestionScreenComponent', () => {
         await jest.runAllTimers();
 
         oneTrueComponent.answer.emit(['1']);
+        oneTrueComponent.answer.emit(['2']);
+        oneTrueComponent.answer.emit(['3']);
 
         await jest.runAllTimers();
 
         expect(playerService.commitAnswer).not.toBeCalled();
-        expect(playerService.saveAnswer).toBeCalledTimes(1);
-        expect(playerService.saveAnswer).toBeCalledWith(['1']);
+        expect(playerService.saveAnswer).toBeCalledTimes(3);
+        expect(playerService.saveAnswer).toHaveBeenNthCalledWith(1, ['1']);
+        expect(playerService.saveAnswer).toHaveBeenNthCalledWith(2, ['2']);
+        expect(playerService.saveAnswer).toHaveBeenNthCalledWith(3, ['3']);
       });
 
       it('should commit answer', async () => {
@@ -348,6 +352,8 @@ describe('QuestionScreenComponent', () => {
         await jest.runAllTimers();
 
         oneTrueComponent.answer.emit(['1']);
+        oneTrueComponent.commit.emit();
+        oneTrueComponent.commit.emit();
         oneTrueComponent.commit.emit();
 
         await jest.runAllTimers();
