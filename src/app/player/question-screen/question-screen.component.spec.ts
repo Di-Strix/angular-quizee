@@ -76,7 +76,7 @@ describe('QuestionScreenComponent', () => {
     viewContainerRef = new ViewContainerRefMock();
     container = new ContainerRefDirective(viewContainerRef as any);
 
-    component = new QuestionScreenComponent(playerService, animationBuilder);
+    component = new QuestionScreenComponent(playerService, animationBuilder, true);
     component.container = container;
 
     jest.useFakeTimers();
@@ -516,6 +516,25 @@ describe('QuestionScreenComponent', () => {
         expect(animationInFactory.create).toBeCalledTimes(1);
         expect(animationInFactory.create).toBeCalledWith(container.children[2]);
         expect(animationOutPlayer.play).toBeCalledTimes(1);
+      });
+
+      it('should not animate if QUESTION_CHANGE_ANIMATION is false', async () => {
+        component.animate = false;
+
+        viewContainerRef.get.mockReturnValue(container.firstChild);
+
+        questionSubject.next(question);
+
+        await jest.runAllTimers();
+
+        expect(animationInFactory.create).not.toBeCalled();
+        expect(animationOutFactory.create).not.toBeCalled();
+
+        expect(viewContainerRef.createComponent).toBeCalledTimes(1);
+        expect(viewContainerRef.createComponent).toBeCalledTimes(1);
+
+        expect(viewContainerRef.remove).toBeCalledTimes(1);
+        expect(viewContainerRef.remove).toBeCalledWith(0);
       });
     });
   });

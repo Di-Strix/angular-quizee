@@ -1,10 +1,11 @@
 import { AnimationBuilder } from '@angular/animations';
-import { Component, OnDestroy, OnInit, Type, ViewChild } from '@angular/core';
+import { Component, Inject, OnDestroy, OnInit, Type, ViewChild } from '@angular/core';
 import { QuestionType } from '@di-strix/quizee-types';
 
 import { Subscription, delay } from 'rxjs';
 import { ContainerRefDirective } from 'src/app/shared/directives/container-ref.directive';
 
+import { QUESTION_CHANGE_ANIMATION } from '../InjectionTokens';
 import { ViewAnimationDuration, ViewEnterAnimation, ViewLeaveAnimation } from '../animations';
 import { PlayerService } from '../player.service';
 
@@ -23,7 +24,13 @@ export class QuestionScreenComponent implements OnInit, OnDestroy {
 
   subs = new Subscription();
 
-  constructor(public playerService: PlayerService, public animationBuilder: AnimationBuilder) {}
+  constructor(
+    public playerService: PlayerService,
+    public animationBuilder: AnimationBuilder,
+
+    @Inject(QUESTION_CHANGE_ANIMATION)
+    public animate: boolean
+  ) {}
 
   ngOnInit(): void {
     this.subs.add(
@@ -53,17 +60,21 @@ export class QuestionScreenComponent implements OnInit, OnDestroy {
           });
 
           if (prevComponentRef) {
-            const prevNativeComponent: HTMLElement =
-              this.container.containerRef.element.nativeElement.parentNode.children[1];
+            if (this.animate) {
+              const prevNativeComponent: HTMLElement =
+                this.container.containerRef.element.nativeElement.parentNode.children[1];
 
-            const prevPlayer = outAnimation.create(prevNativeComponent);
-            prevPlayer.onDone(() => {
+              const prevPlayer = outAnimation.create(prevNativeComponent);
+              prevPlayer.onDone(() => {
+                this.container.containerRef.remove(0);
+              });
+              prevPlayer.play();
+
+              const currentPlayer = inAnimation.create(component.location.nativeElement);
+              currentPlayer.play();
+            } else {
               this.container.containerRef.remove(0);
-            });
-            prevPlayer.play();
-
-            const currentPlayer = inAnimation.create(component.location.nativeElement);
-            currentPlayer.play();
+            }
           }
         })
     );

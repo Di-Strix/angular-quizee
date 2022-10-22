@@ -11,6 +11,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 
 import { SharedModule } from '../shared/shared.module';
 
+import { QUESTION_CHANGE_ANIMATION } from './InjectionTokens';
 import { PlayerRoutingModule } from './player-routing.module';
 import { PlayerComponent } from './player.component';
 import { PlayerService } from './player.service';
@@ -50,6 +51,7 @@ import { ResultsScreenComponent } from './results-screen/results-screen.componen
     MatToolbarModule,
     FlexModule,
   ],
-  providers: [PlayerService],
+  providers: [PlayerService, { provide: QUESTION_CHANGE_ANIMATION, useValue: true }],
+  exports: [QuestionScreenComponent],
 })
 export class PlayerModule {}
