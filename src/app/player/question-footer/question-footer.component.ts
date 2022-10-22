@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 
-import { PlayerService } from '../../player.service';
+import { PlayerService } from '../player.service';
 
 @Component({
   selector: 'app-question-footer',

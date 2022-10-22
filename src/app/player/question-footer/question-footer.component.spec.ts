@@ -1,8 +1,8 @@
-import { PlayerService } from '../../player.service';
+import { PlayerService } from '../player.service';
 
 import { QuestionFooterComponent } from './question-footer.component';
 
-jest.mock('../../player.service');
+jest.mock('../player.service');
 
 describe('FooterComponent', () => {
   let playerService: jest.Mock<PlayerService>['prototype'];
