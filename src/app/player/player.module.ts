@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
+import { FlexModule } from '@angular/flex-layout';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -47,6 +48,7 @@ import { ResultsScreenComponent } from './results-screen/results-screen.componen
     MatInputModule,
     ReactiveFormsModule,
     MatToolbarModule,
+    FlexModule,
   ],
   providers: [PlayerService],
 })
