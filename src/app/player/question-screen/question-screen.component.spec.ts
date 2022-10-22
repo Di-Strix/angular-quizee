@@ -2,7 +2,7 @@ import { AnimationBuilder, AnimationFactory, AnimationPlayer } from '@angular/an
 import { ElementRef, ViewContainerRef } from '@angular/core';
 import { Question } from '@di-strix/quizee-types';
 
-import { Subject, of } from 'rxjs';
+import { Subject, of, throwError } from 'rxjs';
 import { ContainerRefDirective } from 'src/app/shared/directives/container-ref.directive';
 
 import { ViewEnterAnimation, ViewLeaveAnimation } from '../animations';
@@ -162,6 +162,35 @@ describe('QuestionScreenComponent', () => {
 
             expect(oneTrueComponent.answer.observed).toBeTruthy();
             expect(oneTrueComponent.commit.observed).toBeTruthy();
+          });
+
+          it('should catch errors from commitAnswer', async () => {
+            const question: Question = {
+              answerOptions: [],
+              caption: '',
+              id: '',
+              type: 'ONE_TRUE',
+            };
+
+            const oneTrueComponent = new OneTrueComponent();
+
+            playerService.getCurrentQuestion.mockReturnValue(of(question));
+            playerService.commitAnswer.mockReturnValue(throwError(() => new Error('Mock error')));
+            viewContainerRef.createComponent.mockReturnValue({ instance: oneTrueComponent });
+
+            component.ngOnInit();
+
+            await jest.runAllTimers();
+
+            await expect(
+              (async () => {
+                oneTrueComponent.commit.next();
+
+                await jest.runAllTimers();
+              })()
+            ).resolves.not.toThrow();
+
+            expect(playerService.commitAnswer).toBeCalledTimes(1);
           });
         });
       });
