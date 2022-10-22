@@ -1,4 +1,4 @@
-import { animate, query, stagger, style, transition, trigger } from '@angular/animations';
+import { transition, trigger } from '@angular/animations';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
