@@ -1,4 +1,8 @@
-<ng-container [ngSwitch]="playerService.getState() | async">
+<div
+  class="content-container full-size"
+  style="align-self: center"
+  [ngSwitch]="playerService.getState() | async"
+>
   <div
     class="full-size"
     @viewAnimation
@@ -34,5 +38,5 @@
   >
     <app-quizee-loader></app-quizee-loader>
   </div>
-</ng-container>
+</div>
 <app-question-footer></app-question-footer>

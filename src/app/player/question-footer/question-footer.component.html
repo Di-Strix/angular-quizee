@@ -1,12 +1,22 @@
-<mat-toolbar color="primary">
-  <span class="spacer"></span>
-  <button
-    mat-stroked-button
-    class="continue-button"
-    [disabled]="!(playerService.commitAllowed() | async)"
-    (click)="playerService.commitAnswer()"
+<mat-toolbar
+  color="primary"
+  fxLayout="row"
+  fxLayoutAlign="center center"
+>
+  <div
+    fxFlex="1 0 auto"
+    fxLayout
+    class="content-container"
   >
-    Next
-    <mat-icon>chevron_right</mat-icon>
-  </button>
+    <span class="spacer"></span>
+    <button
+      mat-stroked-button
+      class="continue-button"
+      [disabled]="!(playerService.commitAllowed() | async)"
+      (click)="playerService.commitAnswer()"
+    >
+      Next
+      <mat-icon>chevron_right</mat-icon>
+    </button>
+  </div>
 </mat-toolbar>

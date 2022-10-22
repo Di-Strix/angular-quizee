@@ -1,8 +1,12 @@
+:host {
+  overflow: hidden;
+}
+
 :host,
 .full-size {
   display: flex;
+  flex-direction: column;
   position: relative;
   height: 100%;
   width: 100%;
-  overflow: hidden;
 }
