@@ -1,0 +1,42 @@
+<div
+  class="content-container full-size"
+  style="align-self: center"
+  [ngSwitch]="playerService.getState() | async"
+>
+  <div
+    class="full-size"
+    @viewAnimation
+    *ngSwitchCase="'gotResults'"
+  >
+    <app-results-screen
+      [score]="(playerService.getResult() | async) || 0"
+      (retry)="reloadQuizee()"
+    >
+    </app-results-screen>
+  </div>
+
+  <div
+    class="full-size"
+    @viewAnimation
+    *ngSwitchCase="'checkingResults'"
+  >
+    <app-results-loader></app-results-loader>
+  </div>
+
+  <div
+    class="full-size"
+    @viewAnimation
+    *ngSwitchCase="'running'"
+  >
+    <app-question-screen></app-question-screen>
+  </div>
+
+  <div
+    class="full-size"
+    @viewAnimation
+    *ngSwitchDefault
+  >
+    <app-quizee-loader></app-quizee-loader>
+  </div>
+</div>
+<app-question-footer></app-question-footer>

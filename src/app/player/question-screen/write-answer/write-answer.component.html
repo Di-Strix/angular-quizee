@@ -1,0 +1,30 @@
+<div
+  class="container"
+  *ngIf="question"
+>
+  <div class="caption-container">
+    <h1
+      class="caption"
+      [class.compact]="question.caption.length > 150"
+    >
+      {{ question.caption }}
+    </h1>
+  </div>
+  <div class="answer-container">
+    <mat-form-field>
+      <mat-label>Write your answer here</mat-label>
+      <input
+        #answerInput
+        matInput
+        type="text"
+        [formControl]="control"
+        spellcheck="false"
+        autocomplete="off"
+        autocapitalize="false"
+        (keydown.enter)="commit.emit()"
+        required
+      />
+      <mat-error *ngIf="control.hasError('required')"> Answer is <strong>required</strong> </mat-error>
+    </mat-form-field>
+  </div>
+</div>

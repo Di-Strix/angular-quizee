@@ -1,0 +1,27 @@
+<div
+  class="container"
+  *ngIf="question"
+>
+  <div class="caption-container">
+    <h1
+      class="caption"
+      [class.compact]="question.caption.length > 150"
+    >
+      {{ question.caption }}
+    </h1>
+  </div>
+  <div class="answer-options-container">
+    <div class="answer-options">
+      <button
+        *ngFor="let answerOption of question.answerOptions"
+        mat-stroked-button
+        (click)="toggleAnswer(answerOption.id)"
+        [class.selected]="control.value.includes(answerOption.id)"
+        class="answer-option"
+        [value]="answerOption.id"
+      >
+        {{ answerOption.value }}
+      </button>
+    </div>
+  </div>
+</div>

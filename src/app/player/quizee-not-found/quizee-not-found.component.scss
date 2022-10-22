@@ -1,0 +1,17 @@
+@use '@angular/material' as mat;
+
+$mat-typography: mat.define-typography-config();
+
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+}
+
+.status-code {
+  @include mat.typography-level($mat-typography, 'display-4');
+  font-weight: bold;
+  letter-spacing: 0;
+}

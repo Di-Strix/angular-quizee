@@ -1,0 +1,27 @@
+<div
+  class="container"
+  *ngIf="question"
+>
+  <div class="caption-container">
+    <h1
+      class="caption"
+      [class.compact]="question.caption.length > 150"
+    >
+      {{ question.caption }}
+    </h1>
+  </div>
+  <div class="answer-options-container">
+    <div class="answer-options">
+      <button
+        mat-flat-button
+        color="primary"
+        class="answer-option"
+        [class.compact]="answerOption.value.length > 150"
+        *ngFor="let answerOption of question.answerOptions"
+        (click)="this.performCommit([answerOption.id])"
+      >
+        {{ answerOption.value }}
+      </button>
+    </div>
+  </div>
+</div>
