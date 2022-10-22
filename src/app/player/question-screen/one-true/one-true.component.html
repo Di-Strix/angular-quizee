@@ -3,7 +3,12 @@
   *ngIf="question"
 >
   <div class="caption-container">
-    <h1 class="caption">{{ question.caption }}</h1>
+    <h1
+      class="caption"
+      [class.compact]="question.caption.length > 150"
+    >
+      {{ question.caption }}
+    </h1>
   </div>
   <div class="answer-options-container">
     <div class="answer-options">
