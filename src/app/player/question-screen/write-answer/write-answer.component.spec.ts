@@ -11,6 +11,7 @@ describe('WriteAnswerComponent', () => {
 
   describe('onInit', () => {
     beforeEach(() => {
+      const focus = jest.fn();
       component.answerInputRef = { nativeElement: { focus } };
     });
 
