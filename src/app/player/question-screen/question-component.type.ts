@@ -1,8 +1,9 @@
 import { EventEmitter } from '@angular/core';
 import { AnswerOptionId, Question } from '@di-strix/quizee-types';
 
-export abstract class QuestionComponent {
-  question!: Question;
-  answer!: EventEmitter<AnswerOptionId[]>;
-  commit!: EventEmitter<void>;
+export declare abstract class QuestionComponent {
+  question: Question;
+  autofocusTimeout: number;
+  answer: EventEmitter<AnswerOptionId[]>;
+  commit: EventEmitter<void>;
 }
