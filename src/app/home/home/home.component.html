@@ -2,18 +2,24 @@
   color="primary"
   class="header mat-elevation-z6"
 >
-  <span style="flex: 1 1 auto"></span>
   <div
-    fxLayout
-    fxLayoutAlign="center center"
+    class="content-container"
+    flexLayout
+    fxFlex="100%"
   >
-    <span>Quizee</span>
+    <span fxFlex="1 1 auto"></span>
+    <div
+      fxLayout
+      fxLayoutAlign="center center"
+    >
+      <span>Quizee</span>
+    </div>
+    <span fxFlex="1 1 auto"></span>
   </div>
-  <span style="flex: 1 1 auto"></span>
 </mat-toolbar>
 <div
   *ngIf="quizees.length; else falloff"
-  class="cards-container"
+  class="content-container cards-container"
   @card-reveal
 >
   <mat-card *ngFor="let quizee of quizees">
