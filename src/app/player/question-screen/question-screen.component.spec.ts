@@ -60,7 +60,6 @@ class ViewContainerRefMock implements Omit<ViewContainerRef, 'injector' | 'paren
 }
 
 jest.mock('../player.service');
-jest.mock('../player.service');
 
 describe('QuestionScreenComponent', () => {
   let playerService: jest.MockedClass<typeof PlayerService>['prototype'];
