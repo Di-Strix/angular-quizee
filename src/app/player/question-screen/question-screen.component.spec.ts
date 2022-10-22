@@ -387,7 +387,7 @@ describe('QuestionScreenComponent', () => {
 
         await jest.runAllTimers();
 
-        expect(playerService.commitAnswer).toBeCalledTimes(1);
+        expect(playerService.commitAnswer).toBeCalledTimes(3);
       });
     });
 
