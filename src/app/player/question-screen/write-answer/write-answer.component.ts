@@ -11,6 +11,7 @@ import { QuestionComponent } from '../question-component.type';
 })
 export class WriteAnswerComponent implements QuestionComponent, OnInit {
   @Input() question!: Question;
+  @Input() autofocusTimeout: number = 0;
   @Output() answer = new EventEmitter<AnswerOptionId[]>();
   @Output() commit = new EventEmitter<void>();
 
@@ -28,6 +29,6 @@ export class WriteAnswerComponent implements QuestionComponent, OnInit {
     setTimeout(() => {
       const el = this.answerInputRef.nativeElement as HTMLElement;
       el.focus();
-    }, 0);
+    }, this.autofocusTimeout);
   }
 }

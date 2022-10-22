@@ -13,6 +13,7 @@ import { QuestionComponent } from '../question-component.type';
 })
 export class SeveralTrueComponent implements QuestionComponent, OnInit {
   @Input() question!: Question;
+  @Input() autofocusTimeout: number = 0;
   @Output() answer = new EventEmitter<AnswerOptionId[]>();
   @Output() commit = new EventEmitter<void>();
 

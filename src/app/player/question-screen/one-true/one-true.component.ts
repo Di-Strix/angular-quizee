@@ -10,6 +10,7 @@ import { QuestionComponent } from '../question-component.type';
 })
 export class OneTrueComponent implements QuestionComponent {
   @Input() question!: Question;
+  @Input() autofocusTimeout: number = 0;
   @Output() answer = new EventEmitter<AnswerOptionId[]>();
   @Output() commit = new EventEmitter<void>();
 

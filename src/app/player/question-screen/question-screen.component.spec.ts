@@ -5,7 +5,7 @@ import { Question } from '@di-strix/quizee-types';
 import { Subject, of, throwError } from 'rxjs';
 import { ContainerRefDirective } from 'src/app/shared/directives/container-ref.directive';
 
-import { ViewEnterAnimation, ViewLeaveAnimation } from '../animations';
+import { ViewAnimationDuration, ViewEnterAnimation, ViewLeaveAnimation } from '../animations';
 import { PlayerService } from '../player.service';
 
 import { OneTrueComponent } from './one-true/one-true.component';
@@ -140,6 +140,28 @@ describe('QuestionScreenComponent', () => {
             await jest.runAllTimers();
 
             expect(oneTrueComponent.question).toEqual(question);
+          });
+
+          it('should set autofocusTimeout', async () => {
+            const question: Question = {
+              answerOptions: [],
+              caption: '',
+              id: '',
+              type: 'ONE_TRUE',
+            };
+
+            const oneTrueComponent = new OneTrueComponent();
+
+            playerService.getCurrentQuestion.mockReturnValue(of(question));
+            viewContainerRef.createComponent.mockReturnValue({ instance: oneTrueComponent });
+
+            oneTrueComponent.autofocusTimeout = -1;
+
+            component.ngOnInit();
+
+            await jest.runAllTimers();
+
+            expect(oneTrueComponent.autofocusTimeout).toEqual(ViewAnimationDuration);
           });
 
           it('should subscribe to answer and commit events', async () => {

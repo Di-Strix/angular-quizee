@@ -2,10 +2,10 @@ import { AnimationBuilder } from '@angular/animations';
 import { Component, OnDestroy, OnInit, Type, ViewChild } from '@angular/core';
 import { QuestionType } from '@di-strix/quizee-types';
 
-import { Subscription, delay, first } from 'rxjs';
+import { Subscription, delay } from 'rxjs';
 import { ContainerRefDirective } from 'src/app/shared/directives/container-ref.directive';
 
-import { ViewEnterAnimation, ViewLeaveAnimation } from '../animations';
+import { ViewAnimationDuration, ViewEnterAnimation, ViewLeaveAnimation } from '../animations';
 import { PlayerService } from '../player.service';
 
 import { OneTrueComponent } from './one-true/one-true.component';
@@ -44,6 +44,7 @@ export class QuestionScreenComponent implements OnInit, OnDestroy {
 
           const component = this.container.containerRef.createComponent(componentTypes[question.type]);
           component.instance.question = question;
+          component.instance.autofocusTimeout = ViewAnimationDuration;
           component.instance.answer.subscribe((answer) => {
             this.playerService.saveAnswer(answer);
           });
