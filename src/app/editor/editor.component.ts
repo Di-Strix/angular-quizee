@@ -6,10 +6,11 @@ import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { QuizInfo } from '@di-strix/quizee-types';
 
-import { Subscription, filter, of, retry, switchMap, tap } from 'rxjs';
+import { Subscription, filter, first, of, retry, switchMap, tap } from 'rxjs';
 
 import { QuizeeService } from '../shared/services/quizee.service';
 
+import { FakePlayerService } from './fake-player.service';
 import { OverviewComponent } from './overview/overview.component';
 import { PublishDialogComponent } from './publish-dialog/publish-dialog.component';
 import { QuizeeEditingService } from './quizee-editing.service';
@@ -44,7 +45,8 @@ export class EditorComponent implements OnInit, OnDestroy {
     public quizeeEditingService: QuizeeEditingService,
     public router: Router,
     public location: Location,
-    public dialog: MatDialog
+    public dialog: MatDialog,
+    public fakePlayerService: FakePlayerService
   ) {}
 
   ngOnInit(): void {
@@ -94,6 +96,12 @@ export class EditorComponent implements OnInit, OnDestroy {
         } else {
           this.quizeeEditingService.create();
         }
+      })
+    );
+
+    this.subs.add(
+      this.quizeeEditingService.getCurrentQuestion().subscribe((questionPair) => {
+        this.fakePlayerService.loadQuestion(questionPair.question).pipe(first()).subscribe();
       })
     );
   }

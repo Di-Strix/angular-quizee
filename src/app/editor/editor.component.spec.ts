@@ -7,6 +7,7 @@ import { Subject, of, throwError } from 'rxjs';
 import { QuizeeService } from '../shared/services/quizee.service';
 
 import { EditorComponent } from './editor.component';
+import { FakePlayerService } from './fake-player.service';
 import { QuizeeEditingService } from './quizee-editing.service';
 
 class ActivatedRouteMock {
@@ -20,6 +21,7 @@ jest.mock('./quizee-editing.service');
 jest.mock('@angular/router');
 jest.mock('@angular/common');
 jest.mock('@angular/material/dialog');
+jest.mock('./fake-player.service');
 
 describe('EditorComponent', () => {
   let component: EditorComponent;
@@ -29,6 +31,7 @@ describe('EditorComponent', () => {
   let location: Location;
   let router: Router;
   let dialog: jest.MockedClass<typeof MatDialog>['prototype'];
+  let fakePlayerService: jest.MockedClass<typeof FakePlayerService>['prototype'];
 
   beforeEach(() => {
     quizeeService = new (QuizeeService as any)();
@@ -37,9 +40,12 @@ describe('EditorComponent', () => {
     dialog = new (MatDialog as any)();
     router = new (Router as any)();
     quizeeEditingService = new QuizeeEditingService() as any;
+    fakePlayerService = new FakePlayerService() as any;
 
     quizeeEditingService.get.mockReturnValue(of());
     quizeeEditingService.getQuizeeErrors.mockReturnValue(of([]));
+    quizeeEditingService.getCurrentQuestion.mockReturnValue(of());
+    fakePlayerService.loadQuestion.mockReturnValue(of(0 as any /* to suppress undefined error */));
 
     component = new EditorComponent(
       activatedRoute as any,
@@ -47,7 +53,8 @@ describe('EditorComponent', () => {
       quizeeEditingService,
       router,
       location,
-      dialog
+      dialog,
+      fakePlayerService
     );
 
     jest.useFakeTimers();
@@ -100,6 +107,18 @@ describe('EditorComponent', () => {
 
       expect(quizeeService.getFullQuizee).not.toBeCalled();
       expect(create).toHaveBeenCalledTimes(1);
+    });
+
+    it('should push question to fake player on change', async () => {
+      const qp = { question: { a: 1 } };
+      quizeeEditingService.getCurrentQuestion.mockReturnValue(of(qp as any));
+
+      component.ngOnInit();
+
+      await jest.runAllTimers();
+
+      expect(fakePlayerService.loadQuestion).toBeCalledTimes(1);
+      expect(fakePlayerService.loadQuestion).toBeCalledWith({ a: 1 });
     });
 
     describe('Validation error', () => {
@@ -160,6 +179,7 @@ describe('EditorComponent', () => {
       quizeeEditingService.get.mockReturnValue(subject as any);
       activatedRoute.paramMap = subject as any;
       (component.quizeeName as any).valueChanges = subject as any;
+      quizeeEditingService.getCurrentQuestion.mockReturnValue(subject as any);
 
       component.ngOnInit();
 

@@ -16,10 +16,14 @@ import { MatStepperModule } from '@angular/material/stepper';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
+import { QUESTION_CHANGE_ANIMATION } from '../player/InjectionTokens';
+import { PlayerModule } from '../player/player.module';
+import { PlayerService } from '../player/player.service';
 import { SharedModule } from '../shared/shared.module';
 
 import { EditorRoutingModule } from './editor-routing.module';
 import { EditorComponent } from './editor.component';
+import { FakePlayerService } from './fake-player.service';
 import { OverviewComponent } from './overview/overview.component';
 import { PublishDialogComponent } from './publish-dialog/publish-dialog.component';
 import { QuizeeEditingService } from './quizee-editing.service';
@@ -71,7 +75,13 @@ import { SettingsComponent } from './settings/settings.component';
     MatRadioModule,
     MatDialogModule,
     MatStepperModule,
+    PlayerModule,
   ],
-  providers: [QuizeeEditingService],
+  providers: [
+    QuizeeEditingService,
+    FakePlayerService,
+    { provide: PlayerService, useExisting: FakePlayerService },
+    { provide: QUESTION_CHANGE_ANIMATION, useValue: false },
+  ],
 })
 export class EditorModule {}
