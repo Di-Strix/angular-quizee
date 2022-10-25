@@ -40,8 +40,4 @@ export class PlayerComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.subs.unsubscribe();
   }
-
-  reloadQuizee() {
-    this.playerService.reloadQuizee().pipe(first()).subscribe();
-  }
 }

@@ -184,35 +184,6 @@ describe('QuestionScreenComponent', () => {
             expect(oneTrueComponent.answer.observed).toBeTruthy();
             expect(oneTrueComponent.commit.observed).toBeTruthy();
           });
-
-          it('should catch errors from commitAnswer', async () => {
-            const question: Question = {
-              answerOptions: [],
-              caption: '',
-              id: '',
-              type: 'ONE_TRUE',
-            };
-
-            const oneTrueComponent = new OneTrueComponent();
-
-            playerService.getCurrentQuestion.mockReturnValue(of(question));
-            playerService.commitAnswer.mockReturnValue(throwError(() => new Error('Mock error')));
-            viewContainerRef.createComponent.mockReturnValue({ instance: oneTrueComponent });
-
-            component.ngOnInit();
-
-            await jest.runAllTimers();
-
-            await expect(
-              (async () => {
-                oneTrueComponent.commit.next();
-
-                await jest.runAllTimers();
-              })()
-            ).resolves.not.toThrow();
-
-            expect(playerService.commitAnswer).toBeCalledTimes(1);
-          });
         });
       });
 
@@ -351,8 +322,6 @@ describe('QuestionScreenComponent', () => {
 
     describe('answer handling', () => {
       it('should save answer', async () => {
-        playerService.commitAnswer.mockReturnValue(of());
-
         const question: Question = {
           answerOptions: [],
           caption: '',
@@ -383,8 +352,6 @@ describe('QuestionScreenComponent', () => {
       });
 
       it('should commit answer', async () => {
-        playerService.commitAnswer.mockReturnValue(of());
-
         const question: Question = {
           answerOptions: [],
           caption: '',

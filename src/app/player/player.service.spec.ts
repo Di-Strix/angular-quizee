@@ -215,13 +215,13 @@ describe('PlayerService', () => {
 
   describe('loadQuizee', () => {
     it('should update state on loading start', async () => {
-      quizeeService.getPublicQuizee.mockReturnValue(of());
+      quizeeService.getPublicQuizee.mockReturnValue(new Subject());
 
       service.getState().subscribe({ next, error });
 
       await jest.runAllTimers();
 
-      service.loadQuizee('1').subscribe();
+      service.loadQuizee('1');
 
       await jest.runAllTimers();
 
@@ -231,9 +231,15 @@ describe('PlayerService', () => {
     });
 
     it('should request quizee from quizee service', async () => {
-      const getQuizee = quizeeService.getPublicQuizee.mockReturnValue(of());
+      const getQuizee = quizeeService.getPublicQuizee.mockReturnValue(
+        of({
+          answers: [],
+          info: { caption: '', id: '', img: '', questionsCount: 0 },
+          questions: [],
+        } as Quiz)
+      );
 
-      service.loadQuizee('1').subscribe();
+      service.loadQuizee('1');
 
       await jest.runAllTimers();
 
@@ -254,28 +260,13 @@ describe('PlayerService', () => {
 
       await jest.runAllTimers();
 
-      service.loadQuizee('1').subscribe();
+      service.loadQuizee('1');
 
       await jest.runAllTimers();
 
       expect(error).not.toBeCalled();
       expect(next).toBeCalledTimes(1);
       expect(next).toHaveBeenNthCalledWith(1, mockQuizee);
-    });
-
-    it('should not crash if quizee is falsy', async () => {
-      quizeeService.getPublicQuizee.mockReturnValue(of(null as any));
-
-      service.loadQuizee('').subscribe({ next, error });
-
-      await jest.runAllTimers();
-
-      service.loadQuizee('1').subscribe();
-
-      await jest.runAllTimers();
-
-      expect(error).not.toBeCalled();
-      expect(next).not.toBeCalled();
     });
 
     it('should push current question', async () => {
@@ -293,7 +284,7 @@ describe('PlayerService', () => {
 
       await jest.runAllTimers();
 
-      service.loadQuizee('1').subscribe();
+      service.loadQuizee('1');
 
       await jest.runAllTimers();
 
@@ -315,7 +306,7 @@ describe('PlayerService', () => {
 
       await jest.runAllTimers();
 
-      service.loadQuizee('1').subscribe();
+      service.loadQuizee('1');
 
       await jest.runAllTimers();
 
@@ -324,29 +315,28 @@ describe('PlayerService', () => {
       expect(next).toHaveBeenLastCalledWith('running');
     });
 
-    it('should return quizee stream', async () => {
+    it('should return stream with quizee emitted and complete', async () => {
+      const complete = jest.fn();
       const quizee1: Quiz = {
         answers: [],
         info: { caption: '', id: '1', img: '', questionsCount: 1 },
         questions: [{ answerOptions: [], caption: '', id: '', type: 'ONE_TRUE' }],
       };
-      const quizee2: Quiz = {
-        answers: [],
-        info: { caption: '', id: '2', img: '', questionsCount: 1 },
-        questions: [{ answerOptions: [], caption: '', id: '', type: 'ONE_TRUE' }],
-      };
 
       quizeeService.getPublicQuizee.mockReturnValue(of(quizee1));
 
-      service.loadQuizee('1').subscribe({ next, error });
-      service.quizee$.next(quizee2);
+      service.loadQuizee('1').subscribe({
+        next,
+        error,
+        complete,
+      });
 
       await jest.runAllTimers();
 
       expect(error).not.toBeCalled();
-      expect(next).toBeCalledTimes(2);
-      expect(next).toHaveBeenNthCalledWith(1, quizee1);
-      expect(next).toHaveBeenNthCalledWith(2, quizee2);
+      expect(next).toBeCalledTimes(1);
+      expect(next).toHaveBeenCalledWith(quizee1);
+      expect(complete).toBeCalled();
     });
 
     it('should push deep copy of quizee', async () => {
@@ -378,7 +368,7 @@ describe('PlayerService', () => {
 
       quizeeService.getPublicQuizee.mockReturnValue(of(quizee));
 
-      service.loadQuizee('1').subscribe();
+      service.loadQuizee('1');
       service.getCurrentQuestion().subscribe({ next, error });
 
       await jest.runAllTimers();
@@ -404,7 +394,7 @@ describe('PlayerService', () => {
 
       quizeeService.getPublicQuizee.mockReturnValue(subject as any);
 
-      service.loadQuizee('1').subscribe();
+      service.loadQuizee('1');
       subject.next(quizee);
 
       await jest.runAllTimers();
@@ -415,7 +405,7 @@ describe('PlayerService', () => {
 
       await jest.runAllTimers();
 
-      service.loadQuizee('1').subscribe();
+      service.loadQuizee('1');
       subject.next(quizee);
 
       await jest.runAllTimers();
@@ -443,13 +433,13 @@ describe('PlayerService', () => {
 
       quizeeService.getPublicQuizee.mockReturnValue(of(quizee));
 
-      service.loadQuizee('1').subscribe();
+      service.loadQuizee('1');
 
       await jest.runAllTimers();
 
       expect(quizeeService.getPublicQuizee).toBeCalledTimes(1);
 
-      service.loadQuizee('1').subscribe();
+      service.loadQuizee('1');
 
       expect(quizeeService.getPublicQuizee).toBeCalledTimes(1);
     });
@@ -474,13 +464,13 @@ describe('PlayerService', () => {
         })
       );
 
-      service.loadQuizee('1').subscribe();
+      service.loadQuizee('1');
 
       await jest.runAllTimers();
 
       const loadQuizee = jest.spyOn(service, 'loadQuizee');
 
-      service.reloadQuizee().subscribe();
+      service.reloadQuizee();
 
       await jest.runAllTimers();
 
@@ -525,20 +515,20 @@ describe('PlayerService', () => {
 
   describe('commitAnswer', () => {
     beforeEach(() => {
-      quizeeService.checkAnswers.mockReturnValue(of());
+      quizeeService.checkAnswers.mockReturnValue(of(0));
     });
 
-    it('should throw if quizee is not loaded', async () => {
-      service.commitAnswer().subscribe({ next, error });
+    it('should not push answer if quizee is not loaded', async () => {
+      service.getCurrentQuestion().subscribe({ next, error });
+      service.commitAnswer();
 
       await jest.runAllTimers();
 
       expect(next).not.toBeCalled();
-      expect(error).toBeCalledTimes(1);
-      expect(error).toBeCalledWith(new Error('Quizee is not loaded or all the question were answered'));
+      expect(error).not.toBeCalled();
     });
 
-    it('should throw if commit is not allowed', async () => {
+    it('should not push answer if commit is not allowed', async () => {
       quizeeService.getPublicQuizee.mockReturnValue(
         of({
           answers: [],
@@ -550,42 +540,46 @@ describe('PlayerService', () => {
         } as Quiz)
       );
 
-      service.loadQuizee('').subscribe();
+      service.loadQuizee('');
+      service.getCurrentQuestion().subscribe({ next, error });
+
+      await jest.runAllTimers();
+
+      next.mockReset();
+      error.mockReset();
 
       service.saveAnswer([]);
-      service.commitAnswer().subscribe({ next, error });
+      service.commitAnswer();
 
       await jest.runAllTimers();
 
       expect(next).not.toBeCalled();
-      expect(error).toBeCalledTimes(1);
-      expect(error).toBeCalledWith(new Error('Commit is not allowed since answer is empty'));
+      expect(error).not.toBeCalled();
 
       next.mockReset();
       error.mockReset();
 
       service.saveAnswer(['']);
-      service.commitAnswer().subscribe({ next, error });
+      service.commitAnswer();
 
       await jest.runAllTimers();
 
       expect(next).not.toBeCalled();
-      expect(error).toBeCalledTimes(1);
-      expect(error).toBeCalledWith(new Error('Commit is not allowed since answer is empty'));
+      expect(error).not.toBeCalled();
 
       next.mockReset();
       error.mockReset();
 
       service.saveAnswer(['1']);
-      service.commitAnswer().subscribe({ error, complete: next });
+      service.commitAnswer();
 
       await jest.runAllTimers();
 
-      expect(error).not.toBeCalled();
       expect(next).toBeCalled();
+      expect(error).not.toBeCalled();
     });
 
-    it('should throw if answer is empty', async () => {
+    it('should not push answer if answer is empty', async () => {
       quizeeService.getPublicQuizee.mockReturnValue(
         of({
           answers: [],
@@ -594,36 +588,22 @@ describe('PlayerService', () => {
         } as Quiz)
       );
 
-      service.loadQuizee('').subscribe();
-      service.commitAnswer().subscribe({ next, error });
-      service.saveAnswer(['']).subscribe();
-      service.commitAnswer().subscribe({ next, error });
+      service.loadQuizee('');
+      service.getCurrentQuestion().subscribe({ next, error });
+
+      await jest.runAllTimers();
+
+      next.mockReset();
+      error.mockReset();
+
+      service.commitAnswer();
+      service.saveAnswer(['']);
+      service.commitAnswer();
 
       await jest.runAllTimers();
 
       expect(next).not.toBeCalled();
-      expect(error).toBeCalledTimes(2);
-      expect(error).toHaveBeenNthCalledWith(1, new Error('Commit is not allowed since answer is empty'));
-      expect(error).toHaveBeenNthCalledWith(2, new Error('Commit is not allowed since answer is empty'));
-    });
-
-    it('should save saved answer if no provided', async () => {
-      quizeeService.getPublicQuizee.mockReturnValue(
-        of({
-          answers: [],
-          info: { caption: '', id: '', img: '', questionsCount: 1 },
-          questions: [{ answerOptions: [], caption: '', id: '', type: 'ONE_TRUE' }],
-        } as Quiz)
-      );
-
-      service.loadQuizee('').subscribe();
-      service.saveAnswer(['1']);
-      service.commitAnswer().subscribe({ next, error });
-
-      await jest.runAllTimers();
-
       expect(error).not.toBeCalled();
-      expect(service.answers[0].answer).toEqual(['1']);
     });
 
     it('should attach question id to answer', async () => {
@@ -635,13 +615,12 @@ describe('PlayerService', () => {
         } as Quiz)
       );
 
-      service.loadQuizee('').subscribe();
-      service.saveAnswer(['1']).subscribe();
-      service.commitAnswer().subscribe({ next, error });
+      service.loadQuizee('');
+      service.saveAnswer(['1']);
+      service.commitAnswer();
 
       await jest.runAllTimers();
 
-      expect(error).not.toBeCalled();
       expect(service.answers[0].answer).toEqual(['1']);
       expect(service.answers[0].answerTo).toEqual('id1');
     });
@@ -657,10 +636,10 @@ describe('PlayerService', () => {
         } as Quiz)
       );
 
-      service.loadQuizee('').subscribe();
+      service.loadQuizee('');
       service.getCurrentQuestion().subscribe({ next, error });
-      service.saveAnswer(['1']).subscribe();
-      service.commitAnswer().subscribe();
+      service.saveAnswer(['1']);
+      service.commitAnswer();
 
       await jest.runAllTimers();
 
@@ -670,7 +649,7 @@ describe('PlayerService', () => {
     });
 
     it('should start answer checking if last question was answered', async () => {
-      const checkAnswers = quizeeService.checkAnswers.mockReturnValue(of());
+      const checkAnswers = quizeeService.checkAnswers.mockReturnValue(of(0));
 
       quizeeService.getPublicQuizee.mockReturnValue(
         of({
@@ -680,9 +659,9 @@ describe('PlayerService', () => {
         } as Quiz)
       );
 
-      service.loadQuizee('').subscribe();
-      service.saveAnswer(['1']).subscribe();
-      service.commitAnswer().subscribe();
+      service.loadQuizee('');
+      service.saveAnswer(['1']);
+      service.commitAnswer();
 
       await jest.runAllTimers();
 
@@ -704,10 +683,10 @@ describe('PlayerService', () => {
         } as Quiz)
       );
 
-      service.loadQuizee('').subscribe();
-      service.saveAnswer(['1']).subscribe();
-      service.commitAnswer().subscribe();
-      service.state$.subscribe({ next, error });
+      service.loadQuizee('');
+      service.saveAnswer(['1']);
+      service.commitAnswer();
+      service.getState().subscribe({ next, error });
 
       await jest.runAllTimers();
 
@@ -727,10 +706,10 @@ describe('PlayerService', () => {
         } as Quiz)
       );
 
-      service.loadQuizee('').subscribe();
-      service.saveAnswer(['1']).subscribe();
-      service.commitAnswer().subscribe();
-      service.result$.subscribe({ next, error });
+      service.loadQuizee('');
+      service.saveAnswer(['1']);
+      service.commitAnswer();
+      service.getResult().subscribe({ next, error });
 
       await jest.runAllTimers();
 
@@ -740,7 +719,7 @@ describe('PlayerService', () => {
     });
 
     it('should get only first value from quizee stream when checking answers', async () => {
-      quizeeService.checkAnswers.mockReturnValue(of());
+      quizeeService.checkAnswers.mockReturnValue(of(0));
 
       const quiz = {
         answers: [],
@@ -753,9 +732,9 @@ describe('PlayerService', () => {
       const subject = new Subject<Quiz>();
       jest.spyOn(service, 'getQuizee').mockReturnValue(subject);
 
-      service.loadQuizee('').subscribe();
-      service.saveAnswer(['1']).subscribe();
-      service.commitAnswer().subscribe();
+      service.loadQuizee('');
+      service.saveAnswer(['1']);
+      service.commitAnswer();
 
       subject.next(quiz);
 
@@ -781,15 +760,15 @@ describe('PlayerService', () => {
       } as Quiz;
       quizeeService.getPublicQuizee.mockReturnValue(of(quiz));
 
-      service.loadQuizee('').subscribe();
+      service.loadQuizee('');
 
       service.commitAllowed$.subscribe({ next, error });
 
       next.mockReset();
       error.mockReset();
 
-      service.saveAnswer(['1']).subscribe();
-      service.commitAnswer().subscribe();
+      service.saveAnswer(['1']);
+      service.commitAnswer();
 
       await jest.runAllTimers();
 
@@ -799,8 +778,8 @@ describe('PlayerService', () => {
       next.mockReset();
       error.mockReset();
 
-      service.saveAnswer(['2']).subscribe();
-      service.commitAnswer().subscribe();
+      service.saveAnswer(['2']);
+      service.commitAnswer();
 
       await jest.runAllTimers();
 

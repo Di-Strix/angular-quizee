@@ -10,7 +10,7 @@
   >
     <app-results-screen
       [score]="(playerService.getResult() | async) || 0"
-      (retry)="reloadQuizee()"
+      (retry)="this.playerService.reloadQuizee()"
     >
     </app-results-screen>
   </div>

@@ -56,7 +56,7 @@ export class QuestionScreenComponent implements OnInit, OnDestroy {
             this.playerService.saveAnswer(answer);
           });
           component.instance.commit.subscribe(() => {
-            this.playerService.commitAnswer().subscribe({ error: () => {} });
+            this.playerService.commitAnswer();
           });
 
           if (prevComponentRef) {

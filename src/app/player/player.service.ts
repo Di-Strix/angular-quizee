@@ -3,9 +3,8 @@ import { CheckAnswers } from '@di-strix/quizee-cloud-functions-interfaces';
 import { Question, Quiz, QuizId } from '@di-strix/quizee-types';
 
 import * as _ from 'lodash';
-import { Observable, ReplaySubject, first, of, switchMap, tap, throwError } from 'rxjs';
+import { Observable, ReplaySubject, first, of, switchMap, throwError } from 'rxjs';
 
-import { AutoDispatchEvent, RegisterDispatcher } from '../shared/decorators/AutoDispatchEvent';
 import { QuizeeService } from '../shared/services/quizee.service';
 
 export type PlayerState = 'loadingQuizee' | 'running' | 'checkingResults' | 'gotResults';
@@ -51,20 +50,24 @@ export class PlayerService {
 
     const stream = id === this.quizee?.info.id ? of(this.quizee) : this.quizeeService.getPublicQuizee(id);
 
-    return stream.pipe(
-      tap((quizee) => {
-        this.quizee = quizee;
-        this.answers = [];
-        this.savedAnswer = [];
+    const subject = new ReplaySubject<Omit<Quiz, 'answers'>>(1);
 
-        this._pushCommitAllowed();
-        this._pushQuizee();
-        this._pushCurrentQuestion();
+    stream.pipe(first()).subscribe((quizee) => {
+      this.quizee = quizee;
+      this.answers = [];
+      this.savedAnswer = [];
 
-        this.state$.next('running');
-      }),
-      switchMap(() => this.getQuizee())
-    );
+      this._pushCommitAllowed();
+      this._pushQuizee();
+      this._pushCurrentQuestion();
+
+      this.state$.next('running');
+
+      subject.next(_.cloneDeep(quizee));
+      subject.complete();
+    });
+
+    return subject.asObservable();
   }
 
   reloadQuizee(): Observable<Omit<Quiz, 'answers'>> {
@@ -73,23 +76,21 @@ export class PlayerService {
     return this.loadQuizee(this.quizee.info.id);
   }
 
-  @AutoDispatchEvent(['commitAllowed'])
-  saveAnswer(answer: PlayerAnswer['answer']): Observable<void> {
+  saveAnswer(answer: PlayerAnswer['answer']): void {
     this.savedAnswer = answer;
 
-    return of();
+    this._pushCommitAllowed();
   }
 
   getSavedAnswer(): PlayerAnswer['answer'] {
     return this.savedAnswer;
   }
 
-  @AutoDispatchEvent(['currentQuestion'])
-  commitAnswer(): Observable<void> {
+  commitAnswer(): void {
     const question = this._getCurrentQuestion();
-    if (!question || !this.quizee) throw new Error('Quizee is not loaded or all the question were answered');
 
-    if (!this._getCommitAllowed()) throw new Error('Commit is not allowed since answer is empty');
+    if (!question || !this.quizee) return;
+    if (!this._getCommitAllowed()) return;
 
     const answer = this.getSavedAnswer();
     this.savedAnswer = [];
@@ -99,31 +100,25 @@ export class PlayerService {
 
     if (this.answers.length === this.quizee.info.questionsCount) {
       this.state$.next('checkingResults');
-      return this.getQuizee().pipe(
-        first(),
-        switchMap((quizee) =>
-          this.quizeeService.checkAnswers({ answers: this.answers, quizId: quizee.info.id }).pipe(
-            tap((result) => {
-              this.state$.next('gotResults');
-              this.result$.next(result);
-            }),
-            switchMap(() => of())
-          )
+
+      this.getQuizee()
+        .pipe(
+          first(),
+          switchMap((quizee) => this.quizeeService.checkAnswers({ answers: this.answers, quizId: quizee.info.id }))
         )
-      );
+        .subscribe((result) => {
+          this.state$.next('gotResults');
+          this.result$.next(result);
+        });
     }
 
-    return of();
+    this._pushCurrentQuestion();
   }
 
-  @RegisterDispatcher('quizee')
   private _pushQuizee() {
-    if (!this.quizee) return;
-
-    this.quizee$.next(_.cloneDeep(this.quizee));
+    this.quizee$.next(_.cloneDeep(this.quizee as NonNullable<typeof this.quizee>));
   }
 
-  @RegisterDispatcher('currentQuestion')
   private _pushCurrentQuestion() {
     const question = this._getCurrentQuestion();
     if (!question) return;
@@ -138,7 +133,6 @@ export class PlayerService {
     return this.quizee.questions[this.answers.length];
   }
 
-  @RegisterDispatcher('commitAllowed')
   private _pushCommitAllowed() {
     this.commitAllowed$.next(this._getCommitAllowed());
   }
