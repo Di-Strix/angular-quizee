@@ -18,8 +18,8 @@
    - RxFire
    - lodash
  - Developed by my own
-   - (Quizee Cloud functions)[https://github.com/Di-Strix/quizee-cloud-functions]
-   - (Prettier Config)[https://github.com/Di-Strix/prettier-config]
-   - (Quizee Verification Functions)[https://github.com/Di-Strix/quizee-verification-functions]
-   - (Quizee Cloud Functions Interfaces)[https://github.com/Di-Strix/quizee-cloud-functions-interfaces]
-   - (Quizee Types)[https://github.com/Di-Strix/quizee-types]
+   - [Quizee Cloud functions](https://github.com/Di-Strix/quizee-cloud-functions)
+   - [Prettier Config](https://github.com/Di-Strix/prettier-config)
+   - [Quizee Verification Functions](https://github.com/Di-Strix/quizee-verification-functions)
+   - [Quizee Cloud Functions Interfaces](https://github.com/Di-Strix/quizee-cloud-functions-interfaces)
+   - [Quizee Types](https://github.com/Di-Strix/quizee-types)
