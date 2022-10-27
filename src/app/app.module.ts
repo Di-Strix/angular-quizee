@@ -45,7 +45,11 @@ import { AppComponent } from './app.component';
     { provide: FIREBASE_OPTIONS, useValue: environment.firebase },
     {
       provide: USE_AUTH_EMULATOR,
-      useValue: environment.firebase.useEmulator?.auth,
+      useValue: (() => {
+        const auth = environment.firebase.useEmulator?.auth;
+        if (!auth) return undefined;
+        return [`http://${auth[0]}:${auth[1]}`];
+      })(),
     },
     {
       provide: USE_FIRESTORE_EMULATOR,
