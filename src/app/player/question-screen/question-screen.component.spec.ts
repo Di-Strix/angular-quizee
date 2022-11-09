@@ -2,7 +2,7 @@ import { AnimationBuilder, AnimationFactory, AnimationPlayer } from '@angular/an
 import { ElementRef, ViewContainerRef } from '@angular/core';
 import { Question } from '@di-strix/quizee-types';
 
-import { Subject, of, throwError } from 'rxjs';
+import { Subject, of } from 'rxjs';
 import { ContainerRefDirective } from 'src/app/shared/directives/container-ref.directive';
 
 import { ViewAnimationDuration, ViewEnterAnimation, ViewLeaveAnimation } from '../animations';
@@ -76,7 +76,7 @@ describe('QuestionScreenComponent', () => {
     viewContainerRef = new ViewContainerRefMock();
     container = new ContainerRefDirective(viewContainerRef as any);
 
-    component = new QuestionScreenComponent(playerService, animationBuilder, true);
+    component = new QuestionScreenComponent(playerService, animationBuilder, null);
     component.container = container;
 
     jest.useFakeTimers();
@@ -110,7 +110,7 @@ describe('QuestionScreenComponent', () => {
             };
 
             playerService.getCurrentQuestion.mockReturnValue(of(question));
-            viewContainerRef.createComponent.mockReturnValue({ instance: new OneTrueComponent() });
+            viewContainerRef.createComponent.mockReturnValue({ instance: new OneTrueComponent(null) });
 
             component.ngOnInit();
 
@@ -130,7 +130,7 @@ describe('QuestionScreenComponent', () => {
               type: 'ONE_TRUE',
             };
 
-            const oneTrueComponent = new OneTrueComponent();
+            const oneTrueComponent = new OneTrueComponent(null);
 
             playerService.getCurrentQuestion.mockReturnValue(of(question));
             viewContainerRef.createComponent.mockReturnValue({ instance: oneTrueComponent });
@@ -150,7 +150,7 @@ describe('QuestionScreenComponent', () => {
               type: 'ONE_TRUE',
             };
 
-            const oneTrueComponent = new OneTrueComponent();
+            const oneTrueComponent = new OneTrueComponent(null);
 
             playerService.getCurrentQuestion.mockReturnValue(of(question));
             viewContainerRef.createComponent.mockReturnValue({ instance: oneTrueComponent });
@@ -172,7 +172,7 @@ describe('QuestionScreenComponent', () => {
               type: 'ONE_TRUE',
             };
 
-            const oneTrueComponent = new OneTrueComponent();
+            const oneTrueComponent = new OneTrueComponent(null);
 
             playerService.getCurrentQuestion.mockReturnValue(of(question));
             viewContainerRef.createComponent.mockReturnValue({ instance: oneTrueComponent });
@@ -198,7 +198,7 @@ describe('QuestionScreenComponent', () => {
             };
 
             playerService.getCurrentQuestion.mockReturnValue(of(question));
-            viewContainerRef.createComponent.mockReturnValue({ instance: new OneTrueComponent() });
+            viewContainerRef.createComponent.mockReturnValue({ instance: new OneTrueComponent(null) });
 
             component.ngOnInit();
 
@@ -218,7 +218,7 @@ describe('QuestionScreenComponent', () => {
               type: 'SEVERAL_TRUE',
             };
 
-            const oneTrueComponent = new SeveralTrueComponent();
+            const oneTrueComponent = new SeveralTrueComponent(null);
 
             playerService.getCurrentQuestion.mockReturnValue(of(question));
             viewContainerRef.createComponent.mockReturnValue({ instance: oneTrueComponent });
@@ -238,7 +238,7 @@ describe('QuestionScreenComponent', () => {
               type: 'SEVERAL_TRUE',
             };
 
-            const oneTrueComponent = new SeveralTrueComponent();
+            const oneTrueComponent = new SeveralTrueComponent(null);
 
             playerService.getCurrentQuestion.mockReturnValue(of(question));
             viewContainerRef.createComponent.mockReturnValue({ instance: oneTrueComponent });
@@ -264,7 +264,7 @@ describe('QuestionScreenComponent', () => {
             };
 
             playerService.getCurrentQuestion.mockReturnValue(of(question));
-            viewContainerRef.createComponent.mockReturnValue({ instance: new OneTrueComponent() });
+            viewContainerRef.createComponent.mockReturnValue({ instance: new OneTrueComponent(null) });
 
             component.ngOnInit();
 
@@ -284,7 +284,7 @@ describe('QuestionScreenComponent', () => {
               type: 'WRITE_ANSWER',
             };
 
-            const oneTrueComponent = new WriteAnswerComponent();
+            const oneTrueComponent = new WriteAnswerComponent(null);
 
             playerService.getCurrentQuestion.mockReturnValue(of(question));
             viewContainerRef.createComponent.mockReturnValue({ instance: oneTrueComponent });
@@ -304,7 +304,7 @@ describe('QuestionScreenComponent', () => {
               type: 'WRITE_ANSWER',
             };
 
-            const oneTrueComponent = new WriteAnswerComponent();
+            const oneTrueComponent = new WriteAnswerComponent(null);
 
             playerService.getCurrentQuestion.mockReturnValue(of(question));
             viewContainerRef.createComponent.mockReturnValue({ instance: oneTrueComponent });
@@ -329,7 +329,7 @@ describe('QuestionScreenComponent', () => {
           type: 'ONE_TRUE',
         };
 
-        const oneTrueComponent = new OneTrueComponent();
+        const oneTrueComponent = new OneTrueComponent(null);
 
         playerService.getCurrentQuestion.mockReturnValue(of(question));
         viewContainerRef.createComponent.mockReturnValue({ instance: oneTrueComponent });
@@ -359,7 +359,7 @@ describe('QuestionScreenComponent', () => {
           type: 'ONE_TRUE',
         };
 
-        const oneTrueComponent = new OneTrueComponent();
+        const oneTrueComponent = new OneTrueComponent(null);
 
         playerService.getCurrentQuestion.mockReturnValue(of(question));
         viewContainerRef.createComponent.mockReturnValue({ instance: oneTrueComponent });
@@ -419,7 +419,7 @@ describe('QuestionScreenComponent', () => {
 
         viewContainerRef.elementRef = new ElementRef(componentEl);
 
-        oneTrueComponent = new OneTrueComponent();
+        oneTrueComponent = new OneTrueComponent(null);
 
         animationBuilder.build.mockImplementation((animation) => {
           if (animation === ViewLeaveAnimation) return animationOutFactory;
@@ -485,8 +485,8 @@ describe('QuestionScreenComponent', () => {
         expect(animationOutPlayer.play).toBeCalledTimes(1);
       });
 
-      it('should not animate if QUESTION_CHANGE_ANIMATION is false', async () => {
-        component.animate = false;
+      it('should not animate if in preview mode', async () => {
+        component.previewMode = true;
 
         viewContainerRef.get.mockReturnValue(container.firstChild);
 

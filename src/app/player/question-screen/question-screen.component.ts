@@ -1,11 +1,11 @@
 import { AnimationBuilder } from '@angular/animations';
-import { Component, Inject, OnDestroy, OnInit, Type, ViewChild } from '@angular/core';
+import { Component, Inject, OnDestroy, OnInit, Optional, Type, ViewChild } from '@angular/core';
 import { QuestionType } from '@di-strix/quizee-types';
 
 import { Subscription, delay } from 'rxjs';
 import { ContainerRefDirective } from 'src/app/shared/directives/container-ref.directive';
 
-import { QUESTION_CHANGE_ANIMATION } from '../InjectionTokens';
+import { PREVIEW_MODE } from '../InjectionTokens';
 import { ViewAnimationDuration, ViewEnterAnimation, ViewLeaveAnimation } from '../animations';
 import { PlayerService } from '../player.service';
 
@@ -28,8 +28,9 @@ export class QuestionScreenComponent implements OnInit, OnDestroy {
     public playerService: PlayerService,
     public animationBuilder: AnimationBuilder,
 
-    @Inject(QUESTION_CHANGE_ANIMATION)
-    public animate: boolean
+    @Inject(PREVIEW_MODE)
+    @Optional()
+    public previewMode: boolean | null
   ) {}
 
   ngOnInit(): void {
@@ -60,7 +61,9 @@ export class QuestionScreenComponent implements OnInit, OnDestroy {
           });
 
           if (prevComponentRef) {
-            if (this.animate) {
+            if (this.previewMode) {
+              this.container.containerRef.remove(0);
+            } else {
               const prevNativeComponent: HTMLElement =
                 this.container.containerRef.element.nativeElement.parentNode.children[1];
 
@@ -72,8 +75,6 @@ export class QuestionScreenComponent implements OnInit, OnDestroy {
 
               const currentPlayer = inAnimation.create(component.location.nativeElement);
               currentPlayer.play();
-            } else {
-              this.container.containerRef.remove(0);
             }
           }
         })

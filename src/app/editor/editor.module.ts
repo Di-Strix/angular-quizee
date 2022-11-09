@@ -16,7 +16,7 @@ import { MatStepperModule } from '@angular/material/stepper';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
-import { QUESTION_CHANGE_ANIMATION } from '../player/InjectionTokens';
+import { PREVIEW_MODE } from '../player/InjectionTokens';
 import { PlayerModule } from '../player/player.module';
 import { PlayerService } from '../player/player.service';
 import { SharedModule } from '../shared/shared.module';
@@ -81,7 +81,7 @@ import { SettingsComponent } from './settings/settings.component';
     QuizeeEditingService,
     FakePlayerService,
     { provide: PlayerService, useExisting: FakePlayerService },
-    { provide: QUESTION_CHANGE_ANIMATION, useValue: false },
+    { provide: PREVIEW_MODE, useValue: true },
   ],
 })
 export class EditorModule {}
