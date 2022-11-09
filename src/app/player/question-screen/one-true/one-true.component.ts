@@ -1,6 +1,7 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Inject, Input, Optional, Output } from '@angular/core';
 import { AnswerOptionId, Question } from '@di-strix/quizee-types';
 
+import { PREVIEW_MODE } from '../../InjectionTokens';
 import { QuestionComponent } from '../question-component.type';
 
 @Component({
@@ -14,7 +15,11 @@ export class OneTrueComponent implements QuestionComponent {
   @Output() answer = new EventEmitter<AnswerOptionId[]>();
   @Output() commit = new EventEmitter<void>();
 
-  constructor() {}
+  constructor(
+    @Inject(PREVIEW_MODE)
+    @Optional()
+    public previewMode: boolean | null
+  ) {}
 
   performCommit(answerOption: AnswerOptionId[]) {
     this.answer.emit(answerOption);

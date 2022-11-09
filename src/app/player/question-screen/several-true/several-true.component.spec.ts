@@ -4,7 +4,7 @@ describe('SeveralTrueComponent', () => {
   let component: SeveralTrueComponent;
 
   beforeEach(async () => {
-    component = new SeveralTrueComponent();
+    component = new SeveralTrueComponent(null);
 
     jest.useFakeTimers();
   });

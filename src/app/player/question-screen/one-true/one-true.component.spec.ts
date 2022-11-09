@@ -6,7 +6,7 @@ describe('OneTrueComponent', () => {
   let error: jest.Mock;
 
   beforeEach(async () => {
-    component = new OneTrueComponent();
+    component = new OneTrueComponent(null);
 
     next = jest.fn();
     error = jest.fn();

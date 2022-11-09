@@ -1,9 +1,10 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Inject, Input, OnInit, Optional, Output } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { AnswerOptionId, Question } from '@di-strix/quizee-types';
 
 import * as _ from 'lodash';
 
+import { PREVIEW_MODE } from '../../InjectionTokens';
 import { QuestionComponent } from '../question-component.type';
 
 @Component({
@@ -19,7 +20,11 @@ export class SeveralTrueComponent implements QuestionComponent, OnInit {
 
   control = new FormControl<AnswerOptionId[]>([], { nonNullable: true });
 
-  constructor() {}
+  constructor(
+    @Inject(PREVIEW_MODE)
+    @Optional()
+    public previewMode: boolean | null
+  ) {}
 
   ngOnInit(): void {
     this.control.valueChanges.subscribe((answer) => {

@@ -4,7 +4,7 @@ describe('WriteAnswerComponent', () => {
   let component: WriteAnswerComponent;
 
   beforeEach(async () => {
-    component = new WriteAnswerComponent();
+    component = new WriteAnswerComponent(null);
 
     jest.useFakeTimers();
   });
@@ -48,6 +48,19 @@ describe('WriteAnswerComponent', () => {
       await jest.runAllTimers();
 
       expect(focus).toBeCalledTimes(1);
+    });
+
+    it('should not focus on field if previewMode is true', async () => {
+      component = new WriteAnswerComponent(true);
+
+      const focus = jest.fn();
+      component.answerInputRef = { nativeElement: { focus } };
+
+      component.ngOnInit();
+
+      await jest.runAllTimers();
+
+      expect(focus).not.toBeCalled();
     });
   });
 });

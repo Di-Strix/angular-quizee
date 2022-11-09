@@ -1,7 +1,8 @@
-import { Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Inject, Input, OnInit, Optional, Output, ViewChild } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { AnswerOptionId, Question } from '@di-strix/quizee-types';
 
+import { PREVIEW_MODE } from '../../InjectionTokens';
 import { QuestionComponent } from '../question-component.type';
 
 @Component({
@@ -19,16 +20,21 @@ export class WriteAnswerComponent implements QuestionComponent, OnInit {
 
   control = new FormControl<string>('', { nonNullable: true });
 
-  constructor() {}
+  constructor(
+    @Inject(PREVIEW_MODE)
+    @Optional()
+    public previewMode: boolean | null
+  ) {}
 
   ngOnInit(): void {
     this.control.valueChanges.subscribe((value) => {
       this.answer.emit([value]);
     });
 
-    setTimeout(() => {
-      const el = this.answerInputRef.nativeElement as HTMLElement;
-      el.focus();
-    }, this.autofocusTimeout);
+    if (!this.previewMode)
+      setTimeout(() => {
+        const el = this.answerInputRef.nativeElement as HTMLElement;
+        el.focus();
+      }, this.autofocusTimeout);
   }
 }

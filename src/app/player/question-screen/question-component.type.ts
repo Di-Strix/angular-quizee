@@ -6,4 +6,5 @@ export declare abstract class QuestionComponent {
   autofocusTimeout: number;
   answer: EventEmitter<AnswerOptionId[]>;
   commit: EventEmitter<void>;
+  previewMode: boolean | null;
 }
