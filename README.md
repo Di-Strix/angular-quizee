@@ -17,7 +17,7 @@
    - RxJs
    - RxFire
    - lodash
- - Developed by my own
+ - Developed by myself
    - [Quizee Cloud functions](https://github.com/Di-Strix/quizee-cloud-functions)
    - [Prettier Config](https://github.com/Di-Strix/prettier-config)
    - [Quizee Verification Functions](https://github.com/Di-Strix/quizee-verification-functions)
