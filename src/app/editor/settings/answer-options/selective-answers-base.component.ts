@@ -1,9 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { AnswerOption, AnswerOptionId } from '@di-strix/quizee-types';
 
 import * as _ from 'lodash';
-import { Subscription, filter } from 'rxjs';
+import { Subscription, filter, throwError } from 'rxjs';
 import { QuizeeEditingService } from 'src/app/editor/quizee-editing.service';
 import { QuizeeValidators } from 'src/app/editor/quizee-validators';
 
@@ -16,12 +16,16 @@ export interface Controls<T> extends Array<Control<T>> {}
 
 @Component({ template: '' })
 export abstract class SelectiveAnswersBase {
+  @Input() questionIndex: number = -1;
+
   controls: Controls<AnswerOption['value']> = [];
   correctAnswers: AnswerOptionId[] = [];
 
-  subscribeToUpdates(service: QuizeeEditingService): Subscription {
+  subscribeToUpdates(service: QuizeeEditingService, questionIndex: number): Subscription {
+    if (questionIndex < 0) return new Subscription();
+
     return service
-      .getCurrentQuestion()
+      .getQuestion(questionIndex)
       .pipe(
         filter((questionPair) => {
           return (
@@ -42,8 +46,9 @@ export abstract class SelectiveAnswersBase {
             const control = new FormControl<AnswerOption['value']>(value, {
               nonNullable: true,
               asyncValidators: [
-                QuizeeValidators.forCurrentQuestion(
+                QuizeeValidators.forQuestion(
                   service,
+                  questionIndex,
                   `question.answerOptions[${pair.question.answerOptions.findIndex(({ id }) => id === key)}].value`
                 ),
               ],
@@ -53,7 +58,7 @@ export abstract class SelectiveAnswersBase {
             this.controls.push({ id: key, control });
 
             control.valueChanges.subscribe(() => {
-              service.setAnswerOptions(this.assembleAnswerOptions());
+              service.setAnswerOptions(questionIndex, this.assembleAnswerOptions());
             });
           } else if (controlObj.control.value !== value) controlObj.control.setValue(value, { emitEvent: false });
 
