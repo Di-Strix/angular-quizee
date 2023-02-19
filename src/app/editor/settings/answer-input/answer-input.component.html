@@ -1,8 +1,9 @@
 <app-setting-card>
   <app-setting-card-title
     title="Answer"
-    checkErrors="forCurrentQuestion"
+    checkErrors="forQuestion"
     path="answer"
+    [questionIndex]="questionIndex"
   ></app-setting-card-title>
   <app-setting-card-content>
     <div fxLayout="column">
