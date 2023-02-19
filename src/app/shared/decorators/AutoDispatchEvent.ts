@@ -15,13 +15,6 @@ const setEntry = (target: any, key: string) => (target[configKey].entry = key);
 /**
  * Calls provided dispatchers after function execution.
  *
- * ---
- *
- * Wraps function into try-catch so dispatchers won't be called if any error occurs.
- * Transforms error `throwError()` rxjs function
- *
- * ---
- *
  * #### To prevent dispatchers from being invoked, simply throw an exception
  *
  * ---
@@ -51,7 +44,7 @@ export const AutoDispatchEvent = (callDispatchers: string[]) => {
           } catch (err) {
             clearEntry(target);
 
-            return throwError(() => err);
+            throw err;
           }
         };
       }

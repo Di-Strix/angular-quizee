@@ -20,6 +20,23 @@ class TestClass {
 
   @RegisterDispatcher()
   dispatcher() {}
+
+  @AutoDispatchEvent(['dispatcher'])
+  throwError(): Observable<any> {
+    throw new Error();
+
+    return of();
+  }
+
+  @AutoDispatchEvent(['dispatcher'])
+  throwNestedError(): Observable<any> {
+    return this.throwError();
+  }
+
+  @AutoDispatchEvent(['abc'])
+  invalidDispatcher(): Observable<any> {
+    return of();
+  }
 }
 
 describe('AutoDispatchEvent', () => {
@@ -75,21 +92,32 @@ describe('AutoDispatchEvent', () => {
     expect(someNestedFunction).toBeCalledTimes(1);
   });
 
-  it('should emit an error if dispatcher was not found', () => {
-    class AnotherTestClass {
-      @AutoDispatchEvent(['abc'])
-      fn(): Observable<any> {
-        return of();
-      }
-    }
+  it('should not call dispatcher if error was thrown', () => {
+    const dispatcher = jest.spyOn(testClass, 'dispatcher');
 
-    const testClass = new AnotherTestClass();
-    const next = jest.fn();
-    const error = jest.fn();
+    try {
+      testClass.throwError();
+    } catch (err) {}
 
-    testClass.fn().subscribe({ next, error });
+    expect(dispatcher).not.toBeCalled();
+  });
 
-    expect(next).not.toBeCalled();
-    expect(error).toBeCalled();
+  it('should not call dispatcher if error was thrown in nested function', () => {
+    const dispatcher = jest.spyOn(testClass, 'dispatcher');
+
+    try {
+      testClass.throwNestedError();
+    } catch (err) {}
+
+    expect(dispatcher).not.toBeCalled();
+  });
+
+  it('should re-throw error', () => {
+    expect(() => testClass.throwNestedError()).toThrow();
+    expect(() => testClass.throwError()).toThrow();
+  });
+
+  it('should throw an error if dispatcher was not found', () => {
+    expect(() => testClass.invalidDispatcher()).toThrow();
   });
 });
