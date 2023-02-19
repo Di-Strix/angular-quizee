@@ -1,6 +1,6 @@
 <div
   class="loader-container"
-  *ngIf="!(quizeeEditingService.get() | async)"
+  *ngIf="!(quizeeEditingService.getQuizee() | async)"
   @loader
 >
   <div class="loader">
@@ -10,50 +10,143 @@
   </div>
 </div>
 
-<mat-toolbar
-  color="primary"
-  class="header mat-elevation-z6"
+<div
+  fxFlex="100%"
+  fxLayout="column"
+  fxHide.lt-sm
 >
-  <button
-    type="button"
-    mat-icon-button
-    routerLink="/"
-  >
-    <mat-icon>home</mat-icon>
-  </button>
-  <span style="flex: 1 1 auto"></span>
-  <div
-    fxLayout
-    fxLayoutAlign="center center"
-  >
-    <span>{{ (quizeeEditingService.get() | async)?.info?.caption || '' }}</span>
-  </div>
-  <span style="flex: 1 1 auto"></span>
-  <div
-    [matTooltip]="validationError"
-    [matTooltipDisabled]="!validationError"
+  <!-- Wide screen -->
+  <mat-toolbar
+    color="primary"
+    class="header mat-elevation-z6"
   >
     <button
-      mat-flat-button
-      class="animated-flat-button"
-      color="primary"
-      (click)="publish()"
-      [disabled]="!!validationError"
+      type="button"
+      mat-icon-button
+      routerLink="/"
     >
-      <mat-icon>publish</mat-icon> Publish
+      <mat-icon>home</mat-icon>
     </button>
+    <span style="flex: 1 1 auto"></span>
+    <div
+      fxLayout
+      fxLayoutAlign="center center"
+    >
+      <span>{{ (quizeeEditingService.getQuizee() | async)?.info?.caption || '' }}</span>
+    </div>
+    <span style="flex: 1 1 auto"></span>
+    <div
+      [matTooltip]="validationError"
+      [matTooltipDisabled]="!validationError"
+    >
+      <button
+        mat-flat-button
+        class="animated-flat-button"
+        color="primary"
+        (click)="publish()"
+        [disabled]="!!validationError"
+      >
+        <mat-icon>publish</mat-icon> Publish
+      </button>
+    </div>
+  </mat-toolbar>
+  <div class="editor-container">
+    <div
+      fxLayout="row"
+      fxFlex
+    >
+      <div
+        fxLayout="column"
+        [fxFlex.lt-md]="(100 / 12) * 5 + '%'"
+        [fxFlex.lt-lg]="(100 / 12) * 4 + '%'"
+        [fxFlex]="(100 / 12) * 2 + '%'"
+      >
+        <mat-card class="mat-elevation-z2 full-width-card">
+          <mat-form-field fxFlex="100%">
+            <mat-label>Quizee name</mat-label>
+            <input
+              matInput
+              [formControl]="quizeeName"
+            />
+            <mat-error *ngIf="quizeeName.hasError('string.empty')">Quizee name shouldn't be empty </mat-error>
+          </mat-form-field>
+        </mat-card>
+        <app-overview
+          #questionsContainer
+          fxFlex="grow"
+          style="overflow-y: scroll"
+        ></app-overview>
+        <mat-card class="mat-elevation-z2 mat-reverse-elevation full-width-card">
+          <button
+            mat-stroked-button
+            color="primary"
+            fxFlex
+            (click)="handleQuestionCreation()"
+          >
+            <mat-icon>add</mat-icon>
+          </button>
+        </mat-card>
+      </div>
+      <mat-divider [vertical]="true"></mat-divider>
+      <div
+        fxLayout="column"
+        fxFlex
+        fxGrow="1"
+        fxShrink="1"
+        fxHide.lt-md
+      >
+        <app-question-screen></app-question-screen>
+      </div>
+      <mat-divider [vertical]="true"></mat-divider>
+      <app-settings
+        style="overflow-y: scroll"
+        fxLayout="column"
+        [fxFlex.lt-md]="(100 / 12) * 7 + '%'"
+        [fxFlex.lt-lg]="(100 / 12) * 5 + '%'"
+        [fxFlex]="(100 / 12) * 3 + '%'"
+      ></app-settings>
+    </div>
   </div>
-</mat-toolbar>
-<div class="editor-container">
-  <div
-    fxLayout="row"
-    fxFlex
+</div>
+
+<div
+  fxFlex="100%"
+  fxLayout="column"
+  fxHide.gt-xs
+>
+  <!-- Narrow screen -->
+  <mat-toolbar
+    color="primary"
+    class="header mat-elevation-z6"
   >
+    <button
+      type="button"
+      mat-icon-button
+      routerLink="/"
+    >
+      <mat-icon>home</mat-icon>
+    </button>
+    <span style="flex: 1 1 auto"></span>
+    <div
+      [matTooltip]="validationError"
+      [matTooltipDisabled]="!validationError"
+    >
+      <button
+        mat-flat-button
+        class="animated-flat-button"
+        color="primary"
+        (click)="publish()"
+        [disabled]="!!validationError"
+      >
+        <mat-icon>publish</mat-icon> Publish
+      </button>
+    </div>
+  </mat-toolbar>
+
+  <div class="editor-container">
     <div
       fxLayout="column"
-      [fxFlex.lt-md]="(100 / 12) * 5 + '%'"
-      [fxFlex.lt-lg]="(100 / 12) * 4 + '%'"
-      [fxFlex]="(100 / 12) * 2 + '%'"
+      fxFlexFill
     >
       <mat-card class="mat-elevation-z2 full-width-card">
         <mat-form-field fxFlex="100%">
@@ -67,8 +160,8 @@
       </mat-card>
       <app-overview
         #questionsContainer
+        [useExpansionPanel]="true"
         fxFlex="grow"
-        style="overflow-y: scroll"
       ></app-overview>
       <mat-card class="mat-elevation-z2 mat-reverse-elevation full-width-card">
         <button
@@ -81,23 +174,5 @@
         </button>
       </mat-card>
     </div>
-    <mat-divider [vertical]="true"></mat-divider>
-    <div
-      fxLayout="column"
-      fxFlex
-      fxGrow="1"
-      fxShrink="1"
-      fxHide.lt-md="true"
-    >
-      <app-question-screen></app-question-screen>
-    </div>
-    <mat-divider [vertical]="true"></mat-divider>
-    <app-settings
-      style="overflow-y: scroll"
-      fxLayout="column"
-      [fxFlex.lt-md]="(100 / 12) * 7 + '%'"
-      [fxFlex.lt-lg]="(100 / 12) * 5 + '%'"
-      [fxFlex]="(100 / 12) * 3 + '%'"
-    ></app-settings>
   </div>
 </div>

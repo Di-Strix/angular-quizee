@@ -13,6 +13,8 @@ describe('SelectiveAnswersBaseComponent', () => {
   beforeEach(() => {
     service = new QuizeeEditingService();
     component = new (class extends SelectiveAnswersBase {})();
+
+    jest.useFakeTimers();
   });
 
   it('should create', () => {
@@ -46,19 +48,30 @@ describe('SelectiveAnswersBaseComponent', () => {
   });
 
   describe('subscribeToUpdates', () => {
-    it('should subscribe to current question', () => {
-      const getCurrentQuestion = jest.spyOn(service, 'getCurrentQuestion');
-      getCurrentQuestion.mockReturnValue(of());
-      component.subscribeToUpdates(service);
+    it('should subscribe to provided question', () => {
+      const subject = new Subject();
+      const getQuestion = jest.spyOn(service, 'getQuestion');
+      getQuestion.mockReturnValue(subject as any);
+      component.subscribeToUpdates(service, 1);
 
-      expect(service.getCurrentQuestion).toHaveBeenCalled();
+      expect(getQuestion).toBeCalledTimes(1);
+      expect(getQuestion).toBeCalledWith(1);
+      expect(subject.observed).toBeTruthy();
+    });
+
+    it('should not subscribe to provided question if index is negative', () => {
+      const getQuestion = jest.spyOn(service, 'getQuestion');
+      getQuestion.mockReturnValue(of());
+      component.subscribeToUpdates(service, -1);
+
+      expect(getQuestion).not.toBeCalled();
     });
 
     it('should create form controls for each answer option', () => {
       const ids = ['id1', 'id2', 'id3'];
 
-      const getCurrentQuestion = jest.spyOn(service, 'getCurrentQuestion');
-      getCurrentQuestion.mockReturnValue(
+      const getQuestion = jest.spyOn(service, 'getQuestion');
+      getQuestion.mockReturnValue(
         of({
           answer: { answer: [], answerTo: 'question id', config: { equalCase: false } },
           question: {
@@ -67,20 +80,19 @@ describe('SelectiveAnswersBaseComponent', () => {
             id: 'question id',
             type: 'SEVERAL_TRUE',
           },
+          index: 0,
         } as QuestionPair)
       );
 
-      component.subscribeToUpdates(service);
+      component.subscribeToUpdates(service, 0);
 
       expect(component.controls.map(({ id }) => id)).toEqual(expect.arrayContaining(ids));
     });
-    it('should update quizee on input value change', async () => {
-      jest.useFakeTimers();
-
+    it('should update provided question on input value change', async () => {
       const ids = ['id1'];
 
-      const getCurrentQuestion = jest.spyOn(service, 'getCurrentQuestion');
-      getCurrentQuestion.mockReturnValue(
+      const getQuestion = jest.spyOn(service, 'getQuestion');
+      getQuestion.mockReturnValue(
         of({
           answer: { answer: [], answerTo: 'question id', config: { equalCase: false } },
           question: {
@@ -89,29 +101,27 @@ describe('SelectiveAnswersBaseComponent', () => {
             id: 'question id',
             type: 'SEVERAL_TRUE',
           },
+          index: 0,
         } as QuestionPair)
       );
 
       const setAnswer = jest.spyOn(service, 'setAnswer');
       const setAnswerOptions = jest.spyOn(service, 'setAnswerOptions');
 
-      component.subscribeToUpdates(service);
+      component.subscribeToUpdates(service, 1);
       component.controls.find(({ id }) => id === 'id1')?.control.setValue('id1');
 
       await jest.runAllTimers();
 
-      expect(setAnswer).toHaveBeenCalledTimes(0);
-      expect(setAnswerOptions).toHaveBeenCalledTimes(1);
-
-      expect(setAnswerOptions.mock.calls[0][0]).toEqual([{ id: 'id1', value: 'id1' }]);
+      expect(setAnswer).toBeCalledTimes(0);
+      expect(setAnswerOptions).toBeCalledTimes(1);
+      expect(setAnswerOptions).toBeCalledWith(1, [{ id: 'id1', value: 'id1' }]);
     });
 
     describe('controls management', () => {
       let mockQuestionPair: QuestionPair;
 
       beforeEach(() => {
-        jest.useFakeTimers();
-
         mockQuestionPair = {
           answer: { answer: [], answerTo: 'question id', config: { equalCase: false } },
           question: {
@@ -120,6 +130,7 @@ describe('SelectiveAnswersBaseComponent', () => {
             id: 'question id',
             type: 'SEVERAL_TRUE',
           },
+          index: 0,
         };
       });
 
@@ -130,7 +141,7 @@ describe('SelectiveAnswersBaseComponent', () => {
         const getCurrentQuestion = jest.spyOn(service, 'getCurrentQuestion');
         getCurrentQuestion.mockReturnValue(subject as any);
 
-        component.subscribeToUpdates(service);
+        component.subscribeToUpdates(service, 1);
         subject.next(_.cloneDeep(mockQuestionPair));
 
         await jest.runAllTimers();
@@ -150,22 +161,27 @@ describe('SelectiveAnswersBaseComponent', () => {
         ];
 
         const subject = new Subject();
-        const getCurrentQuestion = jest.spyOn(service, 'getCurrentQuestion');
-        getCurrentQuestion.mockReturnValue(subject as any);
+        const getQuestion = jest.spyOn(service, 'getQuestion');
+        getQuestion.mockReturnValue(subject as any);
 
-        component.subscribeToUpdates(service);
+        component.subscribeToUpdates(service, 1);
         subject.next(_.cloneDeep(mockQuestionPair));
 
         await jest.runAllTimers();
 
-        const controls = _.cloneDeep(component.controls);
+        const controls = component.controls.slice(0);
+        const setValue1 = jest.spyOn(controls[0].control, 'setValue');
+        const setValue2 = jest.spyOn(controls[1].control, 'setValue');
+
         mockQuestionPair.question.answerOptions[0].value = '2';
         subject.next(_.cloneDeep(mockQuestionPair));
 
         await jest.runAllTimers();
 
-        expect(component.controls[0]).not.toEqual(controls[0]);
-        expect(component.controls[1]).toEqual(controls[1]);
+        expect(component.controls[0]).toBe(controls[0]);
+        expect(component.controls[1]).toBe(controls[1]);
+        expect(setValue1).toBeCalledTimes(1);
+        expect(setValue2).not.toBeCalled();
       });
     });
   });

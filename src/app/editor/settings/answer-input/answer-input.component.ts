@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { Answer } from '@di-strix/quizee-types';
 
@@ -17,12 +17,13 @@ type Config = {
   templateUrl: './answer-input.component.html',
   styleUrls: ['./answer-input.component.scss'],
 })
-export class AnswerInputComponent implements OnInit, OnDestroy {
+export class AnswerInputComponent implements OnInit, OnDestroy, OnChanges {
+  @Input() questionIndex: number = -1;
+
   subs = new Subscription();
 
   answer = new FormControl<Answer['answer'][0]>('', {
     nonNullable: true,
-    asyncValidators: [QuizeeValidators.forCurrentQuestion(this.quizeeEditingService, 'answer.answer[0]')],
   });
   config = new FormGroup<Config>({ equalCase: new FormControl(false, { nonNullable: true }) });
 
@@ -30,10 +31,26 @@ export class AnswerInputComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.answer.markAsTouched();
+  }
+
+  ngOnDestroy(): void {
+    this.subs.unsubscribe();
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    this.updateSubscriptions();
+  }
+
+  updateSubscriptions() {
+    this.subs.unsubscribe();
+    this.subs = new Subscription();
+    this.answer.clearAsyncValidators();
+
+    if (this.questionIndex < 0) return;
 
     this.subs.add(
       this.quizeeEditingService
-        .getCurrentQuestion()
+        .getQuestion(this.questionIndex)
         .pipe(filter((qp) => qp.answer.answer[0] !== this.answer.value))
         .subscribe((qp) => {
           this.answer.setValue(qp.answer.answer[0]);
@@ -42,23 +59,28 @@ export class AnswerInputComponent implements OnInit, OnDestroy {
 
     this.subs.add(
       this.quizeeEditingService
-        .getCurrentQuestion()
+        .getQuestion(this.questionIndex)
         .pipe(filter((qp) => !_.isEqual(qp.answer.config, this.config.value)))
         .subscribe((qp) => {
           this.config.controls['equalCase'].setValue(qp.answer.config.equalCase);
         })
     );
 
-    this.answer.valueChanges.subscribe((v) => {
-      this.quizeeEditingService.setAnswer([v]);
-    });
+    this.subs.add(
+      this.answer.valueChanges.subscribe((v) => {
+        this.quizeeEditingService.setAnswer(this.questionIndex, [v]);
+      })
+    );
 
-    this.config.valueChanges.subscribe((v) => {
-      this.quizeeEditingService.setAnswerConfig(v);
-    });
-  }
+    this.subs.add(
+      this.config.valueChanges.subscribe((v) => {
+        this.quizeeEditingService.setAnswerConfig(this.questionIndex, v);
+      })
+    );
 
-  ngOnDestroy(): void {
-    this.subs.unsubscribe();
+    this.answer.setAsyncValidators([
+      QuizeeValidators.forQuestion(this.quizeeEditingService, this.questionIndex, 'answer.answer[0]'),
+    ]);
+    this.answer.updateValueAndValidity({ emitEvent: false });
   }
 }

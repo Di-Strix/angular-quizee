@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { Question } from '@di-strix/quizee-types';
 
@@ -12,21 +12,38 @@ import { QuizeeValidators } from '../../quizee-validators';
   templateUrl: './question-caption.component.html',
   styleUrls: ['./question-caption.component.scss'],
 })
-export class QuestionCaptionComponent implements OnInit, OnDestroy {
+export class QuestionCaptionComponent implements OnInit, OnDestroy, OnChanges {
+  @Input() questionIndex: number = -1;
+
   subs: Subscription = new Subscription();
   questionCaption = new FormControl<Question['caption']>('', {
     nonNullable: true,
-    asyncValidators: [QuizeeValidators.forCurrentQuestion(this.quizeeEditingService, 'question.caption')],
   });
 
   constructor(public quizeeEditingService: QuizeeEditingService) {}
 
   ngOnInit(): void {
     this.questionCaption.markAsTouched();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    this.updateSubscriptions();
+  }
+
+  ngOnDestroy(): void {
+    this.subs.unsubscribe();
+  }
+
+  updateSubscriptions() {
+    this.subs.unsubscribe();
+    this.subs = new Subscription();
+    this.questionCaption.clearAsyncValidators();
+
+    if (this.questionIndex < 0) return;
 
     this.subs.add(
       this.quizeeEditingService
-        .getCurrentQuestion()
+        .getQuestion(this.questionIndex)
         .pipe(filter((questionPair) => this.questionCaption.value !== questionPair.question.caption))
         .subscribe((pair) => {
           this.questionCaption.setValue(pair.question.caption);
@@ -34,13 +51,14 @@ export class QuestionCaptionComponent implements OnInit, OnDestroy {
     );
 
     this.subs.add(
-      this.questionCaption.valueChanges.subscribe((v) =>
-        this.quizeeEditingService.modifyCurrentQuestion({ question: { caption: v } })
-      )
+      this.questionCaption.valueChanges.subscribe((v) => {
+        this.quizeeEditingService.modifyQuestion(this.questionIndex, { question: { caption: v } });
+      })
     );
-  }
 
-  ngOnDestroy(): void {
-    this.subs.unsubscribe();
+    this.questionCaption.setAsyncValidators([
+      QuizeeValidators.forQuestion(this.quizeeEditingService, this.questionIndex, 'question.caption'),
+    ]);
+    this.questionCaption.updateValueAndValidity({ emitEvent: false });
   }
 }

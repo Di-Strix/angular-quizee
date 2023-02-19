@@ -1,5 +1,5 @@
 import { animate, style, transition, trigger } from '@angular/animations';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { Question } from '@di-strix/quizee-types';
 import { VerificationErrors } from '@di-strix/quizee-verification-functions';
 
@@ -27,6 +27,8 @@ import { QuizeeValidators } from '../quizee-validators';
   ],
 })
 export class OverviewComponent implements OnInit, OnDestroy {
+  @Input() useExpansionPanel: boolean = false;
+
   errors: VerificationErrors = [];
 
   subs = new Subscription();

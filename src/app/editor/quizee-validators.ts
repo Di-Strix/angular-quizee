@@ -22,14 +22,37 @@ export class QuizeeValidators {
    */
   static forCurrentQuestion(service: QuizeeEditingService, fullPath: string, once: boolean = true): AsyncValidatorFn {
     const path: string = fullPath.split('.').slice(1).join('.');
-    const forProp = fullPath.split('.').shift() as keyof QuestionPair;
+    const forProp = fullPath.split('.').shift() as keyof Omit<QuestionPair, 'index'>;
     const allowedProps: (keyof QuestionPair)[] = ['answer', 'question'];
 
     if (!forProp || !allowedProps.includes(forProp))
-      return () => throwError(() => new Error("Path must starts with either 'question' or 'answer'"));
+      return () => throwError(() => new Error("Path must start with either 'question' or 'answer'"));
 
     return () =>
       service.getCurrentQuestionErrors().pipe(
+        once ? first() : tap(() => {}),
+        map((errors) => this.filterErrors(errors[forProp], path))
+      );
+  }
+
+  /**
+   * @param path path to object to search errors for. Must starts with either 'question' or 'answer' Should look like `prop1.nestedProp2`
+   */
+  static forQuestion(
+    service: QuizeeEditingService,
+    questionIndex: number,
+    fullPath: string,
+    once: boolean = true
+  ): AsyncValidatorFn {
+    const path: string = fullPath.split('.').slice(1).join('.');
+    const forProp = fullPath.split('.').shift() as keyof Omit<QuestionPair, 'index'>;
+    const allowedProps: (keyof QuestionPair)[] = ['answer', 'question'];
+
+    if (!forProp || !allowedProps.includes(forProp))
+      return () => throwError(() => new Error("Path must start with either 'question' or 'answer'"));
+
+    return () =>
+      service.getQuestionErrors(questionIndex).pipe(
         once ? first() : tap(() => {}),
         map((errors) => this.filterErrors(errors[forProp], path))
       );

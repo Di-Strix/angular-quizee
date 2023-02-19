@@ -42,7 +42,7 @@ describe('EditorComponent', () => {
     quizeeEditingService = new QuizeeEditingService() as any;
     fakePlayerService = new FakePlayerService() as any;
 
-    quizeeEditingService.get.mockReturnValue(of());
+    quizeeEditingService.getQuizee.mockReturnValue(of());
     quizeeEditingService.getQuizeeErrors.mockReturnValue(of([]));
     quizeeEditingService.getCurrentQuestion.mockReturnValue(of());
     fakePlayerService.loadQuestion.mockReturnValue(of(0 as any /* to suppress undefined error */));
@@ -86,7 +86,7 @@ describe('EditorComponent', () => {
         id: idVal,
       };
 
-      const load = jest.spyOn(quizeeEditingService, 'load');
+      const load = jest.spyOn(quizeeEditingService, 'loadQuizee');
 
       const quizObj = { [Symbol()]: 1 };
       jest.spyOn(quizeeService, 'getFullQuizee').mockReturnValue(of(quizObj) as any);
@@ -101,7 +101,7 @@ describe('EditorComponent', () => {
       activatedRoute.paramMapValues = {
         id: null,
       };
-      const create = jest.spyOn(quizeeEditingService, 'create');
+      const create = jest.spyOn(quizeeEditingService, 'createQuizee');
 
       component.ngOnInit();
 
@@ -176,7 +176,7 @@ describe('EditorComponent', () => {
     it('should unsubscribe', async () => {
       const subject = new Subject();
 
-      quizeeEditingService.get.mockReturnValue(subject as any);
+      quizeeEditingService.getQuizee.mockReturnValue(subject as any);
       activatedRoute.paramMap = subject as any;
       (component.quizeeName as any).valueChanges = subject as any;
       quizeeEditingService.getCurrentQuestion.mockReturnValue(subject as any);
@@ -277,15 +277,15 @@ describe('EditorComponent', () => {
 
         await jest.runAllTimers();
 
-        expect(quizeeEditingService.modify).toHaveBeenCalledTimes(1);
-        expect(quizeeEditingService.modify).toHaveBeenCalledWith({ info: { caption: 'abc123' } });
+        expect(quizeeEditingService.modifyQuizee).toHaveBeenCalledTimes(1);
+        expect(quizeeEditingService.modifyQuizee).toHaveBeenCalledWith({ info: { caption: 'abc123' } });
       });
     });
 
     describe('question type value change', () => {
       it('should update input value if its value differs', async () => {
         const subject = new Subject();
-        const getCurrentQuestion = jest.spyOn(quizeeEditingService, 'get');
+        const getCurrentQuestion = jest.spyOn(quizeeEditingService, 'getQuizee');
         getCurrentQuestion.mockReturnValue(subject as any);
 
         const setValue = jest.spyOn(component.quizeeName, 'setValue');
@@ -304,7 +304,7 @@ describe('EditorComponent', () => {
 
       it('should not update input value if it is the same', async () => {
         const subject = new Subject();
-        const getCurrentQuestion = jest.spyOn(quizeeEditingService, 'get');
+        const getCurrentQuestion = jest.spyOn(quizeeEditingService, 'getQuizee');
         getCurrentQuestion.mockReturnValue(subject as any);
 
         const setValue = jest.spyOn(component.quizeeName, 'setValue');

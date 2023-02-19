@@ -42,7 +42,7 @@ export class PublishDialogComponent implements OnInit {
 
           this.stepperState.validation.done = true;
 
-          return this.quizeeEditingService.get();
+          return this.quizeeEditingService.getQuizee();
         }),
         delay(750),
         tap(() => this.switchStepper()),

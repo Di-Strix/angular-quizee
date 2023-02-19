@@ -1,8 +1,9 @@
 <app-setting-card>
   <app-setting-card-title
     title="Question caption"
-    checkErrors="forCurrentQuestion"
+    checkErrors="forQuestion"
     path="question.caption"
+    [questionIndex]="questionIndex"
   >
   </app-setting-card-title>
   <app-setting-card-content>

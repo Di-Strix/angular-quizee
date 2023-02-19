@@ -52,7 +52,7 @@ export class EditorComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.subs.add(
       this.quizeeEditingService
-        .get()
+        .getQuizee()
         .pipe(filter((quizee) => this.quizeeName.value !== quizee.info.caption))
         .subscribe((quizee) => {
           this.quizeeName.setValue(quizee.info.caption);
@@ -72,7 +72,7 @@ export class EditorComponent implements OnInit, OnDestroy {
     );
 
     this.subs.add(
-      this.quizeeName.valueChanges.subscribe((v) => this.quizeeEditingService.modify({ info: { caption: v } }))
+      this.quizeeName.valueChanges.subscribe((v) => this.quizeeEditingService.modifyQuizee({ info: { caption: v } }))
     );
 
     this.subs.add(
@@ -82,7 +82,7 @@ export class EditorComponent implements OnInit, OnDestroy {
         if (id?.trim()) {
           this.quizeeService.getFullQuizee(id).subscribe({
             next: (value) => {
-              this.quizeeEditingService.load(value);
+              this.quizeeEditingService.loadQuizee(value);
             },
             error: (_) => {
               this.dialog
@@ -94,7 +94,7 @@ export class EditorComponent implements OnInit, OnDestroy {
             },
           });
         } else {
-          this.quizeeEditingService.create();
+          this.quizeeEditingService.createQuizee();
         }
       })
     );
