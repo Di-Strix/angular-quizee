@@ -4,56 +4,79 @@ import { VerificationErrors } from '@di-strix/quizee-verification-functions';
 import { verifyAnswer, verifyQuestion, verifyQuizee } from '@di-strix/quizee-verification-functions';
 
 import * as _ from 'lodash';
-import { Observable, ReplaySubject, from, map, switchMap, zip } from 'rxjs';
+import { Observable, ReplaySubject, distinctUntilChanged, from, map, switchMap, tap, zip } from 'rxjs';
 import { v4 as uuidV4 } from 'uuid';
 
-import { AutoDispatchEvent, RegisterDispatcher } from '../shared/decorators/AutoDispatchEvent';
+import { ErrorAsStream } from '../shared/decorators/ErrorAsStream';
 import { RecursivePartial } from '../shared/helpers/RecursivePartial';
 import { doSwitch, switchCase } from '../shared/helpers/switchCase';
 
-export type QuestionPair = { question: Question; answer: Answer };
+export type QuestionPair = { question: Question; answer: Answer; index: number };
+export type QuestionErrors = {
+  [K in keyof Pick<QuestionPair, 'question' | 'answer'>]: VerificationErrors;
+};
+export type QuestionChanges = RecursivePartial<Pick<QuestionPair, 'answer' | 'question'>>;
+export type AnswerConfigChanges = RecursivePartial<Answer['config']>;
 
 @Injectable()
 export class QuizeeEditingService {
   quizee$: ReplaySubject<Quiz> = new ReplaySubject(1);
-  currentQuestion$: ReplaySubject<QuestionPair> = new ReplaySubject(1);
+  currentQuestionIndex$ = new ReplaySubject<number>(-1);
 
-  quizee?: Quiz;
-  private currentIndex: number = -1;
+  private _quizee?: Quiz;
+  set quizee(quizee) {
+    if (!quizee) return;
+
+    this._quizee = quizee;
+    this.quizee$.next(_.cloneDeep(quizee));
+  }
+  get quizee() {
+    return this._quizee;
+  }
+
+  private _currentIndex: number = -1;
+  set currentQuestionIndex(index: number) {
+    if (this._currentIndex === index || index < 0) return;
+
+    this._currentIndex = index;
+    this.currentQuestionIndex$.next(index);
+  }
+  get currentQuestionIndex() {
+    return this._currentIndex;
+  }
 
   constructor() {}
-
-  getCurrentQuestionIndex(): number {
-    return this.currentIndex;
-  }
 
   getQuizeeErrors(): Observable<VerificationErrors> {
     return this.quizee$.pipe(switchMap((q) => from(verifyQuizee(q))));
   }
 
-  getCurrentQuestionErrors(): Observable<{ [K in keyof QuestionPair]: VerificationErrors }> {
-    return this.currentQuestion$.pipe(
+  getCurrentQuestionErrors(): Observable<QuestionErrors> {
+    return this.currentQuestionIndex$.pipe(switchMap((index) => this.getQuestionErrors(index)));
+  }
+
+  getQuestionErrors(index: number): Observable<QuestionErrors> {
+    return this.getQuestion(index).pipe(
       switchMap((q) => zip(from(verifyQuestion(q.question)), from(verifyAnswer(q.answer)))),
       map(([question, answer]) => ({ question, answer }))
     );
   }
 
-  @AutoDispatchEvent(['quizee', 'currentQuestion'])
-  load(quizee: Quiz): Observable<Quiz> {
+  @ErrorAsStream()
+  loadQuizee(quizee: Quiz): Observable<Quiz> {
     if (quizee.answers.length !== quizee.questions.length) throw new Error("Answers and questions count isn't equal");
     if (quizee.answers.length < 1) throw new Error('Quizee should contain at least one question');
 
     this.quizee = _.cloneDeep(quizee);
     this.selectQuestion(0);
 
-    return this.get();
+    return this.getQuizee();
   }
 
-  @AutoDispatchEvent(['quizee', 'currentQuestion'])
-  create(): Observable<Quiz> {
+  createQuizee(): Observable<Quiz> {
     const question = this._createQuestionObject();
 
-    return this.load({
+    return this.loadQuizee({
       info: {
         caption: 'New quizee',
         id: '',
@@ -65,155 +88,207 @@ export class QuizeeEditingService {
     });
   }
 
-  @AutoDispatchEvent(['quizee'])
-  modify(changes: RecursivePartial<Quiz>): Observable<Quiz> {
-    if (!this.quizee) throw new Error('Quizee is not loaded');
+  @ErrorAsStream()
+  modifyQuizee(changes: RecursivePartial<Quiz>): Observable<Quiz> {
+    this._checkQuizeeExistence();
 
     this.quizee = _.merge({}, this.quizee, changes);
 
-    return this.get();
+    return this.getQuizee();
   }
 
-  get(): Observable<Quiz> {
-    return this.quizee$;
+  getQuizee(): Observable<Quiz> {
+    return this.quizee$.pipe(distinctUntilChanged(_.isEqual));
   }
 
-  @AutoDispatchEvent(['quizee', 'currentQuestion'])
+  @ErrorAsStream()
   createQuestion(): Observable<QuestionPair> {
-    if (!this.quizee) throw new Error('Quizee is not loaded');
+    this._checkQuizeeExistence();
 
     const qp = this._createQuestionObject();
 
-    this.quizee.answers.push(qp.answer);
-    this.quizee.questions.push(qp.question);
-    this.modify({ info: { questionsCount: this.quizee.questions.length } });
+    this.quizee!.answers.push(qp.answer);
+    this.quizee!.questions.push(qp.question);
+    this.modifyQuizee({ info: { questionsCount: this.quizee!.questions.length } });
 
-    this.selectQuestion(this.quizee.questions.length - 1);
+    this.selectQuestion(this.quizee!.questions.length - 1);
 
-    return this.getCurrentQuestion();
+    return this.getQuestion(this.currentQuestionIndex);
   }
 
-  @AutoDispatchEvent(['currentQuestion'])
+  modifyCurrentQuestion(changes: QuestionChanges): Observable<QuestionPair> {
+    return this.modifyQuestion(this.currentQuestionIndex, changes);
+  }
+
+  @ErrorAsStream()
+  modifyQuestion(index: number, changes: QuestionChanges): Observable<QuestionPair> {
+    this._checkQuizeeExistence();
+    this._checkRange(index);
+
+    _.merge(this.quizee!.answers[index], changes.answer);
+    _.merge(this.quizee!.questions[index], changes.question);
+
+    this.quizee = this.quizee;
+
+    return this.getQuestion(index);
+  }
+
+  @ErrorAsStream()
   selectQuestion(index: number): Observable<QuestionPair> {
-    if (!this.quizee || index < 0 || !_.inRange(index, this.quizee.questions.length))
-      throw new Error('Index is out of range');
+    this._checkQuizeeExistence();
+    this._checkRange(index);
 
-    this.currentIndex = index;
-
-    return this.getCurrentQuestion();
-  }
-
-  @AutoDispatchEvent(['quizee', 'currentQuestion'])
-  modifyCurrentQuestion(changes: RecursivePartial<QuestionPair>): Observable<QuestionPair> {
-    if (!this.quizee) throw new Error('Quizee is not loaded');
-
-    _.merge(this.quizee.answers[this.getCurrentQuestionIndex()], changes.answer);
-    _.merge(this.quizee.questions[this.getCurrentQuestionIndex()], changes.question);
+    this.currentQuestionIndex = index;
 
     return this.getCurrentQuestion();
   }
 
   getCurrentQuestion(): Observable<QuestionPair> {
-    return this.currentQuestion$;
+    return this.currentQuestionIndex$.pipe(switchMap((index) => this.getQuestion(index)));
   }
 
-  private _getCurrentQuestion(): QuestionPair {
-    if (!this.quizee) throw new Error('Quizee is not loaded');
-
-    return {
-      question: this.quizee.questions[this.getCurrentQuestionIndex()],
-      answer: this.quizee.answers[this.getCurrentQuestionIndex()],
-    };
+  getQuestion(index: number): Observable<QuestionPair> {
+    return this.quizee$.pipe(
+      tap(() => {
+        this._checkRange(index);
+      }),
+      map((value) => _.cloneDeep(value)),
+      map((value) => ({ question: value.questions[index], answer: value.answers[index], index })),
+      distinctUntilChanged(_.isEqual)
+    );
   }
 
-  @AutoDispatchEvent(['quizee', 'currentQuestion'])
-  setAnswerConfig(changes: RecursivePartial<Answer['config']>): Observable<QuestionPair> {
-    if (!this.quizee) throw new Error('Quizee is not loaded');
-
-    _.merge(this._getCurrentQuestion().answer.config, changes);
-
-    return this.getCurrentQuestion();
+  setCurrentQuestionAnswerConfig(changes: AnswerConfigChanges): Observable<QuestionPair> {
+    return this.setAnswerConfig(this.currentQuestionIndex, changes);
   }
 
-  @AutoDispatchEvent(['quizee', 'currentQuestion'])
-  setQuestionType(qt: QuestionType): Observable<QuestionPair> {
-    if (!this.quizee) throw new Error('Quizee is not loaded');
+  @ErrorAsStream()
+  setAnswerConfig(index: number, changes: AnswerConfigChanges): Observable<QuestionPair> {
+    this._checkQuizeeExistence();
+    this._checkRange(index);
+
+    _.merge(this._getQuestion(index).answer.config, changes);
+
+    this.quizee = this.quizee;
+
+    return this.getQuestion(index);
+  }
+
+  setCurrentQuestionType(qt: QuestionType): Observable<QuestionPair> {
+    return this.setQuestionType(this.currentQuestionIndex, qt);
+  }
+
+  @ErrorAsStream()
+  setQuestionType(index: number, qt: QuestionType): Observable<QuestionPair> {
+    this._checkQuizeeExistence();
+    this._checkRange(index);
 
     const qp = this._getCurrentQuestion();
 
     doSwitch(qp.question.type, qt, [
       switchCase('*', 'WRITE_ANSWER', () => {
-        this.setAnswer(['Correct answer']);
-        this.setAnswerOptions([]);
+        this.setAnswer(index, ['Correct answer']);
+        this.setAnswerOptions(index, []);
       }),
       switchCase('WRITE_ANSWER', '*', () => {
         const answerOption = this._createAnswerOption();
-        this.setAnswer([answerOption.id]);
-        this.setAnswerOptions([answerOption]);
+        this.setAnswer(index, [answerOption.id]);
+        this.setAnswerOptions(index, [answerOption]);
       }),
     ]);
 
-    this.modifyCurrentQuestion({ question: { type: qt } });
+    this.modifyQuestion(index, { question: { type: qt } });
 
-    return this.getCurrentQuestion();
+    return this.getQuestion(index);
   }
 
-  @AutoDispatchEvent(['quizee', 'currentQuestion'])
-  setAnswer(answer: Answer['answer']): Observable<QuestionPair> {
-    if (!this.quizee) throw new Error('Quizee is not loaded');
-
-    this.quizee.answers[this.getCurrentQuestionIndex()].answer = answer;
-
-    return this.getCurrentQuestion();
+  setCurrentQuestionAnswer(answer: Answer['answer']): Observable<QuestionPair> {
+    return this.setAnswer(this.currentQuestionIndex, answer);
   }
 
-  @AutoDispatchEvent(['quizee', 'currentQuestion'])
-  setAnswerOptions(answerOptions: AnswerOption[]): Observable<QuestionPair> {
-    if (!this.quizee) throw new Error('Quizee is not loaded');
+  @ErrorAsStream()
+  setAnswer(index: number, answer: Answer['answer']): Observable<QuestionPair> {
+    this._checkQuizeeExistence();
+    this._checkRange(index);
 
-    this.quizee.questions[this.getCurrentQuestionIndex()].answerOptions = _.cloneDeep(answerOptions);
+    this.quizee!.answers[index].answer = answer;
 
-    return this.getCurrentQuestion();
+    this.quizee = this.quizee;
+
+    return this.getQuestion(index);
   }
 
-  @AutoDispatchEvent(['quizee', 'currentQuestion'])
-  addAnswerOption(): Observable<QuestionPair> {
-    if (!this.quizee) throw new Error('Quizee is not loaded');
-
-    const pair = this._getCurrentQuestion();
-
-    this.setAnswerOptions([...pair.question.answerOptions, this._createAnswerOption()]);
-
-    return this.getCurrentQuestion();
+  setCurrentQuestionAnswerOptions(answerOptions: AnswerOption[]): Observable<QuestionPair> {
+    return this.setAnswerOptions(this.currentQuestionIndex, answerOptions);
   }
 
-  @AutoDispatchEvent(['quizee', 'currentQuestion'])
-  removeAnswerOption(id: AnswerOptionId): Observable<QuestionPair> {
-    if (!this.quizee) throw new Error('Quizee is not loaded');
+  @ErrorAsStream()
+  setAnswerOptions(index: number, answerOptions: AnswerOption[]): Observable<QuestionPair> {
+    this._checkQuizeeExistence();
+    this._checkRange(index);
 
-    const pair = this._getCurrentQuestion();
+    this.quizee!.questions[index].answerOptions = _.cloneDeep(answerOptions);
 
-    this.setAnswerOptions(pair.question.answerOptions.filter((v) => v.id !== id));
-    this.setAnswer(pair.answer.answer.filter((answerId) => answerId !== id));
+    this.quizee = this.quizee;
 
-    return this.getCurrentQuestion();
+    return this.getQuestion(index);
   }
 
-  @RegisterDispatcher('quizee')
-  private _pushQuizee(): void {
-    if (!this.quizee) return;
-
-    this.quizee$.next(_.cloneDeep(this.quizee));
+  addAnswerOptionForCurrentQuestion(): Observable<QuestionPair> {
+    return this.addAnswerOption(this.currentQuestionIndex);
   }
 
-  @RegisterDispatcher('currentQuestion')
-  private _pushCurrentQuestion(): void {
-    if (!this.quizee) return;
+  @ErrorAsStream()
+  addAnswerOption(index: number): Observable<QuestionPair> {
+    this._checkQuizeeExistence();
+    this._checkRange(index);
 
-    this.currentQuestion$.next(_.cloneDeep(this._getCurrentQuestion()));
+    const pair = this._getQuestion(index);
+
+    this.setAnswerOptions(index, [...pair.question.answerOptions, this._createAnswerOption()]);
+
+    return this.getQuestion(index);
   }
 
-  private _createQuestionObject(): QuestionPair {
+  removeAnswerOptionForCurrentQuestion(id: AnswerOptionId): Observable<QuestionPair> {
+    return this.removeAnswerOption(this.currentQuestionIndex, id);
+  }
+
+  @ErrorAsStream()
+  removeAnswerOption(index: number, id: AnswerOptionId): Observable<QuestionPair> {
+    this._checkQuizeeExistence();
+    this._checkRange(index);
+
+    const pair = this._getQuestion(index);
+
+    this.setAnswerOptions(
+      index,
+      pair.question.answerOptions.filter((v) => v.id !== id)
+    );
+    this.setAnswer(
+      index,
+      pair.answer.answer.filter((answerId) => answerId !== id)
+    );
+
+    return this.getQuestion(index);
+  }
+
+  private _getCurrentQuestion(): QuestionPair {
+    return this._getQuestion(this.currentQuestionIndex);
+  }
+
+  private _getQuestion(index: number): QuestionPair {
+    this._checkQuizeeExistence();
+    this._checkRange(index);
+
+    return {
+      question: this.quizee!.questions[index],
+      answer: this.quizee!.answers[index],
+      index,
+    };
+  }
+
+  private _createQuestionObject(): Omit<QuestionPair, 'index'> {
     const id = uuidV4();
     const answerOption = this._createAnswerOption();
 
@@ -225,5 +300,14 @@ export class QuizeeEditingService {
 
   private _createAnswerOption() {
     return { id: uuidV4(), value: 'Answer option' };
+  }
+
+  private _checkRange(index: number): void {
+    this._checkQuizeeExistence();
+    if (index < 0 || !_.inRange(index, this.quizee!.questions.length)) throw new Error('Index is out of range');
+  }
+
+  private _checkQuizeeExistence() {
+    if (!this.quizee) throw new Error('Quizee is not loaded');
   }
 }
