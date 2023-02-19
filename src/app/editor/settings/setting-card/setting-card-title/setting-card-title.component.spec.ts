@@ -7,8 +7,19 @@ import { SettingCardTitleComponent } from './setting-card-title.component';
 describe('SettingCardTitleComponent', () => {
   let component: SettingCardTitleComponent;
   let service: QuizeeEditingService;
+  let forQuizee: jest.Mock;
+  let forCurrentQuestion: jest.Mock;
+  let forQuestion: jest.Mock;
 
   beforeEach(() => {
+    forQuizee = jest.fn().mockReturnValue(() => new Subject());
+    forCurrentQuestion = jest.fn().mockReturnValue(() => new Subject());
+    forQuestion = jest.fn().mockReturnValue(() => new Subject());
+
+    QuizeeValidators.forQuizee = forQuizee;
+    QuizeeValidators.forCurrentQuestion = forCurrentQuestion;
+    QuizeeValidators.forQuestion = forQuestion;
+
     service = new QuizeeEditingService();
     component = new SettingCardTitleComponent(service);
 
@@ -19,54 +30,142 @@ describe('SettingCardTitleComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should throw if checkErrors set ans path is not ', () => {
-    component.checkErrors = 'forCurrentQuestion';
+  describe('forQuizee', () => {
+    it('should subscribe to quizee errors if checkErrors is "forQuizee"', async () => {
+      const subject = new Subject();
+      forQuizee.mockReturnValue(() => subject);
 
-    expect(() => component.ngOnInit()).toThrow();
+      component.checkErrors = 'forQuizee';
+      component.path = 'path';
+
+      component.ngOnChanges({});
+
+      await jest.runAllTimers();
+
+      expect(forQuizee).toBeCalledTimes(1);
+      expect(forQuizee).toBeCalledWith(service, component.path, false);
+      expect(subject.observed).toBeTruthy();
+      expect(forCurrentQuestion).not.toBeCalled();
+      expect(forQuestion).not.toBeCalled();
+    });
+
+    it('should cancel previous subscription', async () => {
+      const subject = new Subject();
+      forQuizee.mockReturnValue(() => subject);
+
+      component.checkErrors = 'forQuizee';
+      component.path = 'path';
+
+      component.ngOnChanges({});
+
+      await jest.runAllTimers();
+
+      forQuizee.mockReturnValue(() => new Subject());
+      component.ngOnChanges({});
+
+      await jest.runAllTimers();
+
+      expect(subject.observed).toBeFalsy();
+    });
+
+    it('should throw if path is not specified', () => {
+      component.checkErrors = 'forQuizee';
+
+      expect(() => component.ngOnChanges({})).toThrow();
+    });
   });
 
-  it('should subscribe to according validator if checkErrors and path are set', async () => {
-    const forQuizee = jest.fn().mockReturnValue(() => new Subject());
-    const forCurrentQuestion = jest.fn().mockReturnValue(() => new Subject());
+  describe('forCurrentQuestion', () => {
+    it('should subscribe to current question errors if checkErrors is "forQuestion" and questionIndex is -1', async () => {
+      const subject = new Subject();
+      forCurrentQuestion.mockReturnValue(() => subject);
 
-    QuizeeValidators.forQuizee = forQuizee;
-    QuizeeValidators.forCurrentQuestion = forCurrentQuestion;
+      component.checkErrors = 'forQuestion';
+      component.path = 'path';
 
-    component.checkErrors = 'forQuizee';
-    component.path = 'path';
+      component.ngOnChanges({});
 
-    component.ngOnInit();
+      await jest.runAllTimers();
 
-    await jest.runAllTimers();
+      expect(forCurrentQuestion).toBeCalledTimes(1);
+      expect(forCurrentQuestion).toBeCalledWith(service, component.path, false);
+      expect(subject.observed).toBeTruthy();
+      expect(forQuizee).not.toBeCalled();
+      expect(forQuestion).not.toBeCalled();
+    });
 
-    expect(forQuizee).toBeCalledTimes(1);
-    expect(forCurrentQuestion).not.toBeCalled();
+    it('should cancel previous subscription', async () => {
+      const subject = new Subject();
+      forCurrentQuestion.mockReturnValue(() => subject);
 
-    component.checkErrors = 'forCurrentQuestion';
-    component.path = 'answer.path';
+      component.checkErrors = 'forQuestion';
+      component.path = 'path';
 
-    component.ngOnInit();
+      component.ngOnChanges({});
 
-    await jest.runAllTimers();
+      await jest.runAllTimers();
 
-    expect(forQuizee).toBeCalledTimes(1);
-    expect(forCurrentQuestion).toBeCalledTimes(1);
+      forCurrentQuestion.mockReturnValue(() => new Subject());
+      component.ngOnChanges({});
+
+      await jest.runAllTimers();
+
+      expect(subject.observed).toBeFalsy();
+    });
+
+    it('should throw if path is not specified', () => {
+      component.checkErrors = 'forQuestion';
+
+      expect(() => component.ngOnChanges({})).toThrow();
+    });
   });
 
-  it('should call validator with path and once = false', async () => {
-    const forCurrentQuestion = jest.fn().mockReturnValue(() => new Subject());
+  describe('forQuestion', () => {
+    it('should subscribe to specified question errors if checkErrors is "forQuestion" and questionIndex is set', async () => {
+      const subject = new Subject();
+      forQuestion.mockReturnValue(() => subject);
 
-    QuizeeValidators.forCurrentQuestion = forCurrentQuestion;
+      component.checkErrors = 'forQuestion';
+      component.path = 'path';
+      component.questionIndex = 2;
 
-    component.checkErrors = 'forCurrentQuestion';
-    component.path = 'answer.path';
+      component.ngOnChanges({});
 
-    component.ngOnInit();
+      await jest.runAllTimers();
 
-    await jest.runAllTimers();
+      expect(forQuestion).toBeCalledTimes(1);
+      expect(forQuestion).toBeCalledWith(service, 2, component.path, false);
+      expect(subject.observed).toBeTruthy();
+      expect(forCurrentQuestion).not.toBeCalled();
+      expect(forQuizee).not.toBeCalled();
+    });
 
-    expect(forCurrentQuestion).toBeCalledTimes(1);
-    expect(forCurrentQuestion).toBeCalledWith(service, 'answer.path', false);
+    it('should cancel previous subscription', async () => {
+      const subject = new Subject();
+      forQuestion.mockReturnValue(() => subject);
+
+      component.checkErrors = 'forQuestion';
+      component.path = 'path';
+      component.questionIndex = 2;
+
+      component.ngOnChanges({});
+
+      await jest.runAllTimers();
+
+      forQuestion.mockReturnValue(() => new Subject());
+      component.ngOnChanges({});
+
+      await jest.runAllTimers();
+
+      expect(subject.observed).toBeFalsy();
+    });
+
+    it('should throw if path is not specified', () => {
+      component.checkErrors = 'forQuestion';
+      component.questionIndex = 1;
+
+      expect(() => component.ngOnChanges({})).toThrow();
+    });
   });
 
   it('should set error depending on pushed value', async () => {
@@ -75,10 +174,10 @@ describe('SettingCardTitleComponent', () => {
 
     QuizeeValidators.forCurrentQuestion = forCurrentQuestion;
 
-    component.checkErrors = 'forCurrentQuestion';
+    component.checkErrors = 'forQuestion';
     component.path = 'answer.path';
 
-    component.ngOnInit();
+    component.ngOnChanges({});
     subject.next({});
 
     await jest.runAllTimers();
