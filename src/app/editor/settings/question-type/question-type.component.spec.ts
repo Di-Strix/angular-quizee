@@ -19,43 +19,116 @@ describe('QuestionTypeComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should subscribe to current question', async () => {
-    const getCurrentQuestion = jest.spyOn(service, 'getCurrentQuestion');
-    getCurrentQuestion.mockReturnValue(of());
+  describe('onChanges', () => {
+    it('should subscribe on question with provided index', async () => {
+      const subject = new Subject();
+      jest.spyOn(service, 'getQuestion').mockReturnValue(subject as any);
 
-    component.ngOnInit();
+      component.questionIndex = 1;
+      component.ngOnChanges({});
 
-    await jest.runAllTimers();
+      await jest.runAllTimers();
 
-    expect(getCurrentQuestion).toHaveBeenCalled();
+      expect(subject.observed).toBeTruthy();
+    });
+
+    it('should unsubscribe from previous question', async () => {
+      const subject = new Subject();
+      const getQuestion = jest.spyOn(service, 'getQuestion').mockReturnValue(subject as any);
+
+      component.questionIndex = 1;
+      component.ngOnChanges({});
+
+      await jest.runAllTimers();
+
+      getQuestion.mockReset();
+      getQuestion.mockReturnValue(of());
+
+      component.questionIndex = 2;
+      component.ngOnChanges({});
+
+      await jest.runAllTimers();
+
+      expect(subject.observed).toBeFalsy();
+    });
+
+    it('should subscribe to new question with provided index', async () => {
+      const subject = new Subject();
+      const getQuestion = jest.spyOn(service, 'getQuestion').mockReturnValue(of());
+
+      component.questionIndex = 1;
+      component.ngOnChanges({});
+
+      await jest.runAllTimers();
+
+      getQuestion.mockReset();
+      getQuestion.mockReturnValue(subject as any);
+
+      component.questionIndex = 2;
+      component.ngOnChanges({});
+
+      await jest.runAllTimers();
+
+      expect(subject.observed).toBeTruthy();
+    });
+
+    it('should not subscribe if provided index is negative', async () => {
+      const subject1 = new Subject();
+      const subject2 = new Subject();
+      const getQuestion = jest.spyOn(service, 'getQuestion').mockReturnValue(subject1 as any);
+
+      component.questionIndex = 1;
+      component.ngOnChanges({});
+
+      await jest.runAllTimers();
+
+      getQuestion.mockReset();
+      getQuestion.mockReturnValue(subject2 as any);
+
+      component.questionIndex = -1;
+      component.ngOnChanges({});
+
+      await jest.runAllTimers();
+
+      expect(subject1.observed).toBeFalsy();
+      expect(subject2.observed).toBeFalsy();
+    });
   });
 
   describe('input value change', () => {
-    it('should update quizee on input value change', async () => {
-      const getCurrentQuestion = jest.spyOn(service, 'getCurrentQuestion');
-      getCurrentQuestion.mockReturnValue(of({ question: { type: 'ONE_TRUE' } } as any));
+    it('should update provided question on input value change', async () => {
+      const getQuestion = jest.spyOn(service, 'getQuestion');
+      getQuestion.mockReturnValue(of({ question: { type: 'ONE_TRUE' } } as any));
 
       const setQuestionType = jest.spyOn(service, 'setQuestionType');
 
-      component.ngOnInit();
+      component.questionIndex = 1;
+      component.ngOnChanges({});
+
+      await jest.runAllTimers();
+
       component.questionType.setValue('SEVERAL_TRUE');
 
       await jest.runAllTimers();
 
-      expect(setQuestionType).toHaveBeenCalledTimes(1);
-      expect(setQuestionType).toHaveBeenCalledWith('SEVERAL_TRUE');
+      expect(setQuestionType).toBeCalledTimes(1);
+      expect(setQuestionType).toBeCalledWith(1, 'SEVERAL_TRUE');
     });
   });
 
   describe('question type value change', () => {
     it('should update input value if its value differs', async () => {
       const subject = new Subject();
-      const getCurrentQuestion = jest.spyOn(service, 'getCurrentQuestion');
-      getCurrentQuestion.mockReturnValue(subject as any);
+      const getQuestion = jest.spyOn(service, 'getQuestion');
+      getQuestion.mockReturnValue(subject as any);
 
       const setValue = jest.spyOn(component.questionType, 'setValue');
 
-      component.ngOnInit();
+      component.questionIndex = 1;
+      component.ngOnChanges({});
+
+      await jest.runAllTimers();
+
       subject.next({ question: { type: 'WRITE_ANSWER' } });
 
       await jest.runAllTimers();
@@ -65,18 +138,22 @@ describe('QuestionTypeComponent', () => {
       await jest.runAllTimers();
 
       expect(setValue).toBeCalledTimes(2);
-      expect(setValue.mock.calls[0][0]).toBe('WRITE_ANSWER');
-      expect(setValue.mock.calls[1][0]).toBe('SEVERAL_TRUE');
+      expect(setValue).toHaveBeenNthCalledWith(1, 'WRITE_ANSWER');
+      expect(setValue).toHaveBeenNthCalledWith(2, 'SEVERAL_TRUE');
     });
 
     it('should not update input value if it is the same', async () => {
       const subject = new Subject();
-      const getCurrentQuestion = jest.spyOn(service, 'getCurrentQuestion');
-      getCurrentQuestion.mockReturnValue(subject as any);
+      const getQuestion = jest.spyOn(service, 'getQuestion');
+      getQuestion.mockReturnValue(subject as any);
 
       const setValue = jest.spyOn(component.questionType, 'setValue');
 
-      component.ngOnInit();
+      component.questionIndex = 1;
+      component.ngOnChanges({});
+
+      await jest.runAllTimers();
+
       subject.next({ question: { type: 'WRITE_ANSWER' } });
 
       await jest.runAllTimers();
@@ -84,7 +161,7 @@ describe('QuestionTypeComponent', () => {
       subject.next({ question: { type: 'WRITE_ANSWER' } });
 
       expect(setValue).toBeCalledTimes(1);
-      expect(setValue.mock.calls[0][0]).toBe('WRITE_ANSWER');
+      expect(setValue).toHaveBeenNthCalledWith(1, 'WRITE_ANSWER');
     });
   });
 });
