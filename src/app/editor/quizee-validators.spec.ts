@@ -174,7 +174,9 @@ describe('QuizeeValidatorsDirective', () => {
       const subject = new Subject();
       jest.spyOn(service, 'getCurrentQuestionErrors').mockReturnValue(subject as any);
 
-      (QuizeeValidators.forCurrentQuestion(service, 'answer')(null as any) as Observable<ValidationErrors>).subscribe({
+      (
+        QuizeeValidators.forCurrentQuestion(service, 'answer', true)(null as any) as Observable<ValidationErrors>
+      ).subscribe({
         next,
         error,
       });
@@ -209,7 +211,7 @@ describe('QuizeeValidatorsDirective', () => {
     });
 
     it('should filter errors by path', async () => {
-      let errors: { [K in keyof QuestionPair]: VerificationErrors } = {
+      let errors: { [K in keyof Omit<QuestionPair, 'index'>]: VerificationErrors } = {
         answer: [{ context: { label: '' }, message: '', path: [], type: 'type1' }],
         question: [],
       };
@@ -263,7 +265,7 @@ describe('QuizeeValidatorsDirective', () => {
     });
 
     it('should throw if first part of path is invalid', async () => {
-      let errors: { [K in keyof QuestionPair]: VerificationErrors } = {
+      let errors: { [K in keyof Omit<QuestionPair, 'index'>]: VerificationErrors } = {
         answer: [{ context: { label: '' }, message: '', path: [], type: 'type1' }],
         question: [],
       };
@@ -289,7 +291,7 @@ describe('QuizeeValidatorsDirective', () => {
     });
 
     it('should return null if no errors by path', async () => {
-      const errors: { [K in keyof QuestionPair]: VerificationErrors } = {
+      const errors: { [K in keyof Omit<QuestionPair, 'index'>]: VerificationErrors } = {
         answer: [
           {
             message: '',
@@ -327,7 +329,7 @@ describe('QuizeeValidatorsDirective', () => {
     });
 
     it('should not throw if context is undefined', async () => {
-      const errors: { [K in keyof QuestionPair]: VerificationErrors } = {
+      const errors: { [K in keyof Omit<QuestionPair, 'index'>]: VerificationErrors } = {
         answer: [
           {
             message: '',
@@ -349,6 +351,204 @@ describe('QuizeeValidatorsDirective', () => {
       (
         QuizeeValidators.forCurrentQuestion(service, 'answer.path2')(null as any) as Observable<typeof errors>
       ).subscribe({
+        next,
+        error,
+      });
+
+      subject.next(errors);
+
+      await jest.runAllTimers();
+
+      expect(next).toBeCalledWith(null);
+      expect(error).not.toBeCalled();
+    });
+  });
+
+  describe('forQuestion', () => {
+    it('should call getQuestionErrors with provided index from service', async () => {
+      const getQuestion = jest.spyOn(service, 'getQuestionErrors');
+
+      QuizeeValidators.forQuestion(service, 2, 'question')({} as any);
+
+      await jest.runAllTimers();
+
+      expect(getQuestion).toBeCalledTimes(1);
+      expect(getQuestion).toBeCalledWith(2);
+    });
+
+    it('should take only first value if once = true', async () => {
+      const subject = new Subject();
+      jest.spyOn(service, 'getQuestionErrors').mockReturnValue(subject as any);
+
+      (QuizeeValidators.forQuestion(service, 1, 'answer', true)(null as any) as Observable<ValidationErrors>).subscribe(
+        {
+          next,
+          error,
+        }
+      );
+
+      subject.next({ answer: [], question: [] });
+      subject.next({ answer: [], question: [] });
+
+      await jest.runAllTimers();
+
+      expect(next).toBeCalledTimes(1);
+      expect(error).not.toBeCalled();
+    });
+
+    it('should take all values if once = false', async () => {
+      const subject = new Subject();
+      jest.spyOn(service, 'getQuestionErrors').mockReturnValue(subject as any);
+
+      (
+        QuizeeValidators.forQuestion(service, 2, 'answer', false)(null as any) as Observable<ValidationErrors>
+      ).subscribe({
+        next,
+        error,
+      });
+
+      subject.next({ answer: [], question: [] });
+      subject.next({ answer: [], question: [] });
+
+      await jest.runAllTimers();
+
+      expect(next).toBeCalledTimes(2);
+      expect(error).not.toBeCalled();
+    });
+
+    it('should filter errors by path', async () => {
+      let errors: { [K in keyof Omit<QuestionPair, 'index'>]: VerificationErrors } = {
+        answer: [{ context: { label: '' }, message: '', path: [], type: 'type1' }],
+        question: [],
+      };
+
+      const subject = new Subject();
+      jest.spyOn(service, 'getQuestionErrors').mockReturnValue(subject as any);
+
+      (QuizeeValidators.forQuestion(service, 2, 'answer')(null as any) as Observable<typeof errors>).subscribe({
+        next,
+        error,
+      });
+
+      subject.next(errors);
+
+      await jest.runAllTimers();
+
+      expect(next).toBeCalledWith({ type1: true });
+      expect(error).not.toBeCalled();
+
+      errors = {
+        answer: [],
+        question: [
+          {
+            message: '',
+            path: [],
+            type: 'type1',
+            context: { label: 'path1' },
+          },
+          {
+            message: '',
+            path: [],
+            type: 'type2',
+            context: { label: 'path2' },
+          },
+        ],
+      };
+
+      (QuizeeValidators.forQuestion(service, 2, 'question.path2')(null as any) as Observable<typeof errors>).subscribe({
+        next,
+        error,
+      });
+
+      subject.next(errors);
+
+      await jest.runAllTimers();
+
+      expect(next).toBeCalledWith({ type2: true });
+      expect(error).not.toBeCalled();
+    });
+
+    it('should throw if first part of path is invalid', async () => {
+      let errors: { [K in keyof Omit<QuestionPair, 'index'>]: VerificationErrors } = {
+        answer: [{ context: { label: '' }, message: '', path: [], type: 'type1' }],
+        question: [],
+      };
+
+      const subject = new Subject();
+      jest.spyOn(service, 'getQuestionErrors').mockReturnValue(subject as any);
+
+      (
+        QuizeeValidators.forQuestion(service, 2, 'anotherValue.nestedPath')(null as any) as Observable<typeof errors>
+      ).subscribe({
+        next,
+        error,
+      });
+
+      subject.next(errors);
+
+      await jest.runAllTimers();
+
+      expect(next).not.toBeCalled();
+      expect(error).toBeCalled();
+    });
+
+    it('should return null if no errors by path', async () => {
+      const errors: { [K in keyof Omit<QuestionPair, 'index'>]: VerificationErrors } = {
+        answer: [
+          {
+            message: '',
+            path: [],
+            type: 'type1',
+            context: { label: 'path1' },
+          },
+        ],
+        question: [
+          {
+            message: '',
+            path: [],
+            type: 'type2',
+            context: { label: 'path2' },
+          },
+        ],
+      };
+
+      const subject = new Subject();
+      jest.spyOn(service, 'getQuestionErrors').mockReturnValue(subject as any);
+
+      (QuizeeValidators.forQuestion(service, 2, 'answer.path3')(null as any) as Observable<typeof errors>).subscribe({
+        next,
+        error,
+      });
+
+      subject.next(errors);
+
+      await jest.runAllTimers();
+
+      expect(next).toBeCalledWith(null);
+      expect(error).not.toBeCalled();
+    });
+
+    it('should not throw if context is undefined', async () => {
+      const errors: { [K in keyof Omit<QuestionPair, 'index'>]: VerificationErrors } = {
+        answer: [
+          {
+            message: '',
+            path: [],
+            type: 'type1',
+          },
+        ],
+        question: [
+          {
+            message: '',
+            path: [],
+            type: 'type2',
+          },
+        ],
+      };
+      const subject = new Subject();
+      jest.spyOn(service, 'getQuestionErrors').mockReturnValue(subject as any);
+
+      (QuizeeValidators.forQuestion(service, 2, 'answer.path2')(null as any) as Observable<typeof errors>).subscribe({
         next,
         error,
       });
