@@ -13,6 +13,11 @@ class TestClass {
     return of();
   }
 
+  @AutoDispatchEvent(['dispatcher'])
+  callNested(): Observable<any> {
+    return this.someNestedFunction();
+  }
+
   @RegisterDispatcher()
   dispatcher() {}
 }
@@ -61,12 +66,12 @@ describe('AutoDispatchEvent', () => {
   it('should call dispatcher only once even if nested functions are registered for auto dispatch', () => {
     const dispatcher = jest.spyOn(testClass, 'dispatcher');
     const someNestedFunction = jest.spyOn(testClass, 'someNestedFunction');
-    const someFunction = jest.spyOn(testClass, 'someFunction').mockImplementation(() => testClass.someNestedFunction());
+    const callNested = jest.spyOn(testClass, 'callNested');
 
-    testClass.someFunction();
+    testClass.callNested();
 
     expect(dispatcher).toBeCalledTimes(1);
-    expect(someFunction).toBeCalledTimes(1);
+    expect(callNested).toBeCalledTimes(1);
     expect(someNestedFunction).toBeCalledTimes(1);
   });
 
