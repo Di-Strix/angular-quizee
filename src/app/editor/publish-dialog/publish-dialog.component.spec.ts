@@ -26,7 +26,7 @@ describe('PublishDialogComponent', () => {
     component.stepper = stepper;
 
     quizeeEditingService.getQuizeeErrors.mockReturnValue(new Subject());
-    quizeeEditingService.get.mockReturnValue(new Subject());
+    quizeeEditingService.getQuizee.mockReturnValue(new Subject());
     quizeeService.publishQuizee.mockReturnValue(new Subject());
 
     stepper.selectedIndex = 0;
@@ -65,12 +65,12 @@ describe('PublishDialogComponent', () => {
 
       await jest.runAllTimers();
 
-      expect(quizeeEditingService.get).toBeCalledTimes(1);
+      expect(quizeeEditingService.getQuizee).toBeCalledTimes(1);
     });
 
     it('should switch to the publish step when got quizee', async () => {
       quizeeEditingService.getQuizeeErrors.mockReturnValue(of([]));
-      quizeeEditingService.get.mockReturnValue(of({} as any));
+      quizeeEditingService.getQuizee.mockReturnValue(of({} as any));
 
       component.ngOnInit();
 
@@ -83,7 +83,7 @@ describe('PublishDialogComponent', () => {
       jest.spyOn(console, 'error').mockImplementation(() => {});
 
       quizeeEditingService.getQuizeeErrors.mockReturnValue(of([]));
-      quizeeEditingService.get.mockReturnValue(of({} as any));
+      quizeeEditingService.getQuizee.mockReturnValue(of({} as any));
       quizeeService.publishQuizee.mockReturnValue(throwError(() => new Error('Mock error')));
 
       component.ngOnInit();
@@ -101,7 +101,7 @@ describe('PublishDialogComponent', () => {
       const mockId = 'mockId';
 
       quizeeEditingService.getQuizeeErrors.mockReturnValue(of([]));
-      quizeeEditingService.get.mockReturnValue(of({} as any));
+      quizeeEditingService.getQuizee.mockReturnValue(of({} as any));
       quizeeService.publishQuizee.mockReturnValue(of({ quizId: mockId }));
 
       component.ngOnInit();

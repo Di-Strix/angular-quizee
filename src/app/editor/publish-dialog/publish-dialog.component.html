@@ -57,7 +57,8 @@
       </ng-template>
 
       <div
-        fxLayout="row"
+        fxLayout.gt-sm="row"
+        fxLayout.lt-md="column"
         fxLayoutGap=".5rem"
       >
         <button
