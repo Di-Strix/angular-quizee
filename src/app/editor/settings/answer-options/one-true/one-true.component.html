@@ -1,10 +1,9 @@
 <app-setting-card>
   <app-setting-card-title
     title="Answer options"
-    checkErrors="forCurrentQuestion"
+    checkErrors="forQuestion"
     path="question.answerOptions"
-    checkErrors="forCurrentQuestion"
-    path="question.answerOptions"
+    [questionIndex]="questionIndex"
   >
     <span
       fxFlex
