@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import * as _ from 'lodash';
-import { Subject } from 'rxjs';
+import { Subject, of } from 'rxjs';
 
 import { EditorModule } from '../editor.module';
 import { QuestionPair, QuizeeEditingService } from '../quizee-editing.service';
@@ -25,10 +25,87 @@ describe('SettingsComponent', () => {
     fixture = TestBed.createComponent(SettingsComponent);
     component = fixture.componentInstance;
     service = TestBed.inject(QuizeeEditingService);
+
+    jest.useFakeTimers();
   });
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  describe('onInit', () => {
+    it('should subscribe to current question if questionIndex is not set', async () => {
+      const subject = new Subject();
+      jest.spyOn(service, 'getCurrentQuestion').mockReturnValue(subject as any);
+
+      component.ngOnInit();
+
+      await jest.runAllTimers();
+
+      expect(subject.observed).toBeTruthy();
+    });
+
+    it('should subscribe to specified question if questionIndex is set', async () => {
+      const subject = new Subject();
+      const getQuestion = jest.spyOn(service, 'getQuestion').mockReturnValue(subject as any);
+
+      component.questionIndex = 1;
+      component.ngOnInit();
+
+      await jest.runAllTimers();
+
+      expect(subject.observed).toBeTruthy();
+      expect(getQuestion).toBeCalledWith(1);
+    });
+  });
+
+  describe('onChanges', () => {
+    it('should subscribe to current question if questionIndex is not set', async () => {
+      const subject = new Subject();
+      jest.spyOn(service, 'getCurrentQuestion').mockReturnValue(subject as any);
+
+      component.ngOnChanges({ questionIndex: {} } as any);
+
+      await jest.runAllTimers();
+
+      expect(subject.observed).toBeTruthy();
+    });
+
+    it('should subscribe to specified question if questionIndex is set', async () => {
+      const subject = new Subject();
+      const getQuestion = jest.spyOn(service, 'getQuestion').mockReturnValue(subject as any);
+
+      component.questionIndex = 1;
+      component.ngOnChanges({ questionIndex: {} } as any);
+
+      await jest.runAllTimers();
+
+      expect(subject.observed).toBeTruthy();
+      expect(getQuestion).toBeCalledWith(1);
+    });
+
+    it('should cancel previous subscription', async () => {
+      const subject = new Subject();
+      const getQuestion = jest.spyOn(service, 'getQuestion').mockReturnValue(subject as any);
+
+      component.questionIndex = 1;
+      component.ngOnChanges({ questionIndex: {} } as any);
+
+      await jest.runAllTimers();
+
+      component.questionIndex = -1;
+      component.ngOnChanges({ questionIndex: {} } as any);
+
+      await jest.runAllTimers();
+
+      getQuestion.mockReturnValue(of());
+      component.questionIndex = 2;
+      component.ngOnChanges({ questionIndex: {} } as any);
+
+      await jest.runAllTimers();
+
+      expect(subject.observed).toBeFalsy();
+    });
   });
 
   describe('question update event filtering', () => {
@@ -36,8 +113,6 @@ describe('SettingsComponent', () => {
     let clear: any;
 
     beforeEach(() => {
-      jest.useFakeTimers();
-
       mockQuestionPair = {
         answer: { answer: [], answerTo: 'question id', config: { equalCase: false } },
         question: {
@@ -46,6 +121,7 @@ describe('SettingsComponent', () => {
           id: 'question id',
           type: 'SEVERAL_TRUE',
         },
+        index: 0,
       };
 
       clear = jest.spyOn(component.container.viewContainerRef, 'clear');
