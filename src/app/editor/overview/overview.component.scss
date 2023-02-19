@@ -1,5 +1,9 @@
 @use '@angular/material' as mat;
 
+:host {
+  overflow-y: scroll;
+}
+
 .card {
   margin: 0.5rem;
   aspect-ratio: 16 / 9;

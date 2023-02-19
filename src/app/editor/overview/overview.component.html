@@ -1,29 +1,116 @@
-<mat-card
-  @card
-  *ngFor="let question of (quizeeEditingService.get() | async)?.questions || []; let index = index; trackBy: trackBy"
-  class="card"
-  [class.active]="(quizeeEditingService.getCurrentQuestion() | async)?.question?.id === question.id"
-  (click)="quizeeEditingService.selectQuestion(index)"
+<ng-container [ngTemplateOutlet]="useExpansionPanel ? expansionPanel : card"></ng-container>
+
+<ng-template #card>
+  <mat-card
+    @card
+    class="card"
+    *ngFor="
+      let question of (quizeeEditingService.getQuizee() | async)?.questions || [];
+      let index = index;
+      trackBy: trackBy
+    "
+    (click)="quizeeEditingService.selectQuestion(index)"
+    [class.active]="(quizeeEditingService.getCurrentQuestion() | async)?.question?.id === question.id"
+  >
+    <div class="preview-container">
+      <mat-icon
+        class="preview-icon"
+        color="primary"
+      >
+        <ng-container
+          [ngTemplateOutlet]="questionIconName"
+          [ngTemplateOutletContext]="{ question: question }"
+        ></ng-container>
+      </mat-icon>
+      <h3>
+        <ng-container
+          [ngTemplateOutlet]="previewText"
+          [ngTemplateOutletContext]="{ question: question }"
+        ></ng-container>
+      </h3>
+    </div>
+    <ng-container
+      [ngTemplateOutlet]="errorBadge"
+      [ngTemplateOutletContext]="{ index: index }"
+    ></ng-container>
+  </mat-card>
+</ng-template>
+
+<ng-template
+  #expansionPanel
+  let-index="index"
+  let-question="question"
+  let-active="active"
 >
-  <div class="preview-container">
-    <mat-icon
-      class="preview-icon"
-      color="primary"
+  <mat-accordion>
+    <mat-expansion-panel
+      *ngFor="
+        let question of (quizeeEditingService.getQuizee() | async)?.questions || [];
+        let index = index;
+        trackBy: trackBy
+      "
+      (click)="quizeeEditingService.selectQuestion(index)"
+      [expanded]="(quizeeEditingService.getCurrentQuestion() | async)?.question?.id === question.id"
     >
-      <ng-container [ngSwitch]="question.type">
-        <ng-container *ngSwitchCase="'ONE_TRUE'"> done </ng-container>
-        <ng-container *ngSwitchCase="'SEVERAL_TRUE'"> done_all </ng-container>
-        <ng-container *ngSwitchCase="'WRITE_ANSWER'"> edit </ng-container>
-      </ng-container>
-    </mat-icon>
-    <h3>
-      <ng-container [ngSwitch]="question.type">
-        <ng-container *ngSwitchCase="'ONE_TRUE'"> One True </ng-container>
-        <ng-container *ngSwitchCase="'SEVERAL_TRUE'"> Several True </ng-container>
-        <ng-container *ngSwitchCase="'WRITE_ANSWER'"> Write Answer </ng-container>
-      </ng-container>
-    </h3>
-  </div>
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <mat-icon
+            color="primary"
+            [style.marginRight]="'.5rem'"
+          >
+            <ng-container
+              [ngTemplateOutlet]="questionIconName"
+              [ngTemplateOutletContext]="{ question: question }"
+            ></ng-container
+          ></mat-icon>
+          <span>
+            <ng-container
+              [ngTemplateOutlet]="previewText"
+              [ngTemplateOutletContext]="{ question: question }"
+            ></ng-container>
+          </span>
+          <span style="flex-grow: 1; flex-wrap: 1"> </span>
+          <span style="display: flex; align-items: center">
+            <ng-container
+              [ngTemplateOutlet]="errorBadge"
+              [ngTemplateOutletContext]="{ index: index }"
+            ></ng-container>
+          </span>
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+      <ng-template matExpansionPanelContent>
+        <app-settings [questionIndex]="index"></app-settings>
+      </ng-template>
+    </mat-expansion-panel>
+  </mat-accordion>
+</ng-template>
+
+<ng-template
+  #questionIconName
+  let-question="question"
+>
+  <ng-container [ngSwitch]="question.type">
+    <ng-container *ngSwitchCase="'ONE_TRUE'"> done </ng-container>
+    <ng-container *ngSwitchCase="'SEVERAL_TRUE'"> done_all </ng-container>
+    <ng-container *ngSwitchCase="'WRITE_ANSWER'"> edit </ng-container>
+  </ng-container>
+</ng-template>
+
+<ng-template
+  #previewText
+  let-question="question"
+>
+  <ng-container [ngSwitch]="question.type">
+    <ng-container *ngSwitchCase="'ONE_TRUE'"> One True </ng-container>
+    <ng-container *ngSwitchCase="'SEVERAL_TRUE'"> Several True </ng-container>
+    <ng-container *ngSwitchCase="'WRITE_ANSWER'"> Write Answer </ng-container>
+  </ng-container>
+</ng-template>
+
+<ng-template
+  #errorBadge
+  let-index="index"
+>
   <mat-icon
     color="warn"
     class="error-badge"
@@ -32,5 +119,5 @@
     @errorBadge
     *ngIf="hasError(index)"
     >error</mat-icon
-  >
-</mat-card>
+  ></ng-template
+>
