@@ -1,6 +1,6 @@
 @use '@angular/material' as mat;
 
-$mat-typography: mat.define-typography-config();
+$mat-typography: mat.define-legacy-typography-config();
 
 :host {
   display: flex;

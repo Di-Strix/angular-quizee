@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Functions, httpsCallableData } from '@angular/fire/functions';
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { MatLegacyDialog as MatDialog, MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog';
 import {
   CheckAnswers,
   GetFullQuizee,
