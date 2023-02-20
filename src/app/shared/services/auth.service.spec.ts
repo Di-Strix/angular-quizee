@@ -1,26 +1,24 @@
-import { AngularFireAuth } from '@angular/fire/compat/auth';
+import { Auth, authState, signInWithPopup, signOut, user } from '@angular/fire/auth';
 
 import { Subject, of } from 'rxjs';
 
 import { AuthService } from './auth.service';
 
-jest.mock('@angular/fire/compat/auth');
+jest.mock('@angular/fire/auth');
 jest.mock('firebase/auth');
 
 describe('AuthService', () => {
   let service: AuthService;
-  let auth: AngularFireAuth;
   let next: jest.Mock;
   let error: jest.Mock;
 
   beforeEach(() => {
-    auth = new (AngularFireAuth as any)();
-    service = new AuthService(auth);
+    service = new AuthService({} as Auth);
 
-    (auth as any).user = new Subject();
+    (user as jest.Mock).mockReturnValue(new Subject());
 
-    auth.signInWithPopup = jest.fn().mockReturnValue(Promise.resolve());
-    auth.signOut = jest.fn().mockReturnValue(Promise.resolve());
+    (signInWithPopup as jest.Mock).mockReturnValue(Promise.resolve());
+    (signOut as jest.Mock).mockReturnValue(Promise.resolve());
 
     next = jest.fn();
     error = jest.fn();
@@ -30,7 +28,7 @@ describe('AuthService', () => {
 
   describe('isAuthenticated', () => {
     it('should stream current state', async () => {
-      (auth as any).authState = of({}, null);
+      (authState as jest.Mock).mockReturnValue(of({}, null));
 
       service.isAuthenticated().subscribe({ next, error });
 
@@ -50,12 +48,12 @@ describe('AuthService', () => {
 
       await jest.runAllTimers();
 
-      expect(auth.signInWithPopup).toBeCalledTimes(1);
+      expect(signInWithPopup).toBeCalledTimes(1);
     });
 
     it('should return current user', async () => {
       const user$ = new Subject<any>();
-      (auth as any).user = user$;
+      (user as jest.Mock).mockReturnValue(user$);
 
       service.logIn().subscribe({ next, error });
 
@@ -72,7 +70,7 @@ describe('AuthService', () => {
 
     it('should emit current user only once', async () => {
       const user$ = new Subject<any>();
-      (auth as any).user = user$;
+      (user as jest.Mock).mockReturnValue(user$);
 
       service.logIn().subscribe({ next, error });
 
@@ -97,14 +95,14 @@ describe('AuthService', () => {
       expect(error).not.toBeCalled();
       expect(next).toBeCalledTimes(1);
 
-      expect(auth.signOut).toBeCalledTimes(1);
+      expect(signOut).toBeCalledTimes(1);
     });
   });
 
   describe('getUser', () => {
     it('should stream current user', async () => {
       const user$ = new Subject<any>();
-      (auth as any).user = user$;
+      (user as jest.Mock).mockReturnValue(user$);
 
       service.getUser().subscribe({ next, error });
 

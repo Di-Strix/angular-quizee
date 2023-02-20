@@ -1,4 +1,4 @@
-import { AngularFireFunctions } from '@angular/fire/compat/functions';
+import { Functions, httpsCallableData } from '@angular/fire/functions';
 import { MatDialog } from '@angular/material/dialog';
 
 import { httpsCallable } from 'firebase/functions';
@@ -7,6 +7,7 @@ import { Subject, of } from 'rxjs';
 import { AuthService } from './auth.service';
 import { QuizeeService } from './quizee.service';
 
+jest.mock('@angular/fire/functions');
 jest.mock('firebase/functions');
 jest.mock('@angular/material/dialog');
 jest.mock('./auth.service');
@@ -14,7 +15,7 @@ jest.mock('./auth.service');
 const mockCloudFunction = (expectedFnName: string) => {
   const fn = jest.fn();
 
-  (httpsCallable as jest.Mock).mockImplementation((calledFnName) => (...args: any) => {
+  (httpsCallableData as jest.Mock).mockImplementation((_, calledFnName) => (...args: any) => {
     if (calledFnName === expectedFnName) return fn(...args);
     else throw new Error(`expected ${expectedFnName} to be called, but got ${calledFnName} called`);
   });
@@ -33,7 +34,7 @@ describe('QuizeeService', () => {
     authService = new AuthService({} as any);
     matDialog = new (MatDialog as any)();
 
-    service = new QuizeeService({ httpsCallable } as any as AngularFireFunctions, authService, matDialog);
+    service = new QuizeeService({} as Functions, authService, matDialog);
 
     jest.spyOn(service, 'withAuthGuard' as any).mockImplementation((fn: any) => fn());
 
