@@ -24,7 +24,7 @@
     right: 1rem;
   }
 
-  .mat-card {
+  .mat-mdc-card {
     .img-container {
       user-select: none;
       aspect-ratio: 16 / 9;
@@ -80,7 +80,7 @@
       }
     }
 
-    .mat-card-title {
+    .mat-mdc-card-title {
       text-overflow: ellipsis;
       white-space: nowrap;
       overflow: hidden;
