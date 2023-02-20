@@ -9,7 +9,7 @@ import { QuizeeService } from '../shared/services/quizee.service';
 
 export type PlayerState = 'loadingQuizee' | 'running' | 'checkingResults' | 'gotResults';
 
-export type PlayerAnswer = CheckAnswers.Args[0]['answers'][0];
+export type PlayerAnswer = CheckAnswers.Arg['answers'][0];
 
 @Injectable()
 export class PlayerService {
