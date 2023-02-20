@@ -5,55 +5,67 @@ exports[`AuthDialogComponent should have correct layout 1`] = `
   id="root0"
 >
   <h1
-    class="mat-dialog-title"
+    class="mat-mdc-dialog-title mdc-dialog__title"
     mat-dialog-title=""
   >
     Missing Auth!
   </h1>
   <mat-dialog-content
-    class="mat-dialog-content"
+    class="mat-mdc-dialog-content mdc-dialog__content"
   >
     To perform this action you have to be authorized.
   </mat-dialog-content>
   <mat-dialog-actions
     align="end"
-    class="mat-dialog-actions mat-dialog-actions-align-end"
+    class="mat-mdc-dialog-actions mdc-dialog__actions mat-mdc-dialog-actions-align-end"
   >
     <button
-      class="mat-focus-indicator mat-button mat-button-base"
+      class="mdc-button mat-mdc-button mat-unthemed mat-mdc-button-base"
       mat-button=""
       mat-dialog-close=""
       type="button"
     >
       <span
-        class="mat-button-wrapper"
+        class="mat-mdc-button-persistent-ripple mdc-button__ripple"
+      />
+      <span
+        class="mdc-button__label"
       >
          Cancel 
       </span>
       <span
-        class="mat-ripple mat-button-ripple"
+        class="mat-mdc-focus-indicator"
+      />
+      <span
+        class="mat-ripple mat-mdc-button-ripple"
         matripple=""
       />
       <span
-        class="mat-button-focus-overlay"
+        class="mat-mdc-button-touch-target"
       />
     </button>
     <button
-      class="mat-focus-indicator mat-button mat-button-base mat-primary"
+      class="mdc-button mat-mdc-button mat-primary mat-mdc-button-base"
       color="primary"
       mat-button=""
     >
       <span
-        class="mat-button-wrapper"
+        class="mat-mdc-button-persistent-ripple mdc-button__ripple"
+      />
+      <span
+        class="mdc-button__label"
       >
          Log In 
       </span>
       <span
-        class="mat-ripple mat-button-ripple"
+        class="mat-mdc-focus-indicator"
+      />
+      <span
+        class="mat-ripple mat-mdc-button-ripple"
         matripple=""
       />
       <span
-        class="mat-button-focus-overlay"
+        class="mat-mdc-button-touch-target"
       />
     </button>
   </mat-dialog-actions>
