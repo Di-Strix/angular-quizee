@@ -22,19 +22,22 @@
   class="content-container cards-container"
   @card-reveal
 >
-  <mat-card appearance="outlined" *ngFor="let quizee of quizees">
+  <mat-card *ngFor="let quizee of quizees">
     <div
       class="img-container"
       #imgContainer
     >
       <img
+        mat-card-image
         appClassWhenLoaded="loaded"
         [appApplyClassTo]="imgContainer"
         src="https://picsum.photos/300/150"
       />
     </div>
-    <mat-card-title [title]="quizee.caption">{{ quizee.caption }}</mat-card-title>
-    <mat-card-subtitle>Questions count: {{ quizee.questionsCount }} </mat-card-subtitle>
+    <mat-card-header>
+      <mat-card-title [title]="quizee.caption">{{ quizee.caption }}</mat-card-title>
+      <mat-card-subtitle>Questions count: {{ quizee.questionsCount }} </mat-card-subtitle>
+    </mat-card-header>
     <mat-card-content>
       <button
         mat-button
