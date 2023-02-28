@@ -40,27 +40,31 @@ export abstract class SelectiveAnswersBase {
             pair.question.answerOptions.find(({ id }) => id === controlId)
           );
 
-          const controlObj = this.controls.find(({ id }) => id === key);
+          let controlObj = this.controls.find(({ id }) => id === key);
 
           if (!controlObj) {
             const control = new FormControl<AnswerOption['value']>(value, {
               nonNullable: true,
-              asyncValidators: [
-                QuizeeValidators.forQuestion(
-                  service,
-                  questionIndex,
-                  `question.answerOptions[${pair.question.answerOptions.findIndex(({ id }) => id === key)}].value`
-                ),
-              ],
             });
             control.markAsTouched();
 
-            this.controls.push({ id: key, control });
+            controlObj = { control, id: key };
+            this.controls.push(controlObj);
 
             control.valueChanges.subscribe(() => {
               service.setAnswerOptions(questionIndex, this.assembleAnswerOptions());
             });
           } else if (controlObj.control.value !== value) controlObj.control.setValue(value, { emitEvent: false });
+
+          controlObj?.control.setAsyncValidators([
+            QuizeeValidators.forQuestion(
+              service,
+              questionIndex,
+              `question.answerOptions[${pair.question.answerOptions.findIndex(({ id }) => id === key)}].value`
+            ),
+          ]);
+
+          controlObj?.control.updateValueAndValidity({ emitEvent: false });
 
           this.correctAnswers = pair.answer.answer;
         });

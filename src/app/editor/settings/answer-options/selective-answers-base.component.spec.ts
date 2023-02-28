@@ -1,8 +1,11 @@
 import { AnswerOption } from '@di-strix/quizee-types';
+import { VerificationError } from '@di-strix/quizee-verification-functions';
 
 import * as _ from 'lodash';
 import { Subject, of } from 'rxjs';
 import { QuestionPair, QuizeeEditingService } from 'src/app/editor/quizee-editing.service';
+
+import { QuizeeValidators } from '../../quizee-validators';
 
 import { SelectiveAnswersBase } from './selective-answers-base.component';
 
@@ -88,6 +91,55 @@ describe('SelectiveAnswersBaseComponent', () => {
 
       expect(component.controls.map(({ id }) => id)).toEqual(expect.arrayContaining(ids));
     });
+
+    it('should set async validators for each answer option control', async () => {
+      const forQuestionValidator = jest.spyOn(QuizeeValidators, 'forQuestion');
+      const getQuestion = jest.spyOn(service, 'getQuestion');
+      forQuestionValidator.mockReturnValue(() => of(null));
+      getQuestion.mockReturnValue(
+        of({
+          answer: { answer: [], answerTo: 'question id', config: { equalCase: false } },
+          question: {
+            answerOptions: ['id1', 'id2', 'id3'].map<AnswerOption>((id) => ({ id, value: 'id' })),
+            caption: '',
+            id: 'question id',
+            type: 'SEVERAL_TRUE',
+          },
+          index: 0,
+        } as QuestionPair)
+      );
+
+      component.subscribeToUpdates(service, 0);
+
+      await jest.runAllTimers();
+
+      component.controls.forEach(({ control }) => {
+        expect(control.errors).toBeFalsy();
+      });
+
+      forQuestionValidator.mockReturnValue(() => of([{ message: '', path: [''], type: '' } as VerificationError]));
+      getQuestion.mockReturnValue(
+        of({
+          answer: { answer: [], answerTo: 'question id', config: { equalCase: false } },
+          question: {
+            answerOptions: ['id4', 'id5', 'id6'].map<AnswerOption>((id) => ({ id, value: '' })),
+            caption: '',
+            id: 'question id',
+            type: 'SEVERAL_TRUE',
+          },
+          index: 0,
+        } as QuestionPair)
+      );
+
+      component.subscribeToUpdates(service, 0);
+
+      await jest.runAllTimers();
+
+      component.controls.forEach(({ control }) => {
+        expect(control.errors).toBeTruthy();
+      });
+    });
+
     it('should update provided question on input value change', async () => {
       const ids = ['id1'];
 
@@ -116,6 +168,55 @@ describe('SelectiveAnswersBaseComponent', () => {
       expect(setAnswer).toBeCalledTimes(0);
       expect(setAnswerOptions).toBeCalledTimes(1);
       expect(setAnswerOptions).toBeCalledWith(1, [{ id: 'id1', value: 'id1' }]);
+    });
+
+    it('should update async validators for each answer option control', async () => {
+      let errors = [null, { err: 'err' }, null];
+
+      const subject = new Subject<QuestionPair>();
+      const forQuestionValidator = jest.spyOn(QuizeeValidators, 'forQuestion');
+      const getQuestion = jest.spyOn(service, 'getQuestion');
+      getQuestion.mockReturnValue(subject);
+
+      forQuestionValidator.mockReturnValue(() => of(errors.shift() as any));
+
+      component.subscribeToUpdates(service, 0);
+
+      subject.next({
+        answer: { answer: [], answerTo: 'question id', config: { equalCase: false } },
+        question: {
+          answerOptions: ['id1', 'id2', 'id3'].map<AnswerOption>((id) => ({ id, value: 'id' })),
+          caption: '',
+          id: 'question id',
+          type: 'SEVERAL_TRUE',
+        },
+        index: 0,
+      } as QuestionPair);
+
+      await jest.runAllTimers();
+
+      expect(component.controls[0].control.errors).toBeFalsy();
+      expect(component.controls[1].control.errors).toBeTruthy();
+      expect(component.controls[2].control.errors).toBeFalsy();
+
+      errors = [{ err: 'err' }, null, null];
+
+      subject.next({
+        answer: { answer: [], answerTo: 'question id', config: { equalCase: false } },
+        question: {
+          answerOptions: ['id1', 'id2', 'id4'].map<AnswerOption>((id) => ({ id, value: 'id' })),
+          caption: '',
+          id: 'question id',
+          type: 'SEVERAL_TRUE',
+        },
+        index: 0,
+      } as QuestionPair);
+
+      await jest.runAllTimers();
+
+      expect(component.controls[0].control.errors).toBeTruthy();
+      expect(component.controls[1].control.errors).toBeFalsy();
+      expect(component.controls[2].control.errors).toBeFalsy();
     });
 
     describe('controls management', () => {
