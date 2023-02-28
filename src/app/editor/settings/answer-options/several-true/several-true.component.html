@@ -28,17 +28,19 @@
         style="align-items: center"
         *ngFor="let pair of controls; let index = index; trackBy: trackByControl"
       >
-        <mat-checkbox
-          style="margin-right: 0.5rem"
-          color="primary"
-          matTooltip="Mark as correct"
-          matTooltipShowDelay="500"
-          matTooltipPosition="left"
-          [checked]="correctAnswers.includes(pair.id)"
-          (change)="setAnswer(pair.id)"
-        >
-        </mat-checkbox>
         <mat-form-field fxFlex="100%">
+          <mat-checkbox
+            matPrefix
+            style="margin-right: 0.5rem"
+            color="primary"
+            matTooltip="Mark as correct"
+            matTooltipShowDelay="500"
+            matTooltipPosition="left"
+            [checked]="correctAnswers.includes(pair.id)"
+            (change)="setAnswer(pair.id)"
+          >
+          </mat-checkbox>
+
           <mat-label>Answer option #{{ index }}</mat-label>
           <input
             matInput
@@ -46,15 +48,17 @@
             placeholder="Type here your answer option"
           />
           <mat-error>Answer option shouldn't be empty</mat-error>
+
+          <button
+            matSuffix
+            mat-icon-button
+            color="warn"
+            (click)="removeAnswerOption(pair.id)"
+            [disabled]="controls.length <= 1"
+          >
+            <mat-icon>delete</mat-icon>
+          </button>
         </mat-form-field>
-        <button
-          mat-icon-button
-          color="warn"
-          (click)="removeAnswerOption(pair.id)"
-          [disabled]="controls.length <= 1"
-        >
-          <mat-icon>delete</mat-icon>
-        </button>
       </div>
     </div>
   </app-setting-card-content>
