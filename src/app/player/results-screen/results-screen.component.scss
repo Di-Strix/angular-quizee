@@ -15,11 +15,11 @@ $mat-typography: mat.define-typography-config();
 }
 
 .congratulations {
-  @include mat.typography-level($mat-typography, 'display-2');
+  @include mat.typography-level($mat-typography, 'headline-3');
 }
 
 .subtitle {
-  @include mat.typography-level($mat-typography, 'headline');
+  @include mat.typography-level($mat-typography, 'headline-5');
   text-align: center;
 }
 

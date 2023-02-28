@@ -1,31 +1,30 @@
 import { Injectable } from '@angular/core';
-import { AngularFireAuth } from '@angular/fire/compat/auth';
+import { Auth, GoogleAuthProvider, UserInfo, authState, signInWithPopup, signOut, user } from '@angular/fire/auth';
 
-import { GoogleAuthProvider, UserInfo } from 'firebase/auth';
-import { Observable, first, from, map, switchMap, tap } from 'rxjs';
+import { Observable, first, from, map, switchMap } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
-  constructor(private auth: AngularFireAuth) {}
+  constructor(private auth: Auth) {}
 
   isAuthenticated(): Observable<boolean> {
-    return this.auth.authState.pipe(map((user) => !!user));
+    return authState(this.auth).pipe(map((user) => !!user));
   }
 
   logIn(): Observable<UserInfo | null> {
-    return from(this.auth.signInWithPopup(new GoogleAuthProvider())).pipe(
+    return from(signInWithPopup(this.auth, new GoogleAuthProvider())).pipe(
       switchMap(() => this.getUser()),
       first()
     );
   }
 
   logOut(): Observable<void> {
-    return from(this.auth.signOut());
+    return from(signOut(this.auth));
   }
 
   getUser(): Observable<UserInfo | null> {
-    return this.auth.user;
+    return user(this.auth);
   }
 }

@@ -29,36 +29,36 @@
         style="align-items: center"
         *ngFor="let pair of controls; let index = index; trackBy: trackByControl"
       >
-        <mat-radio-button
-          color="primary"
-          matTooltip="Mark as correct"
-          matTooltipShowDelay="500"
-          matTooltipPosition="left"
-          [value]="pair.id"
-          (change)="setAnswer(pair.id)"
-        >
-        </mat-radio-button>
-        <ng-container>
-          <mat-form-field fxFlex="100%">
-            <mat-label>Answer option #{{ index }}</mat-label>
-            <input
-              matInput
-              [formControl]="pair.control"
-              placeholder="Type here your answer option"
-            />
-            <mat-error *ngIf="pair.control.errors?.['string.empty'] || false"
-              >Answer option shouldn't be empty</mat-error
-            >
-          </mat-form-field>
-        </ng-container>
-        <button
-          mat-icon-button
-          color="warn"
-          (click)="removeAnswerOption(pair.id)"
-          [disabled]="(controls | keyvalue).length <= 1"
-        >
-          <mat-icon>delete</mat-icon>
-        </button>
+        <mat-form-field fxFlex="100%">
+          <mat-radio-button
+            matPrefix
+            color="primary"
+            matTooltip="Mark as correct"
+            matTooltipShowDelay="500"
+            matTooltipPosition="left"
+            [value]="pair.id"
+            (change)="setAnswer(pair.id)"
+          >
+          </mat-radio-button>
+
+          <mat-label>Answer option #{{ index }}</mat-label>
+          <input
+            matInput
+            [formControl]="pair.control"
+            placeholder="Type here your answer option"
+          />
+          <mat-error *ngIf="pair.control.errors?.['string.empty'] || false">Answer option shouldn't be empty</mat-error>
+
+          <button
+            matSuffix
+            mat-icon-button
+            color="warn"
+            (click)="removeAnswerOption(pair.id)"
+            [disabled]="(controls | keyvalue).length <= 1"
+          >
+            <mat-icon>delete</mat-icon>
+          </button>
+        </mat-form-field>
       </div>
     </mat-radio-group>
   </app-setting-card-content>

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { AngularFireFunctions } from '@angular/fire/compat/functions';
+import { Functions, httpsCallableData } from '@angular/fire/functions';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import {
   CheckAnswers,
@@ -15,36 +15,37 @@ import { AuthDialogComponent } from '../components/auth-dialog/auth-dialog.compo
 
 import { AuthService } from './auth.service';
 
-type PromiseToObservable<T> = T extends Promise<infer R> ? Observable<R> : never;
-
 @Injectable({
   providedIn: 'root',
 })
 export class QuizeeService {
-  constructor(
-    private cloudFunctions: AngularFireFunctions,
-    private authService: AuthService,
-    private authDialog: MatDialog
-  ) {}
+  constructor(private cloudFunctions: Functions, private authService: AuthService, private authDialog: MatDialog) {}
 
-  getFullQuizee(...args: GetFullQuizee.Args): PromiseToObservable<GetFullQuizee.ReturnType> {
-    return this.withAuthGuard(() => this.cloudFunctions.httpsCallable('getFullQuizee')(...args));
+  getFullQuizee(arg: GetFullQuizee.Arg): Observable<GetFullQuizee.ReturnType> {
+    return this.withAuthGuard(() =>
+      httpsCallableData<GetFullQuizee.Arg, GetFullQuizee.ReturnType>(this.cloudFunctions, 'getFullQuizee')(arg)
+    );
   }
 
-  getPublicQuizee(...args: GetPublicQuizee.Args): PromiseToObservable<GetPublicQuizee.ReturnType> {
-    return this.cloudFunctions.httpsCallable('getPublicQuizee')(...args);
+  getPublicQuizee(arg: GetPublicQuizee.Arg): Observable<GetPublicQuizee.ReturnType> {
+    return httpsCallableData<GetPublicQuizee.Arg, GetPublicQuizee.ReturnType>(
+      this.cloudFunctions,
+      'getPublicQuizee'
+    )(arg);
   }
 
-  getQuizeeList(): PromiseToObservable<GetQuizeeList.ReturnType> {
-    return this.cloudFunctions.httpsCallable('getQuizeeList')(null);
+  getQuizeeList(arg?: GetQuizeeList.Arg): Observable<GetQuizeeList.ReturnType> {
+    return httpsCallableData<GetQuizeeList.Arg, GetQuizeeList.ReturnType>(this.cloudFunctions, 'getQuizeeList')(arg);
   }
 
-  checkAnswers(...args: CheckAnswers.Args): PromiseToObservable<CheckAnswers.ReturnType> {
-    return this.cloudFunctions.httpsCallable('checkAnswers')(...args);
+  checkAnswers(arg: CheckAnswers.Arg): Observable<CheckAnswers.ReturnType> {
+    return httpsCallableData<CheckAnswers.Arg, CheckAnswers.ReturnType>(this.cloudFunctions, 'checkAnswers')(arg);
   }
 
-  publishQuizee(...args: PublishQuizee.Args): PromiseToObservable<PublishQuizee.ReturnType> {
-    return this.withAuthGuard(() => this.cloudFunctions.httpsCallable('publishQuizee')(...args));
+  publishQuizee(arg: PublishQuizee.Arg): Observable<PublishQuizee.ReturnType> {
+    return this.withAuthGuard(() =>
+      httpsCallableData<PublishQuizee.Arg, PublishQuizee.ReturnType>(this.cloudFunctions, 'publishQuizee')(arg)
+    );
   }
 
   private withAuthGuard<T>(fn: () => Observable<T>): Observable<T> {

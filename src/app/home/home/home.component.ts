@@ -17,7 +17,7 @@ import { LoadingDialogComponent } from '../loading-dialog/loading-dialog.compone
   animations: [
     trigger('card-reveal', [
       transition(':enter', [
-        query('.mat-card:nth-child(-n+15)', [
+        query('.mat-mdc-card:nth-child(-n+15)', [
           style({
             transform: 'translateY(10%)',
             opacity: 0,

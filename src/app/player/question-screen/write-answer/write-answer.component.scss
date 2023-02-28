@@ -24,25 +24,26 @@ $mat-typography: mat.define-typography-config();
   overflow: auto;
 
   .caption {
-    @include mat.typography-level($mat-typography, 'display-2');
+    @include mat.typography-level($mat-typography, 'headline-3');
 
     margin: 0;
     max-width: 100%;
     max-height: 100%;
 
     &.compact {
-      @include mat.typography-level($mat-typography, 'title');
+      @include mat.typography-level($mat-typography, 'headline-6');
     }
   }
 }
 
 .answer-container {
   display: flex;
+  flex-direction: column;
   flex-grow: 1;
   flex-shrink: 1;
   margin: 1rem;
 
-  justify-items: center;
+  align-items: center;
   justify-content: center;
 
   mat-form-field {
