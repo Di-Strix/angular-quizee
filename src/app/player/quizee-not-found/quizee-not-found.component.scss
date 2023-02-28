@@ -11,7 +11,7 @@ $mat-typography: mat.define-typography-config();
 }
 
 .status-code {
-  @include mat.typography-level($mat-typography, 'display-4');
+  @include mat.typography-level($mat-typography, 'headline-1');
   font-weight: bold;
   letter-spacing: 0;
 }
