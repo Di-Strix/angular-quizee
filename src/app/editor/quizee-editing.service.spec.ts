@@ -1938,18 +1938,22 @@ describe('QuizeeEditingService', () => {
       service.createQuizee();
       service.getCurrentQuestion().subscribe({ next, error });
       service.addAnswerOptionForCurrentQuestion();
+      service.addAnswerOptionForCurrentQuestion();
 
       await jest.runAllTimers();
 
-      expect(next).toBeCalledTimes(2);
-      service.setCurrentQuestionAnswerOptions([next.mock.calls[1][0].question.answerOptions[0].id]);
+      expect(next).toBeCalledTimes(3);
+      service.setCurrentQuestionAnswerOptions([
+        next.mock.calls[1][0].question.answerOptions[0].id,
+        next.mock.calls[2][0].question.answerOptions[0].id,
+      ]);
       service.removeAnswerOptionForCurrentQuestion(next.mock.calls[1][0].question.answerOptions[0].id);
 
       await jest.runAllTimers();
 
       expect(error).not.toBeCalled();
-      expect(next).toBeCalledTimes(4);
-      expect(next.mock.calls[3][0].answer.answer).toEqual([]);
+      expect(next).toBeCalledTimes(5);
+      expect(next.mock.calls[3][0].answer.answer).toEqual([next.mock.calls[2][0].question.answerOptions[0].id]);
     });
 
     it('should do nothing if id not found', async () => {
@@ -1963,8 +1967,20 @@ describe('QuizeeEditingService', () => {
       expect(error).not.toBeCalled();
     });
 
-    it('should push quizee', async () => {
+    it('should do nothing if answer option is the last one', async () => {
       service.createQuizee().subscribe({ next, error });
+      service.removeAnswerOptionForCurrentQuestion('123123');
+
+      await jest.runAllTimers();
+
+      expect(next).toBeCalledTimes(1);
+      expect(error).not.toBeCalled();
+    });
+
+    it('should push quizee', async () => {
+      service.createQuizee();
+      service.addAnswerOptionForCurrentQuestion();
+      service.getQuizee().subscribe({ next, error });
       service.removeAnswerOptionForCurrentQuestion(service.quizee?.questions[0].answerOptions[0].id || '');
 
       await jest.runAllTimers();
@@ -1974,7 +1990,9 @@ describe('QuizeeEditingService', () => {
     });
 
     it('should not push quizee if it is the same', async () => {
-      service.createQuizee().subscribe({ next, error });
+      service.createQuizee();
+      service.addAnswerOptionForCurrentQuestion();
+      service.getQuizee().subscribe({ next, error });
 
       const id = service.quizee?.questions[0].answerOptions[0]?.id || '';
       service.removeAnswerOptionForCurrentQuestion(id);
@@ -2032,6 +2050,7 @@ describe('QuizeeEditingService', () => {
     it('should remove answer with provided id for specified question', async () => {
       service.createQuizee();
       service.createQuestion();
+      service.addAnswerOption(0);
       service.getQuizee().subscribe({ next, error });
 
       await jest.runAllTimers();
@@ -2057,8 +2076,20 @@ describe('QuizeeEditingService', () => {
       expect(error).not.toBeCalled();
     });
 
-    it('should push quizee', async () => {
+    it('should do nothing if answer option is the last one', async () => {
       service.createQuizee().subscribe({ next, error });
+      service.removeAnswerOption(0, '123123');
+
+      await jest.runAllTimers();
+
+      expect(next).toBeCalledTimes(1);
+      expect(error).not.toBeCalled();
+    });
+
+    it('should push quizee', async () => {
+      service.createQuizee();
+      service.addAnswerOption(0);
+      service.getQuizee().subscribe({ next, error });
       service.removeAnswerOption(0, next.mock.calls[0][0].questions[0].answerOptions[0].id);
 
       await jest.runAllTimers();
@@ -2068,7 +2099,9 @@ describe('QuizeeEditingService', () => {
     });
 
     it('should not push quizee if it is the same', async () => {
-      service.createQuizee().subscribe({ next, error });
+      service.createQuizee();
+      service.addAnswerOption(0);
+      service.getQuizee().subscribe({ next, error });
 
       service.removeAnswerOption(0, next.mock.calls[0][0].questions[0].answerOptions[0].id);
       service.removeAnswerOption(0, next.mock.calls[0][0].questions[0].answerOptions[0].id);
@@ -2085,6 +2118,8 @@ describe('QuizeeEditingService', () => {
 
       service.createQuizee();
       service.createQuestion();
+      service.addAnswerOption(0);
+      service.addAnswerOption(1);
       service.getQuestion(0).subscribe({ next, error });
       service.getQuestion(1).subscribe({ next: next1, error: error1 });
 
@@ -2101,6 +2136,8 @@ describe('QuizeeEditingService', () => {
 
     it('should not push specified question if it is the same', async () => {
       service.createQuizee();
+      service.addAnswerOption(0);
+      service.addAnswerOption(0);
       service.getQuestion(0).subscribe({ next, error });
 
       service.removeAnswerOption(0, next.mock.calls[0][0].question.answerOptions[0].id);

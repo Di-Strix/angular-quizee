@@ -261,6 +261,9 @@ export class QuizeeEditingService {
 
     const pair = this._getQuestion(index);
 
+    if (pair.question.answerOptions.length <= 1)
+      throw new Error('Cannot remove the last answer option for question ' + index);
+
     this.setAnswerOptions(
       index,
       pair.question.answerOptions.filter((v) => v.id !== id)
