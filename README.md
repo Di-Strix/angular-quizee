@@ -5,7 +5,7 @@
 
 # An Andrew Ushakov's pet project
 
-## You can check it out on [quizee.ushakov.dev](https://quizee.ushakov.dev)
+## You can check it out on [angular-quizee.web.app](https://angular-quizee.web.app)
 
 ### What is used:
 
